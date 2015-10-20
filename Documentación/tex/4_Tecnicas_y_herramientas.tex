@@ -1,0 +1,175 @@
+\capitulo{4}{Técnicas y herramientas}
+
+%Esta parte de la memoria tiene como objetivo presentar las técnicas metodológicas y las herramientas de desarrollo que se han utilizado para llevar a cabo el proyecto. Si se han estudiado diferentes alternativas de metodologías, herramientas, bibliotecas se puede hacer un resumen de los aspectos más destacados de cada alternativa, incluyendo comparativas entre las distintas opciones y una justificación de las elecciones realizadas. 
+%No se pretende que este apartado se convierta en un capítulo de un libro dedicado a cada una de las alternativas, sino comentar los aspectos más destacados de cada opción, con un repaso somero a los fundamentos esenciales y referencias bibliográficas para que el lector pueda ampliar su conocimiento sobre el tema.
+
+\section{Técnicas}
+\subsection{Scrum}
+Scrum es una metodología ágil de desarrollo iterativo e incremental para la gestión del desarrollo de un producto. \cite{wikiScrum} 
+
+Como parte de la metodología, el trabajo se ha dividido en \textit{springs}, intervalos de tiempo de pocas semanas que ofrecen un producto al final de los mismos, que a su vez se han dividido en hitos y estos en tareas.
+
+En lo que se refiere a su aplicación práctica dentro del proyecto, los \textit{springs} han tenido una duración aproximada de dos semanas, periodo tras el cual había una reunión entre alumno y tutores para hablar sobre el avance y problemas ocurridos a lo largo del \textit{spring}, así como para definir el avance del proyecto durante el próximo periodo de tiempo.
+
+Para la gestión de los hitos y tareas nos hemos apoyado en el gestor de incidencias que la plataforma Bitbucket(ver \nameref{DefBitbucket}) proporciona en el repositorio del proyecto. De esta manera, cada incidencia marcada con la etiqueta \textit{task} corresponde con una tarea a realizar, mientras que todas ellas están agrupadas en hitos, llamados \textit{milestones} en la plataforma.
+
+\section{Herramientas}
+
+\subsection{Apache Spark}\label{sec:DefSpark}
+
+Apache Spark es un motor de interés general destinado al procesamiento distribuido de grandes conjuntos de datos. Está implementado en Scala, pero también proporciona APIs para otros lenguajes de programación(Java, Python y R) y otro tipo de herramientas para áreas como el aprendizaje automático (ver la sección \nameref{MLib}) \cite{SparkDoc}
+
+La idea nació como proyecto en 2010, en la Universidad de California, Berkeley, y su primera versión estable apareció el 30 de mayo de 2014. La motivación inicial era la de proporcionar un nuevo modelo de computación paralela que permitiera la ejecución eficiente de modelos que debían utilizar durante múltiples iteraciones grandes conjuntos de datos. Aproximaciones anteriores basadas en el modelo de MapReduce (como Hadoop), requerían cargar de nuevo todos los datos en memoria, haciendo la tarea demasiado costosa\cite{SparkPaper}. Como beneficio adicional, Spark ha demostrado que requiere de muchas menos líneas de código a la hora de programar algoritmos destinados al manejo de \textit{Big Data}.
+
+
+Actualmente Spark es un proyecto de código abierto cedido a Apache, siendo uno de los más activos en cuanto a contribuciones de la comunidad. \cite{ApacheContributions}
+
+Para la realización del proyecto utilizaremos la versión de Spark 1.5.0
+
+\subsubsection{Machine Learning Library (MLlib)}\label{MLib}
+
+Se trata de una de las librerías incluidas en Spark. Contiene un conjunto de algoritmos de aprendizaje automático y algunas herramientas para ayudar en las labores de minería de datos, como tipos de datos o herramientas estadísticas.  
+
+\subsection{Apache Hadoop}
+Es un framework escrito en Java destinado a el procesamiento distribuido de datos, tal y como hemos definido a Spark en la sección  \nameref{sec:DefSpark}. Al igual que Apache Spark, se trata de un proyecto de código abierto. \cite{HadoopPage}
+
+Nació en 2006 de la mano de Yahoo!, quien más tarde lo cedería a Apache, como un proyecto que aplicase el modelo de programación de MapReduce que cuatro años atrás había definido Google. \cite{DatabricksSlides} Esta es la principal diferencia con Spark, quien ha dejado atrás el modelo anteriormente citado y ha seguido un nuevo camino gracias a las estructuras RDD.
+
+Aunque Hadoop no ha sido utilizado directamente, se ha requerido de su instalación para el correcto funcionamiento de Spark. Aunque teóricamente ambos sistemas son independientes, existen en Spark algunas referencias a clases de Hadoop que pueden dar lugar a errores en el desarrollo de no encontrarse, razón por la que se ha decidido instalar.
+
+La versión instalada es Hadoop 2.6.0
+
+\subsection{Elección del lenguaje de programación} \label{EleccionLenguaje}
+
+Spark es un sistema que proporciona soporte a diferentes lenguajes de programación: Java, Scala, Python y, recientemente, R \cite{SparkDoc}. Eliminando este último como posible elección, por el desconocimiento del lenguaje y la poca documentación que hay sobre su uso con Spark, vamos a realizar una comparativa entre las opciones restantes que podrían seleccionarse para llevar a cabo el proyecto. Los aspectos a tener en cuenta durante esta comparación serán: \\
+
+\begin{itemize}
+	\item \textbf{Experiencia previa:} Se tendrá en cuenta el contacto que se haya tenido con los lenguajes anteriormente.
+	\item \textbf{Eficiencia de ejecución:} Valoraremos el rendimiento de cada lenguaje en función del tiempo que requieren para la ejecución de programas. 
+	\item \textbf{Facilidad de mantenimiento:}  Las ventajas y facilidades del lenguaje en el caso de que se requiriese corregir o mantener un algoritmo o aplicación. 
+	\item \textbf{Adecuación:} Beneficios aportados por el lenguaje para su uso concreto en el desarrollo de algoritmos para Spark.
+
+
+	\item \textbf{Documentación disponible:} Facilidad para encontrar información actualizada sobre el uso del lenguaje en Spark.
+	
+\end{itemize}
+
+Nótese que la tabla siguiente (\ref{tabla:ComparativaJavaScalaPython}) es una comparativa entre las características de los diferentes lenguajes para su uso en Spark, no una comparativa entre las características propias de cada uno. Por lo tanto, aspectos que no tengan influencia en Spark o aquellos que sean iguales para todos los lenguajes, como, por ejemplo, la portabilidad, no serán incluidos en la comparativa. Así mismo, si dos lenguajes compartiesen una característica muy parecida o idéntica, esta será incluida una sola vez en la comparativa, fusionando las dos celdas que correspondan de la tabla \ref{tabla:ComparativaJavaScalaPython}.
+
+\tablaSmall{Comparativa entre características de Java, Scala y Python para trabajar sobre Spark}{m{2.35cm} m{3.5cm} m{3.5cm} m{3.5cm}}{ComparativaJavaScalaPython}
+{\centering Criterio & \centering Java & \centering Scala  & \multicolumn{1}{c}{Python} \\}{
+
+\centering Experiencia previa & Se ha trabajado en Java múltiples veces durante el grado. & Es un lenguaje sobre el que nunca se ha trabajado. & Se han aprendido las nociones básicas durante la carrera. \\ [0.2cm]
+
+
+\centering Eficiencia de ejecución & \multicolumn{2}{m{7.45cm}}{Compila los ficheros generando archivos .class y los ejecuta sobre una máquina virtual de Java(JVM). Esto conlleva que la ejecución sea considerablemente más rápida que la del intérprete de Python.} & Es un lenguaje interpretado, lo que afecta negativamente a su rendimiento. Sin embargo, su rendimiento en comparación con Scala mejora considerablemente si contamos con muchos procesadores.\cite{PythonVsScala}  \\ [0.2cm]
+
+
+\centering Facilidad de mantenimiento & Código más extenso, aunque la aparición Java 8, con elementos como las funciones lambda, han mejorado este aspecto. & \multicolumn{2}{m{7.45cm}}{Menos líneas de código tratarse de lenguajes de alto nivel.} \\ [0.2cm]
+
+\centering Adecuación & Trabajar sobre Java nos obliga, a la hora de programar, a transformar estructuras y clases de Spark solo soportadas al trabajar en Scala o Python. Además, no cuenta con un intérprete interactivo. & \multicolumn{2}{m{7.45cm}}{Spark está pensado para trabajar sobre Scala o Python. De hecho, Spark ha sido creado en Scala, por lo que su conocimiento puede ayudar a lo largo del proyecto. Ambos lenguajes cuentan con un intérprete interactivo. } \\ [0.2cm]
+
+\centering Documentación disponible & Existe buena documentación en la página oficial de Spark, aunque es más escasa en otras fuentes. Además, muchas veces la documentación no trabaja sobre Java 8. & \multicolumn{2}{m{7.45cm}}{Existe una amplia documentación sobre el uso de ambos lenguajes en Spark.} \\ [0.2cm]
+} 
+
+\newpage
+
+
+La elección final del lenguaje a utilizar será Scala, argumentando lo siguiente sobre los puntos que hemos comparado:
+
+\begin{itemize}
+	\item \textbf{Sobre la experiencia previa:} No se considera un problema aprender el lenguaje. Además, los archivos generados tras la compilación y, por consiguiente, la manera de ejecutarlos o monitorizar su rendimiento, es similar a Java, un lenguaje ya conocido.
+	\item \textbf{Sobre la eficiencia de ejecución:} El rendimiento, en lo que a tiempo de ejecución se refiere, es muy similar a Java, por lo que se considera una ventaja frente Python.
+	\item \textbf{Sobre la facilidad de mantenimiento:} En el momento de la elección del lenguaje no contamos con experiencia en el mantenimiento de un gran código de minería de datos, pero parece lógico que a menos cantidad de líneas que mantener, más fácil puede resultar la tarea.	
+	\item \textbf{Sobre la adecuación:} Tras probar Java y Scala con Spark se ha llegado a la conclusión de que el primero implica no solo más código, como era de esperar, sino también operaciones de conversión de estructuras que funcionan en Scala o Python pero son diferentes para Java. Además, frente a Java, Scala cuenta con un intérprete de comandos que nos permite hacer pruebas sin la necesidad de tener que generar y compilar el código cada vez que queramos probar algo.
+	\item \textbf{Sobre la documentación disponible:} Scala cuenta, al igual que Python, con una extensa documentación actualizada. Al realizar pruebas con Java en Spark se ha notado un pequeño problema de falta de documentación, pero sobretodo, un problema para encontrar documentación actualizada para aspectos nuevos de Java 8 y que serán frecuentemente usados, concretamente las funciones lambda.
+\end{itemize}
+
+
+\subsubsection{Scala}
+Scala es un lenguaje de programación orientado a objetos y a la programación funcional y fuertemente tipado.
+
+Es un lenguaje compilado, produciendo como salida ficheros .class que han de ser ejecutados en una máquina virtual de Java(JVM). Esto permite que librerías de Java puedan ser utilizadas directamente en Scala y viceversa. Por la misma razón, Scala posee la misma portabilidad que Java, pudiendo ejecutarse en cualquier sistema operativo siempre y cuando cuente con una máquina virtual de Java. 
+
+Los motivos de su elección como lenguaje de programación han sido mencionados anteriormente en la sección \nameref{EleccionLenguaje}
+
+Se ha usado Scala en su versión 2.11.7
+
+\subsubsection{Java}
+
+Java es un lenguaje de programación orientado a objetos de propósito general diseñado para producir programas multiplataforma.
+
+Necesitamos realizar la instalación de Java porque, aunque no trabajemos directamente sobre este lenguaje, si vamos a necesitar de su máquina virtual para poder ejecutar nuestros programas.
+
+%===================================
+%USAREMOS LA HERRAMIENTA PARA VER RENDIMIENTO
+%===================================
+
+Hemos usado Java 8 u60 para la realización del proyecto.
+
+\subsection{Bitbucket}\label{DefBitbucket}
+Es un repositorio de código que permite la creación, control y mantenimiento de proyectos, que podrán ser públicos o privados. Aunque Bitbucket ofrece la posibilidad de usarlo gratuitamente, también cuenta con otras posibilidades que solo se encontrarán disponibles en su versión de pago, como poseer un proyecto con un número ilimitado de colaboradores.
+
+Puede trabajar con los sistemas de control de versiones Git y Mercurial.
+
+Bitbucket fue propuesto como gestor del proyecto durante el primer \textit{spring} del proyecto y, al no tener preferencia por ningún otro repositorio, se aceptó como herramienta a utilizar.
+
+\subsubsection{Git}
+
+Git es un sistema de control de versiones gratuito y de código abierto.
+
+La elección de Git vino motivada por ser un sistema que ya había sido utilizado antes a lo largo de la carrera, por lo que no ha sido necesario aprender su funcionamiento.
+
+Se ha utilizado la versión 2.6.2
+
+
+\subsection{Eclipse}
+Eclipse es un entorno de desarrollo integrado (IDE de sus siglas en inglés) gratuito y de código abierto. Aunque su principal uso se basa en el desarrollo de aplicaciones en Java, también puede ser adaptado mediante el uso de plugins para ser utilizado en el desarrollo de otros lenguajes.
+
+Como muchos otros entornos de desarrollo, posee como herramienta principal un editor de texto que en el caso de Eclipse cuenta con diferentes funcionalidades que pretenden apoyar al programador, poniendo como ejemplo el resaltado de texto, el autocompletado o la notificación y posibles soluciones de errores.
+
+Un dato importante de este entorno de desarrollo es que está puramente basado en plugins, esto es, a excepción de un pequeño kernel, cualquier otra funcionalidad está incluida como un plugin, lo que le proporciona una gran facilidad para ser escalado o adaptado a las necesidades del usuario concreto.
+
+Hemos trabajado sobre Eclipse 4.4.2
+
+\subsection{ScalaIDE for Eclipse}
+
+Se trata de un plugin que puede añadirse al entorno de desarrollo Eclipse para poder desarrollar en Scala desde Eclipse.
+Este plugin consigue imitar la mayoría de los aspectos que Eclipse proporciona para Java para permitir un desarrollo más cómodo, esto es, el autocompletado de código, resaltado de texto, definiciones e hipervínculos a clases, marcadores de errores y opción \textit{debug}
+
+La versión utilizada de este plugin es la 4.2.0
+
+
+\subsection{Weka}\label{sec:DefWeka}
+Weka es un software desarrollado para llevar a cabo labores de minería de datos. Se trata de un proyecto de software libre, realizado en Java y desarrollado por la Universidad de Waikato, Nueva Zelanda.
+
+Contiene, no solo algoritmos de aprendizaje automático para la minería de datos, sino también algoritmos de pre procesamiento de los datos o de visualización.
+
+Al contrario que otras tecnologías que vamos a usar, esta librería no está pensada para la ejecución en paralelo, lo que la convierte en una buena herramienta para comparar el rendimiento que aplicaciones como Spark(vease \nameref{DefSpark}) pueden ofrecernos.
+
+Se ha usado en su versión 3.6.13
+
+
+%Si lo queremos citar algo dicen que lo hagamos tal que  
+%Mark Hall, Eibe Frank, Geoffrey Holmes, Bernhard Pfahringer, Peter Reutemann, Ian H. Witten (2009); The WEKA Data Mining Software: An Update; SIGKDD Explorations, Volume 11, Issue 1. 
+
+
+
+
+
+
+
+%===============================
+% A INCLUIR
+%===============================
+\begin{comment}
+\subsection{Maven o sbt}
+
+%Para la memoria
+%\subsection{Zotero, Tex Live y TexMaker}
+%\subsection{ProjectLibre}
+
+\subsection{}
+
+
+\end{comment}
