@@ -16,8 +16,9 @@ import org.apache.spark.SparkConf
 object joiningExercise {
 
   def main(args: Array[String]) {
-    val conf = new SparkConf().setAppName("Simple Application")
-    val sc = new SparkContext(conf)
+
+    val sc = new SparkContext(new SparkConf())
+
     val readme = sc.textFile("./resources/README.md")
     val readme_wc = readme.flatMap(l => l.split(" ")).filter(_ == "Spark").map(word => (word, 1)).reduceByKey(_ + _)
 
