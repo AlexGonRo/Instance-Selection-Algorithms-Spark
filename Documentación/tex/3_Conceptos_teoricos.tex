@@ -4,9 +4,9 @@
 
 \section{Minería de datos}
 
-Es el proceso mediante el cual podemos extraer conocimiento de un conjunto de datos que, sin ser tratados o analizados previamente, no nos proporcionan información útil. \cite{DataMiningConcepts} \\
+Es el proceso mediante el cual podemos extraer conocimiento de un conjunto de datos que, sin ser tratados o analizados previamente, no nos proporcionan información útil \cite{DataMiningConcepts}. \\
 
-Se trata de un término que a menudo puede generar confusión con el de KDD (Knowledge Discovery from Data), siendo en ocasiones tratado como un mero sinónimo de este término (que apareció antes que el de minería de datos) y en otras siendo descrito como un mero proceso dentro del descubrimiento de información, encargado de obtener conocimiento mediante la aplicación de algoritmos sobre datos recibidos. \cite{DataMiningConcepts}
+Se trata de un término que a menudo puede generar confusión con el de KDD (Knowledge Discovery from Data), siendo en ocasiones tratado como un mero sinónimo de este término (que apareció antes que el de minería de datos) y en otras siendo descrito como un mero proceso dentro del descubrimiento de información, encargado de obtener conocimiento mediante la aplicación de algoritmos sobre datos recibidos \cite{DataMiningConcepts}. 
 
 KDD puede ser definido como una serie de pasos cuyo objetivo final es la extracción de información de un gran conjunto de datos \cite{DataMiningConcepts}. Podemos agrupar dichos pasos en tres grandes fases: obtención y pre procesamiento de la información, aplicación de algoritmos de minería de datos y análisis y presentación de los resultados.
 
@@ -15,26 +15,28 @@ A lo largo de esta memoria trataremos a la minería de datos como sinónimo de K
 
 \section{Algoritmos de selección de instancias}\label{sec:DefAlgSel}
 
-El objetivo de estos algoritmos es solucionar dos problemas que afectan a la minería de datos: la cantidad cada vez mayor de datos, y su calidad. Podremos, por lo tanto,  definirlos como una herramienta para extraer, de un conjunto de instancias, aquellas que conocemos, o sospechamos, son superfluas o perjudiciales.\cite{IntroInstanceSelect}
+El objetivo de estos algoritmos es solucionar dos problemas que afectan a la minería de datos: la cantidad cada vez mayor de datos, y su calidad. Podremos, por lo tanto,  definirlos como una herramienta para extraer, de un conjunto de instancias, aquellas que conocemos, o sospechamos, son superfluas o perjudiciales \cite{IntroInstanceSelect}.
 
-Eliminando un conjunto de instancias durante la fase de pre procesamiento de los datos conseguimos que el tiempo de algoritmos posteriores se reduzca, dado que hay menos instancias a examinar, mientras que es posible mejorar los resultados obtenidos al finalizar el proceso de minería. \cite{IntroInstanceSelect}
+Eliminando una porción del conjunto de instancias durante la fase de pre procesamiento de los datos conseguimos que el tiempo de ejecución algoritmos posteriores se reduzca, dado que hay menos instancias a examinar, mientras que es posible mejorar los resultados obtenidos al finalizar el proceso de minería \cite{IntroInstanceSelect}.
 
 
-\subsection{Resilient Distributed Datasets (RDD)}
+\subsection{Resilient Distributed Datasets (RDD)}\label{sec:DefRDD}
 
-Se trata de una de las características esenciales de Spark (es recomendable leer primero la sección sobre \nameref{sec:DefSpark}) y consiste en una colección de objetos, accesible en modo solo lectura, que se encuentra particionada a lo largo de un conjunto de máquinas que pueden reconstruir una de sus particiones si esta llegase a perderse. \cite{SparkPaper}
+Se trata de una de las características esenciales de Spark (es recomendable leer primero la sección sobre \nameref{sec:DefSpark}) y consiste en una colección de objetos, accesible en modo solo lectura, distribuida a lo largo de un conjunto de máquinas que pueden reconstruir una de sus particiones si esta llegase a perderse. \cite{SparkPaper}
+
+\todo{La corrección era erronea: "\textbf{An RDD is a read-only collection of objects} partitioned across a set of machines...". Pero...¿los objetos serán también solo lectura? Asegurarse}
 
 Estas estructuras soportan dos tipos de operaciones:
 
 \begin{itemize}
-	\item \textbf{Transformaciones:} Actúan sobre una estructura RDD produciendo como salida una nueva RDD resultado de una modificación de la anterior. Por defecto, todas las transformaciones sobre una RDD son vagas (\textit{lazy}), lo que quiere decir que no se ejecutarán hasta que una acción solicite un valor concreto que requiera de la transformación. \cite{SparkPaper}
+	\item \textbf{Transformaciones:} Actúan sobre una estructura RDD produciendo como salida una nueva RDD resultado de una modificación de la anterior. Por defecto, todas las transformaciones sobre una RDD son perezosas (\textit{lazy}), lo que quiere decir que no se ejecutarán hasta que una acción solicite un valor concreto que requiera de la transformación. \cite{SparkPaper}
 	\item \textbf{Acciones:} Operaciones sobre las RDD que devuelven un resultado que depende del tipo de acción aplicada.
 \end{itemize}
 
-Otra de las grandes diferencias que caracterizan a las RDD de otro tipo de estructuras es la posibilidad de definir fácilmente el nivel de memoria en el que queremos alojar los datos, algo de lo que muchos frameworks anteriores carecían \cite{RDDPaper}. Es un principio todas las RDD son efímeras, esto es, serán eliminadas de memoria si no se indica lo contrario, pero pueden mantenerse para obtener muchos mejores resultados de rendimiento si los datos van a usarse con relativa frecuencia.
+Otra de las grandes diferencias que caracterizan a las RDD de otro tipo de estructuras es la posibilidad de definir fácilmente el nivel de memoria en el que queremos alojar los datos, algo de lo que muchos frameworks anteriores carecían \cite{RDDPaper}. En un principio todas las RDD son efímeras, esto es, serán eliminadas de memoria si no se indica lo contrario, pero pueden mantenerse para obtener mejores resultados de rendimiento si los datos van a usarse repetidamente con relativa frecuencia. A esta acción de mantener en memoria una RDD se le llama cachear (caching).
 
 
-
+\todo{Posibles secciones a explicar: Map Reduce o Big Data}
 
 
 %=================================================================

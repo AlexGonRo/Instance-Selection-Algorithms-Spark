@@ -26,6 +26,24 @@
 % Párrafos
 \nonzeroparskip
 
+%Código
+
+\usepackage{listings}
+
+%Anotaciones TODO
+
+\usepackage[disable]{todonotes}
+
+%Para el apaisado
+
+\usepackage{lscape}
+
+%Para el posicionamiento correcto de las tablas
+\usepackage{float}
+\restylefloat{table}
+
+%Para las notas a pie de página dentro de tablas
+\usepackage{tablefootnote}
 
 % Imagenes
 \usepackage{graphicx}
@@ -91,7 +109,7 @@
 %
 % Nuevo comando para tablas pequeñas (menos de una página).
 \newcommand{\tablaSmall}[5]{%
- \begin{table}
+ \begin{table}[H]
   \begin{center}
    \rowcolors {2}{gray!35}{}
    \begin{tabular}{#2}
@@ -272,21 +290,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \graphicspath{ {./img/} }
 
 % Capítulos
@@ -379,6 +382,8 @@
 
 \noindent D. nombre tutor, profesor del departamento de nombre departamento, área de nombre área.
 
+\todo{Falta tutor,departamento y área}
+
 \noindent Expone:
 
 \noindent Que el alumno D. Alejandro González Rogel, con DNI 71311632-V, ha realizado el Trabajo final de Grado en Ingeniería Informática titulado Paralelización de algoritmos de selección de instancias con la arquitectura Spark . 
@@ -427,6 +432,7 @@ D. nombre co-tutor
 \renewcommand*\abstractname{Resumen}
 \begin{abstract}
 En este primer apartado se hace una \textbf{breve} presentación del tema que se aborda en el proyecto.
+\todo{Falta completar el abstract.}
 \end{abstract}
 
 \renewcommand*\abstractname{Descriptores}
@@ -461,6 +467,11 @@ keywords separated by commas.
 \listoftables
 
 \clearpage
+
+\listoftodos
+
+\clearpage
+
 
 \mainmatter
 \include{./tex/1_Introduccion}
