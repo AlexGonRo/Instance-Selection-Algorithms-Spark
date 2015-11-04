@@ -27,8 +27,9 @@
 \nonzeroparskip
 
 %Código
-
 \usepackage{listings}
+\renewcommand{\lstlistingname}{Código}% Listing -> Algorithm
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of Algorithms
 
 %Anotaciones TODO
 
@@ -44,6 +45,12 @@
 
 %Para las notas a pie de página dentro de tablas
 \usepackage{tablefootnote}
+
+%Para el pseudocódigo
+
+\usepackage[linesnumbered,ruled,vlined,spanish]{algorithm2e}
+\usepackage{amssymb}
+
 
 % Imagenes
 \usepackage{graphicx}
@@ -472,8 +479,10 @@ keywords separated by commas.
 
 \clearpage
 
+\todo{No estoy muy seguro de si las referencias cruzadas deberíamos cambiarlas a números o no, da una sensación bastante mala cuando hay dos referencias juntas.}
 
 \mainmatter
+
 \include{./tex/1_Introduccion}
 \include{./tex/2_Objetivos_del_proyecto}
 \include{./tex/3_Conceptos_teoricos}

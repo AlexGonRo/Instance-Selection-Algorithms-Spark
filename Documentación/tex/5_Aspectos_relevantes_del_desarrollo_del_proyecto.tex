@@ -9,35 +9,35 @@
 
 \section{Elección del lenguaje de programación}\label{EleccionLenguaje}
 
-Spark es un sistema que proporciona soporte a diferentes lenguajes de programación: Java, Scala, Python y, recientemente, R \cite{SparkDoc}. Eliminando este último como posible elección, por el desconocimiento del lenguaje y la poca documentación que hay sobre su uso con Spark, se ha realizado una comparativa entre las opciones restantes que podrían seleccionarse para llevar a cabo el proyecto. Los aspectos a tener en cuenta durante esta comparación han sido: \\
+Spark es un sistema que proporciona soporte a diferentes lenguajes de programación: Java, Scala, Python y, recientemente, R~\cite{SparkDoc}. Eliminando este último como posible elección, por el desconocimiento del lenguaje y la poca documentación que hay sobre su uso con Spark, se ha realizado una comparativa entre las opciones restantes que podrían seleccionarse para llevar a cabo el proyecto.
+
+Para elegir los aspectos a tener en cuenta durante esta comparación me he basado en el estandar ISO 9126 para la calidad del software~\cite{ISO9126}. Los puntos ha analizar han sido finalmente los siguientes: \\
 
 \begin{itemize}
 	\item \textbf{Experiencia previa:} Se tendrá en cuenta el contacto que se haya tenido con los lenguajes anteriormente.
 	\item \textbf{Eficiencia de ejecución:} Valoraremos el rendimiento de cada lenguaje en función del tiempo que requieren para la ejecución de programas. 
 	\item \textbf{Facilidad de mantenimiento:}  Las ventajas y facilidades del lenguaje en el caso de que se requiriese corregir o mantener un algoritmo o aplicación. 
 	\item \textbf{Adecuación:} Beneficios aportados por el lenguaje para su uso concreto en el desarrollo de algoritmos para Spark.
-
-
 	\item \textbf{Documentación disponible:} Facilidad para encontrar información actualizada sobre el uso del lenguaje en Spark.
 	
 \end{itemize}
 
 Nótese que la tabla \ref{tabla:ComparativaJavaScalaPython} es una comparativa entre las características de los diferentes lenguajes para su uso en Spark, no una comparativa entre las características propias de cada uno. Por lo tanto, aspectos que no tengan influencia en Spark o aquellos que sean iguales para todos los lenguajes, como, por ejemplo, la portabilidad, no serán incluidos en la comparativa. Así mismo, si dos lenguajes compartiesen una característica muy parecida o idéntica, esta será incluida una sola vez en la comparativa, fusionando las dos celdas que correspondan de la tabla \ref{tabla:ComparativaJavaScalaPython}.
 
-\tablaApaisadaSmall{Comparativa entre características de Java, Scala y Python para trabajar sobre Spark.}{m{3.35cm} m{5cm} m{5cm} m{5cm}}{ComparativaJavaScalaPython}
+\tablaApaisadaSmall{Comparativa entre características de Java, Scala y Python para trabajar sobre Spark.}{m{2.65cm} m{5.3cm} m{5.3cm} m{5.3cm}}{ComparativaJavaScalaPython}
 {\centering Criterio & \centering Java & \centering Scala  & \multicolumn{1}{c}{Python} \\}{
 
 \centering Experiencia previa & Se ha trabajado en Java múltiples veces durante el grado. & Es un lenguaje sobre el que nunca se ha trabajado. & Se han aprendido las nociones básicas durante la carrera. \\ [0.2cm]
 
 
-\centering Eficiencia de ejecución & \multicolumn{2}{m{10.45cm}}{Compila los ficheros generando archivos .class y los ejecuta sobre una máquina virtual de Java (JVM). Esto conlleva que la ejecución sea considerablemente más rápida que la del intérprete de Python.} & Es un lenguaje interpretado, lo que afecta negativamente a su rendimiento. Sin embargo, su rendimiento en comparación con Scala mejora considerablemente si contamos con muchos procesadores.\cite{PythonVsScala}  \\ [0.2cm]
+\centering Eficiencia de ejecución & \multicolumn{2}{m{11.05cm}}{Compila los ficheros generando archivos .class y los ejecuta sobre una máquina virtual de Java (JVM). Esto conlleva que la ejecución sea considerablemente más rápida que la del intérprete de Python.} & Es un lenguaje interpretado, lo que afecta negativamente a su rendimiento. Sin embargo, su rendimiento en comparación con Scala mejora considerablemente si contamos con muchos procesadores~\cite{PythonVsScala}.  \\ [0.2cm]
 
 
-\centering Facilidad de mantenimiento & Código más extenso, aunque la aparición Java 8, con elementos como las funciones lambda (ver \ref{subsec:ExplLambdaJava}), han mejorado este aspecto. & \multicolumn{2}{m{10.45cm}}{Menos líneas de código y una sintaxis más facilmente legible.} \\ [0.2cm]
+\centering Facilidad de mantenimiento & Código más extenso, aunque la aparición Java 8, con elementos como las funciones lambda (ver \ref{subsec:ExplLambdaJava}), han mejorado este aspecto. & \multicolumn{2}{m{11.05cm}}{Menos líneas de código y una sintaxis más facilmente legible.} \\ [0.2cm]
 
-\centering Adecuación & Trabajar sobre Java nos obliga, a la hora de programar, a transformar estructuras y clases de Spark solo soportadas al trabajar en Scala o Python. Además, no cuenta con un intérprete interactivo. & \multicolumn{2}{m{10.45cm}}{Spark está pensado para trabajar sobre Scala o Python. De hecho, Spark ha sido creado en Scala, por lo que su conocimiento puede ayudar a lo largo del proyecto. Ambos lenguajes cuentan con un intérprete interactivo. } \\ [0.2cm]
+\centering Adecuación & Trabajar sobre Java nos obliga, a la hora de programar, a transformar estructuras y clases de Spark solo soportadas al trabajar en Scala o Python. Además, no cuenta con un intérprete interactivo. & \multicolumn{2}{m{11.05cm}}{Spark está pensado para trabajar sobre Scala o Python. De hecho, Spark ha sido creado en Scala, por lo que su conocimiento puede ayudar a lo largo del proyecto. Ambos lenguajes cuentan con un intérprete interactivo. } \\ [0.2cm]
 
-\centering Documentación disponible & Existe buena documentación en la página oficial de Spark, aunque es más escasa en otras fuentes. Además, muchas veces la documentación no trabaja sobre Java 8. & \multicolumn{2}{m{10.45cm}}{Existe una amplia documentación sobre el uso de ambos lenguajes en Spark.} \\ [0.2cm]
+\centering Documentación disponible & Existe buena documentación en la página oficial de Spark, aunque es más escasa en otras fuentes. Además, muchas veces la documentación no trabaja sobre Java 8. & \multicolumn{2}{m{11.05cm}}{Existe una amplia documentación sobre el uso de ambos lenguajes en Spark.} \\ [0.2cm]
 } 
 
 \newpage
@@ -60,32 +60,28 @@ En Spark, es habitual usar funciones como parámetros de muchas transformaciones
 
 Esto, antes de la llegada de Java 8, generaba un código semejante al siguiente:
 
-\begin{lstlisting}[language=Java,frame=single]
-JavaRDD<String> lines = sc.textFile("hdfs://log.txt").filter(
-  new Function<String, Boolean>() {
-    public Boolean call(String s) {
-      return s.contains("error");
-    }
-});
+\begin{lstlisting}[language=Java,tabsize=4,frame = single,caption=Código de función lambda en Java 7 \cite{Java7vs8}]
+JavaRDD<String> lines = sc.textFile("hdfs://log.txt")
+	.filter(new Function<String, Boolean>() {
+		public Boolean call(String s) {
+			return s.contains("err");
+		}
+	});
 \end{lstlisting}
 
 Mientras que con Java 8 , el código se reduce a:
 
-\begin{lstlisting}[language=Java,frame=single]
+\begin{lstlisting}[language=Java,tabsize=4,frame = single,caption=Código de función lambda en Java 8 \cite{Java7vs8}]
 JavaRDD<String> lines = sc.textFile("hdfs://log.txt")
-                          .filter(s -> s.contains("error"));
+     .filter(s -> s.contains("err"));
 \end{lstlisting}
 
 Dado que, como hemos dicho, este tipo de operaciones van a ser enormemente comunes en el desarrollo de algoritmos para Spark, el hecho de poder usar Java 8 puede reducir significativamente el número de lÍneas de código y, además, facilitar la comprensión del programa.
 
 El uso continuo que se pueden dar a las funciones lambda en la programación con Spark ya se comprobó cuando se intentó programar con Java para Spark.
 
-\todo{Incluir referencia y adecentar la caja de código}
-%DE http://blog.cloudera.com/blog/2014/04/making-apache-spark-easier-to-use-in-java-with-java-8/
 
-
-
-\section{Comparativa entre las ejecuciones de clasificadores en Weka y Spark}
+\section{Comparativa entre las ejecución de clasificadores en Weka y Spark}
 
 Se ha realizado una comparativa entre el rendimiento que ofrecen Weka y Spark a fin de poder probar el rendimiento de Spark frente a alternativas anteriores que, como principal diferencia, no están pensadas para ser ejecutadas en paralelo.
 
@@ -101,11 +97,13 @@ Para observar el comportamiento de los hilos hemos utilizado la herramienta Jvis
 Los aspectos que hemos tenido en cuenta a la hora de recoger datos han sido:
 
 \begin{itemize}
-	\item \textbf{Tiempo de ejecución:} El periodo analizado es aquel que incluye la lectura de datos, la preparación, entrenamiento y prueba de los diferentes clasificadores que genere la validación cruzada y el cálculo del resultado final. Esta manera de medir es algo que afecta esencialmente a Spark, que lanza un gran número de procesos al iniciarse y pierde algo de tiempo con respecto a Weka. Mediremos en segundos.
-	\item \textbf{Memoria:} Media del espacio de memoria RAM que consume la ejecución del algoritmo. Se mide en megabytes.
+	\item \textbf{Tiempo de ejecución:} El periodo analizado es aquel que incluye la lectura de datos, la preparación, entrenamiento y prueba de los diferentes clasificadores que genere la validación cruzada y el cálculo del resultado final. Esta manera de medir es algo que afecta esencialmente a Spark, que lanza un gran número de procesos al iniciarse y pierde algo de tiempo con respecto a Weka.
+	\item \textbf{Memoria:} Media del espacio de memoria RAM que consume la ejecución del algoritmo.
 	\item \textbf{Porcentaje de CPU:} Media del porcentaje de CPU utilizado con respecto a la potencia total de la CPU. Estas pruebas han sido realizadas sobre una máquina con capacidad para soportar 4 hilos al mismo tiempo, por lo que el uso completo de uno de los hilos supondría un porcentaje de carga de la CPU del 25\% con respecto al total, el uso exclusivo de dos hilos sería un 50\% y así sucesivamente.
-	\item \textbf{Comportamiento de los hilos:} Como actúan los hilos del programa cuando se ejecuta el clasificador. Al ser un elemento que no puede medirse directamente, se recurrirá a hablar de él en la sección \nameref{ConclusionesWekaSpark} para sustentar otros argumentos, incluyendo fotografías que muestren el comportamiento en el caso de necesitarlas.
+	\item \textbf{Comportamiento de los hilos:} Como actúan los hilos del programa cuando se ejecuta el clasificador. Al ser un elemento que no puede medirse directamente, se recurrirá a hablar de él en la sección \nameref{ConclusionesWekaSpark} para sustentar otros argumentos, incluyendo imágenes que muestren el comportamiento en el caso de necesitarlas.
 \end{itemize}
+
+\todo{Las palabras "Media" aparecen subrayadas, no se por qué}
 
 \subsection{Entorno de las pruebas}
 
@@ -113,29 +111,32 @@ Las mediciones se han llevado a cabo bajo las siguientes circunstancias:
 
 \begin{itemize}
 	\item Las ejecuciones se realizaron desde la terminal, tanto en el caso de Weka como en el de Spark.
-	\item En todas las ejecuciones hemos contado con memoria suficiente como para poder incluir en ella todo el conjunto de datos.
-	\item Se necesita un tiempo para indicar a la herramienta de monitorización que proceso ha de medir. Por ello, con la intención de tener tiempo para asociar la herramienta de monitorización al proceso concreto, la ejecución hilo principal es suspendida durante un pequeño periodo de tiempo antes de iniciar siquiera la lectura de datos del fichero.
+	\item En todas las ejecuciones hemos contado con memoria suficiente como para poder incluir en ella todo el conjunto de datos. Es necesario destacar que, pese a todo, este supuesto no es común dentro de la minería de datos..
+	\item Se necesita un tiempo para indicar a la herramienta de monitorización qué proceso ha de medir. Por ello, con la intención de tener tiempo para asociar la herramienta de monitorización al proceso concreto, la ejecución hilo principal es suspendida durante un pequeño periodo de tiempo antes de iniciar siquiera la lectura de datos del fichero.
 	\item Aunque no estamos interesados en la salida final del algoritmo, queremos simular que se realizan las fases de validación y test. No se ha utilizado un archivo diferente como conjunto de test, sino que hemos utilizado una validación cruzada de 10 iteraciones.
-	\item El formato utilizado en los ficheros que contienen datos ha sido .arff para Weka y .csv para Spark. La razón por la que no se han utilizado ficheros .csv en Weka ha sido por la posibilidad de que esto produzca errores a la hora de leer el archivo \cite{CSVWeka}.
-	\item El formato de los datos de los conjuntos de datos también ha sufrido variaciones. Mientras que los archivos .arff contienen los datos tal y como los proporciona el data set original, los datos han tenido que ser normalizados para poder ser utilizados en Spark. La razón es que el algoritmo NaiveBayes implementado en Spark no admite atributos negativos y ha afectado a los conjuntos de datos "Human Activity Recognition", "Covertype" y "HIGGS"(ver \nameref(Datasets)) 
-	\item En lo que se refiere a Spark, se ha creado objeto en Scala que es capaz de leer el conjunto de datos, crear diferentes pliegues (\textit{folds}) de dicho conjunto, entrenar y probar el clasificador y mostrar un resultado final. Weka ya proporciona herramientas de este tipo y por lo tanto no ha sido necesario generar ninguna otra clase.
+	\item El formato utilizado en los ficheros que contienen datos ha sido .arff para Weka y .csv para Spark. La razón por la que no se han utilizado ficheros .csv en Weka ha sido por la posibilidad de que esto produzca errores a la hora de leer el archivo~\cite{CSVWeka}.
+	\item El formato de los datos de los conjuntos de datos también ha sufrido variaciones. Mientras que los archivos .arff utilizados por Weka contienen los datos tal y como los proporciona el data set original, algunos conjuntos de datos han tenido que ser normalizados al transformarlos a .csv para poder ser utilizados en Spark. La razón es que el algoritmo NaiveBayes implementado en Spark no admite atributos negativos. Ha afectado a los conjuntos de datos ``Human Activity Recognition'', ``Covertype'' y ``HIGGS''(ver \nameref{Datasets}) 
+	\item En lo que se refiere a Spark, se ha creado objeto en Scala que es capaz de leer el conjunto de datos, crear diferentes \textit{folds} de dicho conjunto, entrenar y probar el clasificador y mostrar un resultado final. Weka ya proporciona herramientas de este tipo y por lo tanto no ha sido necesario generar ninguna otra clase.
 	
 \end{itemize}
+
+\todo{Si se puede, se debería indicar el periodo que pasa entre las mediciones de RAM y de CPU}
 
 \subsection{Conjuntos de datos}\label{Datasets}
 
 Los conjuntos de datos, ordenados de menor a mayor según los recursos utilizados para correr el programa, han sido los siguientes:
 
-\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{m{3.35cm} m{3.5cm} m{3.5cm} m{3.5cm}}{ConjuntosWekaSpark}
+\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{m{5.55cm} >{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
 {\centering Nombre del conjunto & \centering Instancias & \centering Atributos  & \multicolumn{1}{c}{Clases} \\}{
 
-\centering Iris & \centering 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
-\centering Human Activity Recognition \cite{HumanActivityDataset} & \centering 165632 & \centering 17 & \multicolumn{1}{c}{5}   \\ [0.2cm]
-\centering Poker \cite{Lichman:2013} & \centering 1.025.010 & \centering 10 & \multicolumn{1}{c}{10}  \\ [0.2cm]
-\centering Covertype \cite{Lichman:2013} & \centering 581.012 & \centering 54 & \multicolumn{1}{c}{6}  \\ [0.2cm]
-\centering HIGGS \cite{Lichman:2013} \cite{HIGGSDataSet} & \centering 1.469.873 y 2.939.746\tablefootnote{El conjunto original consta de 11.000.000 instancias, pero he reducido su tamaño original para acercarlo más al tamaño de los otros conjuntos.} & \centering 28 & \multicolumn{1}{c}{2} \\ [0.2cm]
+\centering Iris & 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
+\centering Human Activity Recognition \cite{HumanActivityDataset} & 165.632 & \centering 17 & \multicolumn{1}{c}{5}   \\ [0.2cm]
+\centering Poker \cite{Lichman:2013} & 1.025.010 & \centering 10 & \multicolumn{1}{c}{10}  \\ [0.2cm]
+\centering Covertype \cite{Lichman:2013} & 581.012 & \centering 54 & \multicolumn{1}{c}{6}  \\ [0.2cm]
+\centering HIGGS \cite{Lichman:2013} \cite{HIGGSDataSet} & 1.469.873 y 2.939.746\tablefootnote{El conjunto original consta de 11.000.000 instancias, pero he reducido su tamaño original para acercarlo más al tamaño de los otros conjuntos.} & \centering 28 & \multicolumn{1}{c}{2} \\ [0.2cm]
 
 } 
+\todo{Revisar el código de la tabla}
 
 Indicar que, a la hora de seleccionar los conjuntos, se han elegido aquellos que compartan algunas características comunes:
 
@@ -148,21 +149,21 @@ Indicar que, a la hora de seleccionar los conjuntos, se han elegido aquellos que
 
 Los resultados obtenidos han sido agrupados según el conjunto de datos utilizado.
 
-Las pruebas han sido ejecutadas dos veces bajo una misma configuración, de manera que podamos comprobar si el resultado obtenido se encuentra dentro de lo esperado o su buen/mal funcionamiento se debe a una circunstancia puntual. 
+Las pruebas han sido ejecutadas bajo una validación cruzada de 10 x 2, de manera que podamos comprobar si el resultado obtenido se encuentra dentro de lo esperado o su buen/mal funcionamiento se debe a una circunstancia puntual. 
 
 \todo{Replantear tablas de resultados. Crear una sola tabla}
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Iris.}{c c c c c}{RendimientoIris}
-{Criterio & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos Iris.}{l c c c c}{RendimientoIris}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
  Tiempo(s) & 0,1 & 1,97 & 2,13 & 2,15 \\ [0.2cm]
- Memoria(MB) & - & - & - & - \\ [0.2cm]
- CPU(\%) & - & - & - & - \\ [0.2cm]
+ Memoria(MB)\tablefootnote{\label{noteIris}Los datos de las mediciones sobre el uso de memoria y CPU en el conjunto Iris no son concluyentes debido al corto periodo de tiempo que tardan en ejecutarse.} & - & - & - & - \\ [0.2cm]
+ CPU(\%)\footref{noteIris} & - & - & - & - \\ [0.2cm]
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Human Activity Recognition.}{c c c c c}{RendimientoHAR}
-{Criterio & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos Human Activity Recognition.}{l c c c c}{RendimientoHAR}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
  Tiempo(s) & 12,37 & 16,13 & 11,75 & 11,71 \\ [0.2cm]
  Memoria(MB) & 242,01 & 173,80 & 219,75 & 219,17 \\ [0.2cm]
@@ -170,8 +171,8 @@ Las pruebas han sido ejecutadas dos veces bajo una misma configuración, de mane
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Poker.}{c c c c c}{RendimientoPoker}
-{Criterio & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos Poker.}{l c c c c}{RendimientoPoker}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
  Tiempo(s) & 73,90 & 47,44 & 31,84 & 30,77  \\ [0.2cm]
  Memoria(MB) & 424,65 & 162,93 & 243,76 & 255,11\\ [0.2cm]
@@ -179,8 +180,8 @@ Las pruebas han sido ejecutadas dos veces bajo una misma configuración, de mane
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Covertype.}{c c c c c}{RendimientoCovertype}
-{Criterio & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos Covertype.}{l c c c c}{RendimientoCovertype}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
  Tiempo(s) & 183,95 & 101,91 & 73,23 & 53,78 \\ [0.2cm]
  Memoria(MB) & 576,78 & 177,37 & 213,7 & 211,7\\ [0.2cm]
@@ -188,8 +189,8 @@ Las pruebas han sido ejecutadas dos veces bajo una misma configuración, de mane
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS(1.469.873 instancias).}{c c c c c}{RendimientoHIGGS1}
-{Criterio & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (1.469.873 instancias).}{l c c c c}{RendimientoHIGGS1}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
  Tiempo(s) & 246,97 & 191,9 & 130,37 & 99,2 \\ [0.2cm]
  Memoria(MB) & 832,88 & 872,56 & 864,92 & 921,49 \\ [0.2cm]
@@ -197,8 +198,8 @@ Las pruebas han sido ejecutadas dos veces bajo una misma configuración, de mane
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS(2.939.746 instancias).}{c c c c c}{RendimientoHIGGS2}
-{Criterio & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (2.939.746 instancias).}{l c c c c}{RendimientoHIGGS2}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
  Tiempo(s) & 503,929 & 368,721 & 264,023 & 215,214\\ [0.2cm]
  Memoria(MB) & 1747,22  & 883,28 & 911,77 & 853,58 \\ [0.2cm]
@@ -210,13 +211,68 @@ Las pruebas han sido ejecutadas dos veces bajo una misma configuración, de mane
 \todo{¿Mover esta sección al final de la memoria?}
 \todo{Revisar las referencias ante un cambio de tabla de resultados.}
 \begin{itemize}
-	\item Puede observarse claramente que Weka es considerablemente superior a Spark cuando utilizamos conjuntos de datos pequeños, como en la tabla \ref{tabla:RendimientoIris} o incluso en la tabla \ref{tabla:RendimientoHAR}, pero su rendimiento ve superado con notable diferencia cuando el conjunto de datos empieza a sobrepasar las 100.000 entradas de Human Activity Recognition(ver \nameref{Datasets}).
+	\item Puede observarse claramente que Weka es considerablemente superior a Spark cuando utilizamos conjuntos de datos pequeños, como observamos en la tabla \ref{tabla:RendimientoIris} o incluso en la tabla \ref{tabla:RendimientoHAR}, pero su rendimiento se ve superado con notable diferencia cuando el conjunto de datos empieza a sobrepasar las 100.000 instancias de Human Activity Recognition (ver \nameref{Datasets}).
 	\item Salvo cuando tratamos con conjuntos de datos pequeños, vease por ejemplo la tabla \ref{tabla:RendimientoIris}, el rendimiento del algoritmos Naive Bayes de Weka es menor si lo comparamos con las ejecuciones sobre un solo hilo de Naive Bayes en Spark. Es posible que una de las causas sea la diferente implementación del algoritmo en Weka y en Spark.
 	\item Como era de esperar, doblar el número de hilos no implica reducir a la mitad el tiempo de procesamiento, sino que genera un beneficio menor que, en algún momento y dependiendo del tamaño del conjunto de datos analizado, dejará de ser significativo aunque sigamos añadiendo hilos.
 	\missingfigure{Probablemente incluya una gráfica sobre el rendimiento de Spark sobre HIGGS}
 	\item Generalmente Spark necesita menos memoria que Weka para ejecutar el programa.
 	\item Parece que el porcentaje de RAM requerido por Spark aumenta ligeramente cuantos más hilos tengamos en ejecución, algo que se aprecia bien en los conjuntos de datos pequeños.
 	\item El porcentaje de uso de la CPU en Weka se situa siempre entorno a los valores 25-30\%. Esto es así porque la ejecución de todas las tareas es lineal, consumiendo únicamente un hilo de los 4 que posee la máquina en la que se están realizando las prueba.
-	\item Vemos que el porcentaje de uso de la CPU en las diferentes pruebas con Spark suele corresponder al número de hilos con los que se lanza la aplicación: 25\% para un hilo, 50\% para dos y ,teóricamente, 90-100\% para 4. Sin embargo, y como podemos apreciar en las tablas \ref{tabla:RendimientoPoker} o \ref{tabla:RendimientoCovertype} la ejecución con cuatro hilos no aprovecha al máximo las capacidades del procesador cuando el conjunto de datos es pequeño. Explorando más de cerca el evento, vemos que, independientemente del número de hilos ejecutores que decimos a Spark que maneje, en estos conjuntos de datos únicamente se lanzan dos hilos como máximo. Atribuimos esto a un comportamiento propio de Spark, que evalua que no existe necesidad de manejar tantos hilos de ejecución. 
+	\item Vemos que el porcentaje de uso de la CPU en las diferentes pruebas con Spark suele corresponder al número de hilos con los que se lanza la aplicación: 25\% para un hilo, 50\% para dos y, teóricamente, 90-100\% para 4. Sin embargo, y como podemos apreciar en las tablas \ref{tabla:RendimientoPoker} o \ref{tabla:RendimientoCovertype}, la ejecución con cuatro hilos no aprovecha al máximo las capacidades del procesador cuando el conjunto de datos es pequeño. Observando más de cerca el evento, vemos que, independientemente del número de hilos que decimos a Spark que maneje, en estos conjuntos de datos únicamente se lanzan dos hilos como máximo. Atribuimos esto a un comportamiento propio de Spark, que evalua que no existe necesidad de manejar tantos hilos de ejecución. 
 	\missingfigure{Incluir comportamiento de los hilos de jvisualvm}
 \end{itemize}
+
+
+\section{Implementación de algoritmos de selección de instancias}
+
+
+
+\subsection{Locality-sensitive Hashing Instance selector (LSH-IS)}
+\todo{Preguntar a qué se debe la IS del nombre}
+
+LSH, no confundir con el algoritmo de selecciónde instancias que definiremos a continuación, es un algoritmo que permite identificar y agrupar elementos con un alto grado de similitud. Su comportamiento se basa en un conjunto de funciones \textit{hash} que tienen la particularidad de asignar elementos similares a un mismo grupo (\textit{bucket}) con una alta probabilidad~\cite{LSHISPaper}.
+
+El algoritmo LSH-IS Es un algoritmo de selección de instancias apoyado en el uso de LSH. La idea es aplicar un  algoritmo de LSH sobre el conjunto de instancias inicial, de manera que podamos agrupar en un mismo bucket aquellas instancias con un alto grado de similitud. Posteriormente, de cada uno de esos buckets seleccionaremos una instancia de cada clase, que pasará a formar parte del conjunto de instancias final. 
+
+La ventaja de este algoritmo frente a otras alternativas es que permite realizar la selección de instancias con un solo recorrido sobre el conjunto de datos inicial, proporcionando una solución de complejidad lineal en comparación con soluciones de complegidad cuadrática o logarítmica~\cite{LSHISPaper}.
+
+\todo{¿Qué hay de las operaciones and y or?}
+
+\todo{Cuando lo tengamos, definir que hemos hecho, tal vez pseudocódigo también.}
+
+
+
+%Básicamente, la idea es seleccionar una sola instancia de cada
+%clase en cada una de las cubetas a las que LSH asocia cada instancia. Esto
+%permite hacer la selecci ́
+%on de instancias mediante un u
+% ́ nico recorrido del conjunto
+%de datos, dando lugar por tanto a una complejidad lineal.
+
+
+
+
+%LSH_IS_S
+\begin{algorithm*}
+\DontPrintSemicolon
+\KwIn{Conjunto de instancias $ X = \lbrace(\mathbf{x}_{1},y_{1}),...,(\mathbf{x}_{n},y_{n})\rbrace$,
+      conjunto $\mathcal{G}$ de familias de funciones hash}
+\KwOut{Conjunto de instancias seleccionado $ S \subset X $ }
+
+$ S = \varnothing $
+
+\ForEach {instancia $ \mathbf{x} \in X $} {
+  \ForEach {familia de funciones $g \in\mathcal{G} $} {
+     $u\leftarrow$ cubeta asignada por la familia $g$ a la instancia $\mathbf{x}$ \;
+     \If {no existen otras instancias de la misma clase que $\mathbf{x}$ en $u$}
+     {
+       Añadir $ \mathbf{x} $ a $ S $ \;
+       Añadir $ \mathbf{x} $ a $ u $ \;
+     }
+  }
+}
+
+\Return {$S$}
+\caption{LSH-IS -- Algoritmo de selección de instancias mediante hashing. \cite{LSHISPaper}}
+\label{alg:LSH}
+\end{algorithm*}

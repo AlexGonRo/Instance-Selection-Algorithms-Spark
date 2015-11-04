@@ -5,7 +5,14 @@
 %Descripción inicial del objetivo del proyecto
 %Este proyecto es una prueba tecnológica para mejorar la eficiencia de la ejecución de un tipo de algoritmos como se indica en Big Data.
 
-Este trabajo ha surgido como una prueba destinada a observar el rendimiento de algoritmos de \textit{Big Data} en un entorno paralelo, así como a la implementación de diferentes algoritmos que permitan la selección de las mejores instancias durante la fase de pre procesamiento de la minería de datos.
+
+En el escenario actual de la minería de datos (ver \nameref{DefMineria}) la creciente cantidad de datos que requieren ser analizados, así como el aumento de su complejidad,  ha generado un problema a la hora de tratar esos datos con eficiencia y velocidad. El hecho de que este problema parezca ir en aumento ha dado lugar a una búsqueda de soluciones que proporcionen una alta capacidad de cálculo y una fácil escalabilidad (ver \ref{sec:DefEscalabilidad})~\cite{DataMiningConcepts}. 
+
+Una de las propuestas ha sido la posibilidad de ejecutar las labores de minería de manera paralela. Por otro lado, analizando el problema desde un enfoque diferente aunque no incompatible, han adquirido gran popularidad los algoritmos encargados de reducir el número de instancias y atributos, de manera que podamos hacer más pequeño el conjunto a estudiar. Este trabajo surge bajo la motivación de explorar estas nuevas soluciones. 
+
+Será un proyecto con dos objetivos: por un lado la implementación de diferentes algoritmos de reducción de instancias que, además de correr en paralelo, nos permitirán mejorar la calidad de los datos y reducir su cantidad. Por otro, el análisis del rendimiento de implementaciones lineales frente a las implementaciones paralelas % tanto en lo que se refiere a la ejecución de algoritmos de selección como a algoritmos de clasificación
+.
+\todo{Este final del párrafo igual hay que modificarlo, pero no sabemos si vamos a comparar Weka con Spark también con los algoritmos de selección de instancias.}
 
 \section{Estudio del rendimiento de la minería de datos en un modelo de ejecución en paralelo}
 
@@ -21,7 +28,7 @@ Como primera aproximación, utilizaremos dos herramientas diferentes: Weka (ver 
 
 \section{Implementación de algoritmos de selección de instancias}
 
-Se programarán un conjunto de algoritmos que puedan aplicarse sobre grandes conjuntos de instancias con el fin de reducir dicho conjunto y mejorar el rendimiento de cualquier otro algoritmo que use posteriormente los datos. Para una definición más precisa de lo que es un algoritmo de selección de instancias ver la sección \nameref{sec:DefAlgSel}
+Se programarán un conjunto de algoritmos que puedan aplicarse sobre grandes conjuntos de instancias con el fin de reducir su tamaño y mejorar el rendimiento de cualquier otro algoritmo que use posteriormente los datos. Para una definición más precisa de lo que es un algoritmo de selección de instancias ver la sección \nameref{sec:DefAlgSel}.
 
 Se ha realizado la implementación de los siguientes algoritmos:
 
