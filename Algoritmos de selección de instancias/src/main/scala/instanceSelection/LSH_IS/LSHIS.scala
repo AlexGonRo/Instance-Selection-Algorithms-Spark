@@ -31,15 +31,15 @@ class LSHIS(args: Array[String]) extends AbstractIS(args) {
   //queda pendiente.
 
   //Número de funciones hash a utilizar.
-  var numOfHashes: Int = 4
+  var numOfHashes: Int = _
   //Número de dimensiones de nuestro conjunto de datos.
-  var dim: Int = 4 //TODO No podemos leerlo directamente de los datos
+  var dim: Int = _ //TODO No podemos leerlo directamente de los datos
   //si el vector es disperso. Se puede arreglar si lo 
   //indicamos si es disperso por parámetro
   //Tamaño de los "buckets".
-  var width: Double = 3
+  var width: Double = _
   //Semilla para los números aleatorios
-  var seed: Long = 1
+  var seed: Long = _
 
   //Leemos los argumentos de entrada para, en caso de haber sido 
   //introducido alguno, modificar los valores por defecto de los atributos
@@ -66,13 +66,14 @@ class LSHIS(args: Array[String]) extends AbstractIS(args) {
     val bucketClassInstTuple = parsedData.map { instancia =>
       ((tablaHash.hash(instancia.features), instancia.label), instancia)
     }
+    val cosa2 = bucketClassInstTuple.groupByKey.collect()
 
     //Agrupamos cada par (bucket, clase) y seleccionamos una instancia de 
     //cada grupo
     val result = bucketClassInstTuple.groupByKey.map[LabeledPoint] {
       case (tupla, instancias) => instancias.head
     }
-
+    val cosa = result.collect()
     return result
   }
 
@@ -90,9 +91,7 @@ class LSHIS(args: Array[String]) extends AbstractIS(args) {
   override def readArgs(args: Array[String]) = {
 
     for (i <- 0 until args.size by 2) {
-      if (args(i) == "-t") {
-
-      } else if (args(i) == "-numH") {
+      if (args(i) == "-numH") {
         numOfHashes = args(i + 1).toInt
       } else if (args(i) == "-dim") {
         dim = args(i + 1).toInt

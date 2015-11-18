@@ -21,7 +21,7 @@ class HashTable(numOfHashes: Int, dim: Int, width: Double, seed: Long) extends S
 
   //Creamos tantos objetos EuclideanHash como se requieran
   val hashFunctions = for (i <- 0 until numOfHashes)
-    yield new EuclideanHash(dim, width, seed)
+    yield new EuclideanHash(dim, width, seed+i)
 
   /**
    * Genera un valor al pasar un vector sobre una función Hash.

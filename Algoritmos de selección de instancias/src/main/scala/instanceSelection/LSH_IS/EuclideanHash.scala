@@ -5,7 +5,8 @@ import org.apache.spark.mllib.linalg.Vector
 
 /**
  *
- * Vector de valores aleatorios destinado a calcular un valor hash
+ * Vector de valores aleatorios destinado a calcular un valor hashjava -cp weka.jar:/home/alejandro/Escritorio/instanceselection.jar weka.gui.GUIChooser
+ * 
  * al recibir otro vector de dimensión similar.
  *
  * @param dim	Número de dimensiones que ha de tener el vector.
@@ -27,7 +28,7 @@ class EuclideanHash(var dim: Int, var width: Double, seed: Long) extends Seriali
   //Si width es menor a 1, se calcula el desplazamiento como doble.
   val offset = {
     if (width < 1.0)
-      rand.nextInt(width.toInt * 10) / 10.0
+      rand.nextInt((width * 10).toInt) / 10.0
     else
       rand.nextInt(width.toInt)
   }
