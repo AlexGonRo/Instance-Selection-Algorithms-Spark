@@ -2,10 +2,187 @@
 
 \section{Introducción}
 
+A lo largo de este apéndice vamos a indicar el material necesario para poder ejecutar el proyecto, así como la manera de instalarlo, y la forma de hacer funcionar el proyecto una vez contemos con todos los elementos requeridos.
+
 \section{Requisitos de usuarios}
 
-\section{Instalación}
+\todo{Completar }
+
+
+\section{Instalación}\label{sec:Instalacion}
+
+A continuación se van a definir los métodos de instalación de todos los componentes necesarios para ejecutar el proyecto, por si pudiera resultar de utilidad.
+
+Estos métodos de instalación hacen referencia a la instalación en máquinas con un sistema operativo basado en alguna distribución de Debian. En nuestro caso, esta distribución ha sido Ubuntu 14.04.
+
+\subsection{Oracle Java 8}
+
+Aunque existen distribuciones libres de Java, usaremos la que proporciona Oracle (\url{http://www.java.com}) por el hecho de que incluye una serie de programas que pueden usarse para medir el rendimiento de aplicaciones Java (JConsole y JVisualVM). Cualquier otra distribución será igualmente válida, pero es posible que no incluya estas herramientas. Podemos acceder tanto al JRE como al JDK desde la siguiente dirección: \url{http://www.oracle.com/technetwork/java/javase/downloads/index.html}.
+
+Sin embargo, Oracle no proporciona una instalación automática de Java para Linux. Es por esta razón vamos a utilizar un PPA (Personal Package Archive) que proporciona un instalador para diferentes versiones de Java (\url{https://launchpad.net/~webupd8team/+archive/ubuntu/java}). Este instalador no contiene ningún archivo Java, pero será el encargado de descargarlos en nuestra máquina (de igual manera que podríamos hacerlo manualmente) y realizar la instalación automáticamente, facilitando el proceso de instalación.
+
+Una vez entendido esto, ejecutaremos los siguientes comandos:
+
+\begin{lstlisting}
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ sudo apt-get install oracle-java8-installer
+\end{lstlisting}
+
+Podemos comprobar si la instalación ha sido correcta ejecutando el comando \colorbox{lightgray}{\lstinline|java -version|} en la terminal. Si todo ha salido bien deberíamos recibir una salida similar a la siguiente:
+
+\begin{lstlisting}
+$ java -version
+java version "1.8.0_66"
+Java(TM) SE Runtime Environment (build 1.8.0_66-b17)
+Java HotSpot(TM) 64-Bit Server VM (build 25.66-b17,
+mixed mode)
+\end{lstlisting}
+
+Finalmente, podemos ejecutar el siguiente comando para configurar correctamente las variables del sistema que Java necesita:
+
+\begin{lstlisting}
+$ sudo apt-get install oracle-java8-set-default
+\end{lstlisting}
+
+\subsection{Scala 2.11.7}
+Aunque podemos descargar la última versión de Scala desde la página oficial (\url{http://www.scala-lang.org/}), la descarga que se nos ofrece por defecto es un archivo .tar.gz que nos obligaría a realizar toda la instalación manualmente (suponiendo que estamos en un sistema Ubuntu como el utilizado durante el proyecto).
+
+Por ello, vamos a realizar la instalación mediante un archivo .deb (paquete Debian) que también puede ser utilizado por nuestro sistema y que nos ahorrará realizar la instalación manualmente. Podemos acceder al repositorio que guarda este paquete desde un navegador (\url{http://www.scala-lang.org/files/archive/}) o descargarlo mediante el siguiente comando:
+
+\begin{lstlisting}
+$ sudo wget www.scala-lang.org/files/archive
+ /scala-2.11.7.deb
+\end{lstlisting}
+
+Independientemente del método seguido, una vez tengamos el archivo en nuestro ordenador ejecutamos el siguiente comando desde la carpeta que contenga el paquete .deb:
+
+\begin{lstlisting}
+$ sudo dpkg -i scala-2.11.7.deb
+\end{lstlisting}
+
+Si todo ha salido correctamente, una vez termine de ejecutarse la orden anterior podemos ejecutar el comando \colorbox{lightgray}{\lstinline|scala -version|} y esperar una salida similar a esta:
+
+\begin{lstlisting}
+$ scala -version
+Scala code runner version 2.11.7 -- Copyright 2002-2013
+\end{lstlisting}
+
+Recordar que, en el caso de utilizar cualquier otra versión de Scala, esta tiene que ser compatible con la versión Java que se encuentre instalada. Por ejemplo, Java 8 solo puede ser utilizado a partir de versiones 2.11 y será obligatorio a partir de la versión de Scala 2.12. \cite{Scala2.12Roadmap}
+
+
+\subsection{Apache Maven}
+
+Lo primero que debemos hacer es descargarnos el paquete que contiene la herramienta. Esto podemos hacerlo desde el navegador en la página oficial de Apache Maven (\url{https://maven.apache.org/}) o mediante el siguiente comando en consola:
+
+\begin{lstlisting}
+wget  http://apache.rediris.es/maven/maven-3/3.3.3
+ /binaries/apache-maven-3.3.3-bin.tar.gz
+\end{lstlisting}
+
+Recordar que el código de arriba es orientativo, pudiéndose seleccionar otro lugar desde donde realizar la descarga u otra versión del producto.
+
+Descomprimimos el paquete descargado y lo movemos  a la carpeta \colorbox{lightgray}{\lstinline|/usr/local|}:
+
+\begin{lstlisting}
+$ tar -zxf apache-maven-3.3.3-bin.tar.gz
+$ sudo mv -R apache-maven-3.3.3 /usr/local
+$ sudo ln -s /usr/local/apache-maven-3.3.3/bin/mvn 
+  /usr/bin/mvn
+\end{lstlisting}
+
+
+Podemos comprobar que la instalación ha sido realizada correctamente si al escribir el comando \colorbox{lightgray}{\lstinline|mvn --version|} recibimos una salida parecida a la siguiente:
+
+\begin{lstlisting}
+$ mvn --version
+Apache Maven 3.3.3 (7994120775791599e205a5524ec3e0dfe41d4a06;
+ 2015-04-22T13:57:37+02:00)
+Maven home: /usr/local/apache-maven-3.3.3
+Java version: 1.8.0_66, vendor: Oracle Corporation
+Java home: /usr/lib/jvm/java-8-oracle/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "linux", version: "3.19.0-25-generic", arch:
+ "amd64", family: "unix"
+\end{lstlisting}
+
+
+\subsection{Apache Spark 1.5.1}
+
+Nos dirigiremos a la página oficial de Apache Spark (\url{http://spark.apache.org/}). Elegiremos la versión 1.5.1 por ser la utilizada a lo largo de la práctica, y descargaremos el código fuente. Igualmente, y como hemos mencionado en otras instalaciones, podemos ejecutar el siguiente comando para hacernos con el paquete:
+
+\begin{lstlisting}
+$ wget http://apache.rediris.es/spark/spark-1.5.1
+  /spark-1.5.1.tgz
+\end{lstlisting}
+
+
+Una vez tengamos el archivo en nuestra máquina lo descomprimimos y movemos a la carpeta que deseemos lanzando estos comandos desde el directorio que contenga el paquete descargado:
+
+\begin{lstlisting}
+$ tar -xvf spark-1.5.1.tgz
+$ sudo mv -R spark-1.5.1 /opt
+\end{lstlisting}
+
+Finalmente vamos a construir Spark utilizando los siguientes comandos desde la carpeta donde lo hemos ubicado. En nuestro caso, estará en \colorbox{lightgray}{\lstinline|/opt/spark-1.5.1|}:
+
+\begin{lstlisting}
+$ sudo ./dev/change-scala-version.sh 2.11
+$ sudo mvn -Pyarn -Phadoop-2.6 -Dscala-2.11 -Pnetlib-lgpl
+  -DskipTests clean package
+\end{lstlisting}
+
+Es importante incluir la opción \colorbox{lightgray}{\lstinline|-Pnetlib-lgpl|} para que Spark incluya una serie de clases utilizadas por su librería MLlib\cite{SparkDependencies}.
+
+\todo{Queda pendiente si al final vamos a necesitar -Pnetlib-lgpl o no, revisar esto cuando tengamos todo
+hecho}
+
+Esta última operación llevará un tiempo. 
+
+Finalmente, si deseamos comprobar que Spark se ha desplegado correctamente podemos ejecutar, por ejemplo, el intérprete de comandos de Scala para Spark:
+
+\begin{lstlisting}
+$ ./bin/spark-shell
+\end{lstlisting}
+
+Aunque recibiremos una serie de avisos (\textit{warnings}) debido a que no hemos configurado ciertos aspectos de Spark, el intérprete debería poder lanzarse y funcionar sin problemas.
+
+
+\todo{¿Hablar de los alias y variables de entorno? Vamos a dejar esto de momento}
+%WEKA_HOME="/opt/weka-3-7-13/"
+%SPARK_HOME="/opt/spark-1.5.1/"
+%Añadido en el fichero /etc/environment
+
+\subsection{Algoritmos de selección de instancias}
+
+Para descargar el resultado final de nuestro proyecto
+
+\todo{Completar cuando lo tengamos todo. Probablemente tengamos que indicar como instalar git}
+
+
+\section{Instalaciones Opcionales}
+
+\subsection{Weka}
+
+No se trata de un programa necesario para la ejecución del proyecto, pero, dado que parte del mismo ha sido destinado a comparar los resultados entre Apache Spark y Weka, lo consideraremos como un programa a incluir en este apéndice.
+
+Durante la realización de la práctica se han utilizado dos versiones diferentes de este software: Weka-3.6.13 y Weka-3.7.13. La instalación de ambos es similar, por lo que para no tener información duplicada en este anexo explicaremos la instalación refiriéndonos siempre a la versión 3.7.13
+
+Lo primero que haremos será descargar Weka desde su página oficial (\url{http://www.cs.waikato.ac.nz/ml/weka/}). De entre las posibles opciones que nos ofrecen, hemos de seleccionar la que nos permite descargar un archivo de extensión .zip destinado a ``\textit{Other platforms (Linux, etc.)}''
+
+Una vez tengamos el archivo, escribiremos en la terminal el siguiente comando, que nos permitirá descomprimir el directorio y colocarlo en la carpeta \colorbox{lightgray}{\lstinline|/opt|}:
+
+\begin{lstlisting}
+$ sudo unzip ~/Downloads/weka-3-7-13.zip -d /opt
+\end{lstlisting}
+
+Para comprobar el correcto funcionamiento de Weka podemos dirigirnos a la carpeta de instalación y ejecutar el siguiente comando. Si todo ha sido realizado correctamente Weka debería iniciarse:
+
+\begin{lstlisting}
+$ cd /opt/weka-3-7-13
+$ java -jar weka.jar
+\end{lstlisting}
 
 \section{Manual del usuario}
 
-
+\todo{Completar cuando sea definitiva la estructura de ficheros y, sobretodo, la salida del resultado}

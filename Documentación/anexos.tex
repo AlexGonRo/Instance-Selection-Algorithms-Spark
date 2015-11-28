@@ -20,8 +20,22 @@
 % Ecuaciones
 \usepackage{amsmath}
 
+%Anotaciones TODO
+
+\usepackage[disable]{todonotes}
+
+%Código
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Código}% Listing -> Algorithm
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of Algorithms
+
+%Color
+\usepackage{color}
+
+
 % Rutas de fichero / paquete
 \newcommand{\ruta}[1]{{\sffamily #1}}
+
 
 % Párrafos
 \nonzeroparskip
@@ -374,6 +388,13 @@
 %\listoftables
 
 %\clearpage
+
+\clearpage
+
+\listoftodos
+
+\clearpage
+
 
 \mainmatter
 
