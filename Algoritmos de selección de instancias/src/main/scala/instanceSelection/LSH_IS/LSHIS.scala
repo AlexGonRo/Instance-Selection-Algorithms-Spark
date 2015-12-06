@@ -1,8 +1,12 @@
 package instanceSelection.LSH_IS
 
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
+
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
+
 import instanceSelection.Abstract.AbstractIS
 
 /**
@@ -23,34 +27,28 @@ import instanceSelection.Abstract.AbstractIS
  * @author Alejandro
  * @version 1.0.0
  */
-class LSHIS(args: Array[String]) extends AbstractIS(args) {
+class LSHIS(args: Array[String]) extends AbstractIS {
 
   //TODO Podríamos sobrecargar el constructor para que además de aceptar el
   //array de strings acepte también valores sueltos.
-  //El problema es que esta sobrecarga tiene restricciones en Scala, así que 
-  //queda pendiente.
 
-  //Número de funciones hash a utilizar.
-  var numOfHashes: Int = _
-  //Número de dimensiones de nuestro conjunto de datos.
-  var dim: Int = _ //TODO No podemos leerlo directamente de los datos
-  //si el vector es disperso. Se puede arreglar si lo 
-  //indicamos si es disperso por parámetro
+  //Valores por defecto
+
+  //Número de componentes-AND a utilizar.
+  var ANDs: Int = 0
+  //Número de componentes-OR a utilizar
+  var ORs: Int = 0
   //Tamaño de los "buckets".
-  var width: Double = _
+  var width: Double = 1
   //Semilla para los números aleatorios
-  var seed: Long = _
+  var seed: Long = 1
 
-  //Leemos los argumentos de entrada para, en caso de haber sido 
-  //introducido alguno, modificar los valores por defecto de los atributos
-  try {
-    readArgs(args)
-  } catch {
-    case ex: IllegalArgumentException => {
-      println("ERROR AL LEER LOS ATRIBUTOS DEL PROGRAMA")
-      //TODO Mejorar la salida indicando los posibles parámetros del programa
-    }
-  }
+  //Reasignación de los valores por defecto en función de lo recibido al instanciar
+  //la clase.
+  readArgs(args)
+
+  //Generador de números aleatorios.
+  var r = new Random(seed)
 
   //TODO Mejora sugerida: Asignar a cada instancia un número para no tener 
   // que arrastrarla todo el proceso.
@@ -58,24 +56,62 @@ class LSHIS(args: Array[String]) extends AbstractIS(args) {
     sc: SparkContext,
     parsedData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
-    //Creamos una tabla hash con los diferentes vectores aleatorios.
-    val tablaHash = new HashTable(numOfHashes, dim, width, seed)
+    //Número de dimensiones de nuestro conjunto de datos.
+    var dim = parsedData.first().features.size + 1
 
-    //Transformamos la RDD para generar tuplas de (bucket asignado,clase) 
-    //e instancia
-    val bucketClassInstTuple = parsedData.map { instancia =>
-      ((tablaHash.hash(instancia.features), instancia.label), instancia)
-    }
-    val cosa2 = bucketClassInstTuple.groupByKey.collect()
+    //Creamos tantos componentes AND como sean requeridos.
+    var andTables: ArrayBuffer[HashTable] = new ArrayBuffer[HashTable]
+    for (i <- 0 until ORs)
+      andTables += new HashTable(ANDs, dim, width, r.nextInt())
 
-    //Agrupamos cada par (bucket, clase) y seleccionamos una instancia de 
-    //cada grupo
-    val result = bucketClassInstTuple.groupByKey.map[LabeledPoint] {
-      case (tupla, instancias) => instancias.head
+    //Variable para almacenar el resultado final
+    var finalResult: RDD[LabeledPoint] = null
+
+    for (i <- 0 until ORs) {
+
+      val andTable = andTables(i)
+
+      //Transformamos la RDD para generar tuplas de (bucket asignado, clase) 
+      // e instancia
+      val keyInstRDD = parsedData.map { instancia =>
+        ((andTable.hash(instancia.features), instancia.label), instancia)
+      }
+
+      val keyInstRDDGroupBy = keyInstRDD.groupByKey
+
+      if (i == 0) { //Si es la primera iteración del bucle for
+        //seleccionamos una instancia por key
+        finalResult = keyInstRDDGroupBy.map[LabeledPoint] {
+          case (tupla, instancias) => instancias.head
+        }
+      } else { //Si no es la primera iteración del bucle for (primer componente OR)
+
+        //Recalculamos los buckets para las instancias ya seleccionadas
+        //en otras iteraciones
+        val alreadySelectedInst = finalResult.map { instancia =>
+          ((andTable.hash(instancia.features), instancia.label), instancia)
+        }
+
+        //Sobre la RDD de la iteración, seleccionamos una instancia por key
+        val keyClassRDD = keyInstRDDGroupBy.map[((Int, Double), LabeledPoint)] {
+          case (tupla, instancias) => (tupla, instancias.head)
+        }
+
+        //Sobre la RDD de la iteración, seleccionamos aquellas las instancia
+        //cuya key no esté repetida en el resultado final
+        val keyClassRDDGroupBy = keyClassRDD.subtractByKey(alreadySelectedInst)
+        val selectedInstances = keyClassRDDGroupBy.map[LabeledPoint] {
+          case (tupla, instancia) => instancia
+        }
+
+        //Unimos el resultado de la iteración con el resultado parcial ya almacenado
+        finalResult = finalResult.union(selectedInstances)
+      }
+
     }
-    val cosa = result.collect()
-    return result
-  }
+
+    return finalResult
+  } //end instSelection
 
   /**
    * Leemos cada valor del array pasado por parámetro y actualizamos
@@ -91,20 +127,32 @@ class LSHIS(args: Array[String]) extends AbstractIS(args) {
   override def readArgs(args: Array[String]) = {
 
     for (i <- 0 until args.size by 2) {
-      if (args(i) == "-numH") {
-        numOfHashes = args(i + 1).toInt
-      } else if (args(i) == "-dim") {
-        dim = args(i + 1).toInt
-      } else if (args(i) == "-w") {
-        width = args(i + 1).toInt
-      } else if (args(i) == "-s") {
-        seed = args(i + 1).toInt
-      } else {
-        throw new IllegalArgumentException
+      args(i) match {
+        case "-and" => ANDs = args(i + 1).toInt
+        case "-w"   => width = args(i + 1).toInt
+        case "-s"   => seed = args(i + 1).toInt
+        case "-or"  => ORs = args(i + 1).toInt
+        case _ =>
+          printWrongArgsError()
+          throw new IllegalArgumentException()
       }
-
     }
 
+    //Si las variables no han sido asignadas con un valor correcto.
+    if (ANDs <= 0 || ORs <= 0 || width <= 0) {
+      printWrongArgsError()
+      throw new IllegalArgumentException()
+    }
+
+  } //end readArgs
+
+  override def printWrongArgsError() {
+    System.err.println("Wrong input parameter format when launching the LSHIS algorithm.")
+    System.err.println("Possible arguments are:")
+    System.err.println("\t -and + int \t Number of AND-constructions to use. (Mandatory) ")
+    System.err.println("\t -or + int \t Number of OR-constructions to use. (Mandatory)")
+    System.err.println("\t -w + double\t Buckets width.(Default: 1)")
+    System.err.println("\t -s + int\t Seed for the random number generator.(Default: 1)")
   }
 
-}
+}//end printWrongArgsError
