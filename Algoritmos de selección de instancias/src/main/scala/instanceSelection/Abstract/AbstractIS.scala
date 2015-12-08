@@ -15,7 +15,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-abstract class AbstractIS {
+abstract class AbstractIS(args: Array[String]){
 
   /**
    *

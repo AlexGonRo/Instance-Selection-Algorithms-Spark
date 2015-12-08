@@ -25,9 +25,9 @@ import instanceSelection.Abstract.AbstractIS
  * @param args 	Argumentos para inicializar los valores iniciales del algoritmo.
  *
  * @author Alejandro
- * @version 1.0.0
+ * @version 1.1.0
  */
-class LSHIS(args: Array[String]) extends AbstractIS {
+class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
 
   //TODO Podríamos sobrecargar el constructor para que además de aceptar el
   //array de strings acepte también valores sueltos.
