@@ -15,7 +15,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-trait AbstractIS {
+abstract class AbstractIS {
 
   /**
    *
@@ -42,6 +42,6 @@ trait AbstractIS {
    * formato de los argumentos de entrada en la instanciación de la clase.
    *
    */
-  def printWrongArgsError()
+  protected def printWrongArgsError()
 
 }
