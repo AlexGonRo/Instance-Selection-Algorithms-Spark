@@ -7,32 +7,32 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
-//TODO Manera de leer valores nominales. Posible aproximación con StringIndexer
+// TODO Manera de leer valores nominales. Posible aproximación con StringIndexer
 
 /**
- * Proporciona métodos para poder realizar la lectura de conjuntos de datos almacenados
- * en ficheros.
+ * Proporciona métodos para poder realizar la lectura de conjuntos de datos
+ * almacenados en ficheros.
  *
  * @version 1.0.0
  * @author Alejandro González Rogel
  */
 class FileReader {
 
-  //Atributo de clase es el primero
+  // Atributo de clase es el primero
   var first = false
-  //El fichero contiene cabecera
+  // El fichero contiene cabecera
   var header = false
-  //Número de lineas que tiene la cabecera.
+  // Número de lineas que tiene la cabecera.
   var headerLines = 0
 
   /**
    * Realiza la lectura de un fichero en formato CSV (con atributos separados por
    * comas) y genera una RDD con ellos.
    *
-   * @param		sc	Contexto Spark
-   * @param		args Opciones para la lectura del fichero. El primer argumento ha de ser el
-   * 							 directorio donde se almacena el fichero a leer.
-   * @return	RDD generada
+   * @param  sc  Contexto Spark
+   * @param  args  Opciones para la lectura del fichero. El primer argumento ha de
+   * ser el directorio donde se almacena el fichero a leer.
+   * @return  RDD generada
    */
   def readCSV(sc: SparkContext, args: Array[String]): RDD[LabeledPoint] = {
 
@@ -42,39 +42,39 @@ class FileReader {
 
     var data = sc.textFile(path)
 
-    //En el caso de que el fichero contenga una cabezera lo eliminamos
-    if (header == true) {
+    // En el caso de que el fichero contenga una cabezera lo eliminamos
+    if (header) {
       data = data.zipWithIndex().filter(_._2 >= headerLines).map(_._1)
     }
 
-    //Transformación sobre la RDD para almacenar las instancias en LabeledPoints
-    val parsedData = if (first == false) {
-      //Si el atributo de clase es el último
+    // Transformación sobre la RDD para almacenar las instancias en LabeledPoints
+    if (!first) {
+      // Si el atributo de clase es el último
       data.map { line =>
         val features = line.split(',')
         LabeledPoint(features.last.toDouble,
           Vectors.dense(features.dropRight(1).map(_.toDouble)))
       }
     } else {
-      //Si el atributo de clase es el primero
+      // Si el atributo de clase es el primero
       data.map { line =>
         val features = line.split(',')
-        LabeledPoint(features(0).toDouble, Vectors.dense(features.tail.map(_.toDouble)))
+        LabeledPoint(features(0).toDouble, Vectors.dense(features.tail
+            .map(_.toDouble)))
       }
 
     }
 
-    return parsedData
   }
 
   /**
    *
    */
-  private def readCSVParam(args: Array[String]) {
+  private def readCSVParam(args: Array[String]): Unit = {
     var readingHL = false
     var it = args.iterator
 
-    while (it.hasNext) { //Por cada argumento
+    while (it.hasNext) { // Por cada argumento
       it.next() match {
         case "-f" => first = true
         case "-hl" => {
@@ -82,15 +82,17 @@ class FileReader {
           try {
             headerLines = it.next.toInt
           } catch {
-            //Si el siguiente parámetro no es numérico o directamente no existe
+            // Si el siguiente parámetro no es numérico o directamente no existe
             case e @ (_: IllegalStateException | _: NumberFormatException) =>
               printWrongArgsCSVError()
-              throw new IllegalArgumentException("Wrong parameter format when trying to read the dataset")
+              throw new IllegalArgumentException("Wrong parameter format when" +
+                  "trying to read the dataset")
           }
         }
         case _ =>
           printWrongArgsCSVError()
-          throw new IllegalArgumentException("Wrong parameter format when trying to read the dataset")
+          throw new IllegalArgumentException("Wrong parameter format when trying" +
+              "to read the dataset")
       }
 
     }
@@ -98,13 +100,14 @@ class FileReader {
 
   /**
    * Dada una cadena de argumentos inicial, la subdivide en dos: una que contiene
-   * los argumentos para el selector de instancias y otra que contiene el resto de argumentos.
+   * los argumentos para el selector de instancias y otra que contiene el resto de
+   * argumentos.
    *
-   * La cadena inicial ha de contener los argumentos ordenados de la siguiente manera:
-   * argumentosLector restoArgumentos.
+   * La cadena inicial ha de contener los argumentos ordenados de la siguiente
+   * manera: argumentosLector restoArgumentos.
    *
-   * @param	args	Cadena de argumentos inicial.
-   * @return Dos cadenas de argumentos.
+   * @param  args  Cadena de argumentos inicial.
+   * @return  Dos cadenas de argumentos.
    */
   def divideArgs(args: Array[String]): (Array[String], Array[String]) = {
     var otherArgs: ArrayBuffer[String] = ArrayBuffer.empty[String]
@@ -131,7 +134,8 @@ class FileReader {
       }
 
     }
-    return (otherArgs.toArray, readerArgs.toArray)
+
+    (otherArgs.toArray, readerArgs.toArray)
   }
 
   /**
@@ -139,12 +143,14 @@ class FileReader {
    * formato de los argumentos de entrada para el lectorCSV
    *
    */
-  private def printWrongArgsCSVError() {
-    System.err.println("Wrong input parameter format when trying to read the dataset.")
+  private def printWrongArgsCSVError(): Unit = {
+    System.err.println("Wrong input parameter format when trying to read the" +
+        "dataset.")
     System.err.println("Possible arguments are:")
-    System.err.println("\t -f \t Points out that the class attribute is the first one.(Default: last) ")
-    System.err.println("\t -hl + int \t Number of lines the dataset header has. Do NOT invoke this" +
-      "argument if the file has no header.(Default: No header)")
+    System.err.println("\t -f \t Points out that the class attribute is the first" +
+        "one.(Default: last) ")
+    System.err.println("\t -hl + int \t Number of lines the dataset header has. " + 
+        "Do NOT invoke this argument if the file has no header.(Default: No header)")
 
   }
 }

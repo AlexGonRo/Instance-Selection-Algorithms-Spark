@@ -18,44 +18,49 @@ import org.apache.spark.rdd.RDD
  */
 class ResultSaver {
 
+  val tmpResultsPath = "results/tmp"
+  val resultPath = "results"
+
   /**
    * Guarda una RDD en un único fichero en la máquina principal.
    *
    * El fichero será almacenado en una carpeta de nombre "results"(de no existir
    * será creada).
    *
-   * @param	args		Argumentos utilizados en el lanzamiento de la aplicación.
-   * @param result	Resultado a almacenar
+   * @param  args  Argumentos utilizados en el lanzamiento de la aplicación.
+   * @param  result  Resultado a almacenar
    */
-  def storeInFile(args: Array[String], rdd: RDD[LabeledPoint]) = {
-    //Borramos el directorio(si existiese) donde guardaremos el resultado 
-    //y añadimos el resultado de la última ejecución
+  def storeInFile(args: Array[String], rdd: RDD[LabeledPoint]): Unit = {
+
+    // Borramos el directorio(si existiese) donde guardaremos el resultado
+    // y añadimos el resultado de la última ejecución
 
     val algName = args(0)
-    //TODO La carpeta results se crea donde sea que llamemos a la función main.
-    //¿Variables del sistema para arreglarlo?
-    val resultFile = new File("results")
+    // TODO La carpeta results se crea donde sea que llamemos a la función main.
+    // ¿Variables del sistema para arreglarlo?
+    val resultFile = new File(resultPath)
     if (!resultFile.exists())
       resultFile.mkdir()
-    delete(new File("results/tmp"))
+    delete(new File(tmpResultsPath))
 
-    val writer = new PrintWriter(new File("results/" + algName + ": " + Calendar.getInstance.getTime))
+    val writer = new PrintWriter(new File("results/" + algName + ": " +
+        Calendar.getInstance.getTime))
 
     printSummaryInFile(writer, args)
     printResultInFile(writer, rdd, args)
 
     writer.close()
-    delete(new File("results/tmp"))
+    delete(new File(tmpResultsPath))
 
   }
 
   /**
    * Copia el contenido de un fichero en otro.
    *
-   * @param writer	Escritor del fichero al que queremos añadir la copia
-   * @param	file	Fichero a copiar
+   * @param writer  Escritor del fichero al que queremos añadir la copia
+   * @param file  Fichero a copiar
    */
-  private def copyFileContent(writer: PrintWriter, file: File) {
+  private def copyFileContent(writer: PrintWriter, file: File): Unit = {
 
     val bufferedSource = Source.fromFile(file.getPath)
 
@@ -64,8 +69,9 @@ class ResultSaver {
       if (writer.checkError()) {
         writer.close()
         bufferedSource.close
-        delete(new File("results/tmp"))
-        throw new IOException("There was a problem while copying the result from the tmp files to the final one. \n")
+        delete(new File(tmpResultsPath))
+        throw new IOException("There was a problem while copying the result from" +
+            "the tmp files to the final one. \n")
 
       }
     }
@@ -79,8 +85,8 @@ class ResultSaver {
    * de esta escritura es que indica que argumentos se han usado en la ejecución
    * del algoritmo de selección de instancias.
    *
-   * @param writer	Escritor
-   * @args	args	Argumentos utilizados para la ejecución del algoritmo.
+   * @param writer  Escritor
+   * @param  args  Argumentos utilizados para la ejecución del algoritmo.
    */
   private def printSummaryInFile(writer: PrintWriter, args: Array[String]) = {
     writer.write("======================\n")
@@ -92,14 +98,16 @@ class ResultSaver {
 
   /**
    * Agrupa el contenido de una RDD en un único fichero.
-   * @param writer	Escritor del fichero
-   * @param	rdd		Estructura RDD que vamos a almacenar en un fichero.
-   * @param args	Argumentos utilizados en la ejecución del algoritmo que ha producido
-   * esta RDD
+   * @param writer  Escritor del fichero
+   * @param rdd  Estructura RDD que vamos a almacenar en un fichero.
+   * @param args  Argumentos utilizados en la ejecución del algoritmo que ha
+   *   producido esta RDD
    */
-  private def printResultInFile(writer: PrintWriter, rdd: RDD[LabeledPoint], args: Array[String]) = {
-    val temporal = new File("results/tmp")
-    rdd.saveAsTextFile("results/tmp")
+  private def printResultInFile(writer: PrintWriter,
+      rdd: RDD[LabeledPoint],
+      args: Array[String]) = {
+    val temporal = new File(tmpResultsPath)
+    rdd.saveAsTextFile(tmpResultsPath)
     val cosa = temporal.listFiles
     for (file <- temporal.listFiles()) {
       if (file.isFile() && !file.getName.startsWith("."))
@@ -115,10 +123,10 @@ class ResultSaver {
    * también. No eliminará, en caso de existir, directorios dentro del
    * indicado.
    *
-   * @param File	Fichero o directorio sobre el que vamos a operar
+   * @param File  Fichero o directorio sobre el que vamos a operar
    */
-  private def delete(file: File) {
-    //Si es un directorio, eliminamos los ficheros que haya en su interior.
+  private def delete(file: File): Unit = {
+    // Si es un directorio, eliminamos los ficheros que haya en su interior.
     if (file.isDirectory)
       Option(file.listFiles).map(_.toList).getOrElse(Nil).foreach(delete(_))
     file.delete
