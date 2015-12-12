@@ -45,8 +45,8 @@ class ISSelector {
             constructor = const
         }
         // Instanciamos y devolvemos la clase.
-        constructor.newInstance(args.drop(1)).asInstanceOf[AbstractIS]
-
+        val selector = constructor.newInstance(args.drop(1)).asInstanceOf[AbstractIS]
+        return selector
       }
     }
 

@@ -1,11 +1,12 @@
 package utils
 
 import scala.collection.mutable.ArrayBuffer
-
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
+import java.util.logging.Logger
+import java.util.logging.Level
 
 // TODO Manera de leer valores nominales. Posible aproximación con StringIndexer
 
@@ -17,6 +18,10 @@ import org.apache.spark.rdd.RDD
  * @author Alejandro González Rogel
  */
 class FileReader {
+
+  // Logger
+  private val bundleName = "strings.stringsUtils";
+  private val logger = Logger.getLogger(classOf[FileReader].getName(), bundleName);
 
   // Atributo de clase es el primero
   var first = false
@@ -60,7 +65,7 @@ class FileReader {
       data.map { line =>
         val features = line.split(',')
         LabeledPoint(features(0).toDouble, Vectors.dense(features.tail
-            .map(_.toDouble)))
+          .map(_.toDouble)))
       }
 
     }
@@ -68,7 +73,10 @@ class FileReader {
   }
 
   /**
+   * Lee una serie de argumentos para actualizar los valores de los atributos de la
+   * clase.
    *
+   * @param  args  Serie de argumentos
    */
   private def readCSVParam(args: Array[String]): Unit = {
     var readingHL = false
@@ -84,15 +92,17 @@ class FileReader {
           } catch {
             // Si el siguiente parámetro no es numérico o directamente no existe
             case e @ (_: IllegalStateException | _: NumberFormatException) =>
-              printWrongArgsCSVError()
+              logger.log(Level.SEVERE, "FileReaderWrongArgsCSVError")
+              logger.log(Level.SEVERE, "FileReaderPossibleArgsCSV")
               throw new IllegalArgumentException("Wrong parameter format when" +
-                  "trying to read the dataset")
+                "trying to read the dataset")
           }
         }
         case _ =>
-          printWrongArgsCSVError()
+          logger.log(Level.SEVERE, "FileReaderWrongArgsCSVError")
+          logger.log(Level.SEVERE, "FileReaderPossibleArgsCSV")
           throw new IllegalArgumentException("Wrong parameter format when trying" +
-              "to read the dataset")
+            "to read the dataset")
       }
 
     }
@@ -138,19 +148,4 @@ class FileReader {
     (otherArgs.toArray, readerArgs.toArray)
   }
 
-  /**
-   * Imprime una serie de mensajes de error indicando el correcto
-   * formato de los argumentos de entrada para el lectorCSV
-   *
-   */
-  private def printWrongArgsCSVError(): Unit = {
-    System.err.println("Wrong input parameter format when trying to read the" +
-        "dataset.")
-    System.err.println("Possible arguments are:")
-    System.err.println("\t -f \t Points out that the class attribute is the first" +
-        "one.(Default: last) ")
-    System.err.println("\t -hl + int \t Number of lines the dataset header has. " + 
-        "Do NOT invoke this argument if the file has no header.(Default: No header)")
-
-  }
 }
