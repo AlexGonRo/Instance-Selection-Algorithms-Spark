@@ -21,7 +21,7 @@ class FileReader {
 
   // Logger
   private val bundleName = "strings.stringsUtils";
-  private val logger = Logger.getLogger(classOf[FileReader].getName(), bundleName);
+  private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   // Atributo de clase es el primero
   var first = false

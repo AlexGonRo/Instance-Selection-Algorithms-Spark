@@ -40,7 +40,7 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
   // Valores por defecto
 
   private val bundleName = "strings.stringsLSHIS";
-  private val logger = Logger.getLogger(classOf[LSHIS].getName(), bundleName);
+  private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   // Número de componentes-AND a utilizar.
   var ANDs: Int = 0

@@ -2,10 +2,12 @@ package main
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-
 import utils.FileReader
 import utils.ISSelector
 import utils.ResultSaver
+import instanceSelection.lshis.LSHIS
+import java.util.logging.Logger
+import java.util.logging.Level
 
 /**
  *
@@ -21,6 +23,9 @@ import utils.ResultSaver
  * @version 1.1.0
  */
 object Main {
+
+  private val bundleName = "strings.stringsMain";
+  private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
    * Función principal de la ejecución.
@@ -49,6 +54,7 @@ object Main {
     // val sc = new SparkContext(new SparkConf())
 
     // Leemos el conjunto de datos
+    logger.log(Level.INFO, "ReadingDataset")
     val reader = new FileReader
     val (isArgs, readerArgs) = reader.divideArgs(args)
     val data = reader.readCSV(sc, readerArgs)
@@ -56,11 +62,14 @@ object Main {
     // Instanciamos y ejecutamos el IS
     val isSelector = new ISSelector()
     val selector = isSelector.instanceAlgorithm(args(0), isArgs);
+    logger.log(Level.INFO, "ApplyingIS")
     val result = selector.instSelection(sc, data)
 
     // Salvamos el resultado en un fichero
+    logger.log(Level.INFO, "Saving")
     val resultSaver = new ResultSaver()
     resultSaver.storeInFile(args, result)
+    logger.log(Level.INFO, "Done")
 
   }
 

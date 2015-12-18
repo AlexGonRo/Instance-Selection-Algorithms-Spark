@@ -24,8 +24,8 @@ abstract class AbstractIS(args: Array[String]){
    * de instancias.
    *
    * @param  sc  Contexto Spark en el que se ejecuta la aplicación.
-   * @param  parsedData  Conjunto inicial.
-   * @return  Conjunto  resultante tras aplicar el algoritmo.
+   * @param  data  Conjunto inicial.
+   * @return  Conjunto resultante tras aplicar el algoritmo.
    */
   def instSelection(sc: SparkContext, data: RDD[LabeledPoint]): RDD[LabeledPoint]
 
