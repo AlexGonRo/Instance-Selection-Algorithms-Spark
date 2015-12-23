@@ -2,7 +2,7 @@ package instanceSelection.lshis
 
 import scala.util.Random
 
-import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.mllib.regression.LabeledPoint
 
 /**
  *
@@ -64,14 +64,15 @@ private class ANDsTable(var numOfANDs: Int,
     /**
      * Genera un valor entero al pasar un vector sobre esta función Hash.
      *
-     * @param features  Vector correspondiente a los atributos de una instancia.
+     * @param attr  Vector correspondiente a los atributos de una instancia.
+     *   Incluye atributo de clase.
      * @param Valor hash para el vector
      */
-    def hash(features: Vector): Long = {
+    def hash(attr: Array[Double]): Long = {
 
       var sum = 0.0;
-      for (i <- 0 until features.size) {
-        sum = sum + (randomProjection(i) * features(i))
+      for (i <- 0 until attr.size) {
+        sum += (randomProjection(i) * attr(i))
       }
 
       var result = (sum + offset) / width
@@ -81,26 +82,23 @@ private class ANDsTable(var numOfANDs: Int,
 
   }
 
-
   /**
    * Genera un valor al pasar un vector sobre todas las funciones [[EuclideanHash]]
    * almacenadas.
    *
-   * @param  features  Vector correspondiente a los atributos de una instancia.
+   * @param  int  Instancia sobre la que calcula el hash
    * @param Valor hash para el vector
    */
-  def hash(features: Vector): Long = {
+  def hash(inst: LabeledPoint): Long = {
 
+    val attr = inst.features.toArray :+ inst.label
     // Calculamos todos los valores resultantes de pasar el vector por cada una
     // de las funciones hash (ANDs) que guarda el objeto.
     val hashValues = for (i <- 0 until ands.size)
-      yield ands(i).hash(features)
+      yield ands(i).hash(attr)
 
     hashValues.hashCode()
 
   }
-
-
-
 
 }

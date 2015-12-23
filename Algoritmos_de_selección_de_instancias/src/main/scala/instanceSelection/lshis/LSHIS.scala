@@ -75,7 +75,7 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
       // Transformamos la RDD para generar tuplas de (bucket asignado, clase)
       // e instancia
       val keyInstRDD = parsedData.map { instancia =>
-        ((andTable.hash(instancia.features), instancia.label), instancia)
+        ((andTable.hash(instancia), instancia.label), instancia)
       }
       val keyInstRDDGroupBy = keyInstRDD.groupByKey
 
@@ -88,7 +88,8 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
         // Recalculamos los buckets para las instancias ya seleccionadas
         // en otras iteraciones
         val alreadySelectedInst = finalResult.map { instancia =>
-          ((andTable.hash(instancia.features), instancia.label), instancia)
+
+          ((andTable.hash(instancia), instancia.label), instancia)
         }
 
         // Sobre la RDD de la iteración, seleccionamos una instancia por key
@@ -153,7 +154,7 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
    * @param  dim  Dimensión de las funciones hash
    * @return Array con todas las tablas instanciadas
    */
-  private def createANDTables(dim: Int): ArrayBuffer[ANDsTable] ={
+  private def createANDTables(dim: Int): ArrayBuffer[ANDsTable] = {
 
     // Creamos tantos componentes AND como sean requeridos.
     var andTables: ArrayBuffer[ANDsTable] = new ArrayBuffer[ANDsTable]
