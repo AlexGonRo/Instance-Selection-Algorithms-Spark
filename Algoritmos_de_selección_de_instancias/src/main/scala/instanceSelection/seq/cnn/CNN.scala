@@ -30,9 +30,9 @@ class CNN extends LinearISTrait {
     // del algoritmo
     var keepGoing = true
     while (keepGoing) {
-      doTheLogic(s, data) match{
+      doTheLogic(s, data) match {
         case Left(inst) => s += inst
-        case Right(_) => keepGoing = false
+        case Right(_)   => keepGoing = false
       }
 
     }
@@ -53,16 +53,23 @@ class CNN extends LinearISTrait {
    *   indicar la finalización del algoritmo
    */
   private def doTheLogic(
-      s: Iterable[LabeledPoint],
-      data: Iterable[LabeledPoint]): Either[LabeledPoint,Boolean] = {
+    s: Iterable[LabeledPoint],
+    data: Iterable[LabeledPoint]): Either[LabeledPoint, Boolean] = {
 
-    var iterador = data.iterator
-    while (iterador.hasNext) {
-      val actualInst = iterador.next()
-      val closestInst = closestInstance(s, actualInst)
-      if (closestInst.label != actualInst.label) {
+    var iter = data.iterator
+    while (iter.hasNext) {
+      val actualInst = iter.next()
+      val closestInst = closestInstances(s, actualInst)
+      var addToS = true
+      for (instance <- closestInst) {
+        if (instance.label == actualInst.label) {
+          addToS = false
+        }
+      }
+      if (addToS) {
         return Left(actualInst)
       }
+
     }
 
     return Right(false)
@@ -75,19 +82,22 @@ class CNN extends LinearISTrait {
    * @param  inst  Instancia a comparar
    * @return  Instancia más cercana
    */
-  private def closestInstance(s: Iterable[LabeledPoint],
-      inst: LabeledPoint): LabeledPoint = {
+  private def closestInstances(s: Iterable[LabeledPoint],
+                               inst: LabeledPoint): Iterable[LabeledPoint] = {
 
     var minDist = Double.MaxValue
-    var closest: LabeledPoint = null
+    var closest: MutableList[LabeledPoint] = MutableList.empty[LabeledPoint]
     var iterador = s.iterator
     while (iterador.hasNext) {
       var actualInstance = iterador.next()
       val actualDist = euclideanDistance(
-          inst.features.toArray, actualInstance.features.toArray)
-      if (actualDist < minDist) {
+        inst.features.toArray, actualInstance.features.toArray)
+      if (actualDist == minDist)
+        closest += actualInstance
+      else if (actualDist < minDist) { 
         minDist = actualDist
-        closest = actualInstance
+        closest = MutableList.empty[LabeledPoint]
+        closest += actualInstance
       }
     }
 
@@ -101,11 +111,11 @@ class CNN extends LinearISTrait {
    * raiz cuadrada con la intención de ahorrar operaciones.
    */
   private def euclideanDistance(point1: Array[Double],
-      point2: Array[Double]): Double = {
+                                point2: Array[Double]): Double = {
 
     var dist = 0.0
     var i = 0
-    for (i <- 0 until point1.size) 
+    for (i <- 0 until point1.size)
       dist += Math.pow((point1(i) - point2(i)), 2)
 
     return dist

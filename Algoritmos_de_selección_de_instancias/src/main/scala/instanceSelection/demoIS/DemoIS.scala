@@ -5,7 +5,6 @@ import java.util.logging.Logger
 
 import scala.collection.mutable.MutableList
 
-import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
@@ -13,7 +12,10 @@ import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
 import classification.seq.knn.KNN
 import instanceSelection.abstracts.AbstractIS
+import instanceSelection.seq.abstracts.LinearISTrait
 import instanceSelection.seq.cnn.CNN
+import utils.Option
+import utils.partitioner.RandomPartitioner
 
 /**
  * Algoritmo de selección de instancias Democratic Instance Selection.
@@ -28,7 +30,7 @@ import instanceSelection.seq.cnn.CNN
  * @author  Alejandro González Rogel
  * @version 1.0.0
  */
-class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
+class DemoIS extends AbstractIS {
 
   private val bundleName = "strings.stringsDemoIS";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
@@ -41,15 +43,19 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
   // Peso de la precisión sobre el tamaño al calcular el criterio de selección
   var alpha = 0.75
 
+  // Número de paticiones en las que dividiremos el conjunto de datos para
+  // las realizar las votaciones.
+  var numPartitions = 10
+
   // Semilla para el generador de números aleatorios
   var seed = 1
 
   // Número de vecinos cercanos a utilizar en el KNN
-  var k = 5
+  var k = 1
 
-  // Leemos los argumentos de entrada para, en caso de haber sido
-  // introducido alguno, modificar los valores por defecto de los atributos
-  readArgs(args)
+  // Porcentaje del conjunto de datos inicial usado para calcular la precisión
+  // de las diferentes aproximaciones según el número de votos de las instancias.
+  var datasetPerc = 1.0
 
   override def instSelection(
     sc: SparkContext,
@@ -57,14 +63,14 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
 
     // Añadimos a las instancias un contador para llevar la cuenta del número
     // de veces que han sido seleccionadas en el siguiente paso
-    var RDDconContador = parsedData.map(instance => (0, instance))
+    val RDDconContador = parsedData.map(instance => (0, instance))
 
     val resultIter = doIterations(RDDconContador)
 
     val (indexBestCrit, bestCrit) = lookForBestCriterion(resultIter)
 
     return resultIter.filter(
-        tupla => tupla._1 >= indexBestCrit + 1).map(tupla => tupla._2)
+      tupla => tupla._1 < indexBestCrit + 1).map(tupla => tupla._2)
 
   }
 
@@ -83,16 +89,24 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
 
     for (i <- 0 until args.size by 2) {
       args(i) match {
-        case "-rep"   => numRepeticiones = args(i + 1).toInt
-        case "-alpha" => alpha = args(i + 1).toDouble
-        case "-s"     => seed = args(i + 1).toInt
-        case "-k"     => k = args(i + 1).toInt
-        case _ =>
-          logger.log(Level.SEVERE, "DemoISWrongArgsError")
+        case "-rep"    => numRepeticiones = args(i + 1).toInt
+        case "-alpha"  => alpha = args(i + 1).toDouble
+        case "-s"      => seed = args(i + 1).toInt
+        case "-k"      => k = args(i + 1).toInt
+        case "-np"     => numPartitions = args(i + 1).toInt
+        case "-dsperc" => datasetPerc = args(i + 1).toInt
+        case any =>
+          logger.log(Level.SEVERE, "DemoISWrongArgsError", any.toString())
           logger.log(Level.SEVERE, "DemoISPossibleArgs")
           throw new IllegalArgumentException()
       }
 
+      if (numRepeticiones <= 0 || alpha < 0 || alpha > 1 || k <= 0 ||
+        numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100) {
+        logger.log(Level.SEVERE, "DemoISWrongArgsValuesError")
+        logger.log(Level.SEVERE, "DemoISPossibleArgs")
+        throw new IllegalArgumentException()
+      }
     }
 
   }
@@ -108,29 +122,25 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
    * @return Conjunto de datos original con los contadores actualizados
    */
   private def doIterations(
-      RDDconContador: RDD[(Int, LabeledPoint)]): RDD[(Int, LabeledPoint)] = {
+    RDDconContador: RDD[(Int, LabeledPoint)]): RDD[(Int, LabeledPoint)] = {
 
-    // TODO De momento se aplica el mismo algoritmo de IS en cada repetición
+    // Algoritmo secuencial a usar en cada subconjunto de datos.
+    // TODO De momento no se habilita la posibilidad de cambiar este parametro.
+    val seqAlgorithm: LinearISTrait = new CNN()
 
-    val cnnAlgorithm = new CNN()
     var isInNodes = new ISInNodes()
     var actualRDD = RDDconContador
 
     for (i <- 0 until numRepeticiones) {
       // Redistribuimos las instancias en los nodos
-      if (i > 0) {
-        var numPartitions = actualRDD.partitions.size
-        actualRDD = actualRDD.partitionBy(new HashPartitioner(numPartitions))
-      }
+      actualRDD = actualRDD.partitionBy(
+        new RandomPartitioner(numPartitions, seed + 1))
 
       // En cada nodo aplicamos el algoritmo de selección de instancias
       actualRDD = actualRDD.mapPartitions(instancesIterator => {
-        isInNodes.applyIterationPerPartition(instancesIterator, cnnAlgorithm)
-
+        isInNodes.applyIterationPerPartition(instancesIterator, seqAlgorithm)
       })
-
     }
-
     actualRDD
   }
 
@@ -148,22 +158,23 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
    *
    */
   private def lookForBestCriterion(
-      RDDconContador: RDD[(Int, LabeledPoint)]): (Int, Double) = {
+    RDDconContador: RDD[(Int, LabeledPoint)]): (Int, Double) = {
 
     var criterion = new MutableList[Double]
+    // Creamos un conjunto de test
+    val testRDD =
+      RDDconContador.sample(false, datasetPerc / 100, seed).map(tupla => tupla._2)
+
     for (i <- 1 to numRepeticiones) {
-      // TODO Este porcentaje debería variar en función del número de instancias
-      // que tengamos y, probablemente, ser introducido por parámetro.
-      val partOrininalRDD = RDDconContador.sample(false, 0.1, seed)
 
       // Seleccionamos todas las instancias que superan el tresshold parcial
-      val selectedInst = partOrininalRDD.filter(
-        tupla => tupla._1 >= i).map(tupla => tupla._2)
+      val selectedInst = RDDconContador.filter(
+        tupla => tupla._1 < i).map(tupla => tupla._2)
 
       if (selectedInst.isEmpty())
         criterion += Double.MaxValue
       else
-        criterion += calcCriterion(selectedInst.collect(),
+        criterion += calcCriterion(selectedInst.collect(), testRDD.collect(),
           RDDconContador.count())
 
     }
@@ -179,6 +190,7 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
    * @return Resultado numérico del criterio de selección.
    */
   private def calcCriterion(selectedInst: Array[LabeledPoint],
+                            testRDD: Array[LabeledPoint],
                             dataSetSize: Long): Double = {
 
     // Calculamos el porcentaje del tamaño que corresponde al subconjunto
@@ -187,15 +199,30 @@ class DemoIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
     // Calculamos la tasa de error
     val knn = new KNN(k, selectedInst)
     var failures = 0
-    for (instancia <- selectedInst) {
+    for (instancia <- testRDD) {
       var result = knn.classify(instancia)
       if (result != instancia.label)
         failures += 1
     }
-    val trainingError = failures.toDouble / selectedInst.size
+    val testError = failures.toDouble / testRDD.size
 
     // Calculamos el criterio de selección.
-    return alpha * trainingError + (1 - alpha) * subDatasize
+    return alpha * testError + (1 - alpha) * subDatasize
+  }
+
+  override def listOptions: Iterable[Option] = {
+    val options: MutableList[Option] = MutableList.empty[Option]
+    options += new Option("Nº rondas", "Número de rondas de votación", "-rep",
+      numRepeticiones, 1)
+    options += new Option("Alpha", "Valor alpha", "-alpha", alpha, 1)
+    options += new Option("Vecinos", "Número de vecinos más cercanos en KNN", "-k", k, 1)
+    options += new Option("Parciciones", "Número de particiones en las" +
+      "que se dividirá el conjunto de datos original", "-pn", numPartitions, 1)
+    options += new Option("Porcentaje error", "Porcentaje del conjunto de datos" +
+      "utilizado para calcular el error durante el cálculo del fitness", "dsperc", datasetPerc, 1)
+    options += new Option("Semilla", "Semilla del generador de números aleatorios", "-s", seed, 1)
+
+    options
   }
 
 }

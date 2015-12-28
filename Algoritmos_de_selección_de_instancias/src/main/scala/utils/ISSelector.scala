@@ -1,9 +1,7 @@
 package utils
 
 import java.lang.reflect.Constructor
-
 import org.reflections.Reflections
-
 import instanceSelection.abstracts.AbstractIS
 
 /**
@@ -26,7 +24,7 @@ class ISSelector {
    * @throws ClassNotFoundException Si no hemos podido encontrar una clase
    *   que coincida con el parametro de entrada.
    */
-  def instanceAlgorithm(algName: String, args: Array[String]): AbstractIS = {
+  def instanceAlgorithm(algName: String): AbstractIS = {
 
     var reflections = new Reflections("instanceSelection");
     var subClasses = reflections.getSubTypesOf(classOf[AbstractIS]);
@@ -40,12 +38,11 @@ class ISSelector {
         // Buscamos el constructor que ha tenido que heredar de AbstractIS
         var constructor: Constructor[_] = null
         for (const <- className.getConstructors()) {
-          if (const.getParameterCount == 1 &&
-              const.getParameterTypes()(0) == classOf[Array[String]])
+          if (const.getParameterCount == 0)
             constructor = const
         }
         // Instanciamos y devolvemos la clase.
-        val selector = constructor.newInstance(args).asInstanceOf[AbstractIS]
+        val selector = constructor.newInstance().asInstanceOf[AbstractIS]
         return selector
       }
     }
