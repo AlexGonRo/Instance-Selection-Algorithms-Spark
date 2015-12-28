@@ -41,7 +41,7 @@ class ResultSaver {
     val resultFile = new File(resultPath)
     if (!resultFile.exists())
       resultFile.mkdir()
-    delete(new File(tmpResultsPath))
+//    delete(new File(tmpResultsPath))
 
     val writer = new PrintWriter(new File("results/" + algName + ": " +
         Calendar.getInstance.getTime))
@@ -50,7 +50,7 @@ class ResultSaver {
     printResultInFile(writer, rdd, args)
 
     writer.close()
-    delete(new File(tmpResultsPath))
+//    delete(new File(tmpResultsPath))
 
   }
 
@@ -60,7 +60,7 @@ class ResultSaver {
    * @param writer  Escritor del fichero al que queremos añadir la copia
    * @param file  Fichero a copiar
    */
-  private def copyFileContent(writer: PrintWriter, file: File): Unit = {
+/*  private def copyFileContent(writer: PrintWriter, file: File): Unit = {
 
     val bufferedSource = Source.fromFile(file.getPath)
 
@@ -79,7 +79,7 @@ class ResultSaver {
     bufferedSource.close
 
   }
-
+*/
   /**
    * Imprime unas lineas ya predefinidas en un fichero. Lo realmente importante
    * de esta escritura es que indica que argumentos se han usado en la ejecución
@@ -106,14 +106,26 @@ class ResultSaver {
   private def printResultInFile(writer: PrintWriter,
       rdd: RDD[LabeledPoint],
       args: Array[String]) = {
-    val temporal = new File(tmpResultsPath)
+    
+    val rddLocalCopy = rdd.collect()
+    rddLocalCopy.foreach { lp => 
+      var line = ""
+
+      lp.features.toArray.map 
+          { value => line += value.toString()+","}
+      line += lp.label.toString+"\n"
+      writer.write(line)
+      
+       
+    }
+/*    val temporal = new File(tmpResultsPath)
     rdd.saveAsTextFile(tmpResultsPath)
     val cosa = temporal.listFiles
     for (file <- temporal.listFiles()) {
       if (file.isFile() && !file.getName.startsWith("."))
         copyFileContent(writer, file)
     }
-
+*/
   }
 
   /**
@@ -125,11 +137,15 @@ class ResultSaver {
    *
    * @param File  Fichero o directorio sobre el que vamos a operar
    */
-  private def delete(file: File): Unit = {
+/*  private def delete(file: File): Unit = {
     // Si es un directorio, eliminamos los ficheros que haya en su interior.
     if (file.isDirectory)
       Option(file.listFiles).map(_.toList).getOrElse(Nil).foreach(delete(_))
     file.delete
+  }
+  */
+  private def spark2csv(linea:String):Unit = {
+    
   }
 
 }
