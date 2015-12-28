@@ -1,8 +1,9 @@
 package instanceSelection.abstracts
 
-import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.rdd.RDD
+import utils.Option
 
 /**
  * Abstracción que incluye todos los métodos que deberán ser implementados por
@@ -15,7 +16,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-abstract class AbstractIS(args: Array[String]){
+trait AbstractIS{
 
   /**
    *
@@ -36,5 +37,13 @@ abstract class AbstractIS(args: Array[String]){
    * @param  args  Argumentos para inicializar el algoritmo.
    */
   def readArgs(args: Array[String]): Unit
-
+  
+  /**
+   * Devuelve un elemento iterable que contiene todas las opciones que ofrece
+   * configurar el selector de instancias.
+   * 
+   * @return Listado de opciones que admite el el selector de instancias. 
+   */
+   def listOptions:Iterable[Option]
+  
 }

@@ -2,16 +2,15 @@ package instanceSelection.lshis
 
 import java.util.logging.Level
 import java.util.logging.Logger
-
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
-
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
-
 import instanceSelection.abstracts.AbstractIS
+import utils.Option
+import scala.collection.mutable.MutableList
 
 /**
  *
@@ -32,10 +31,7 @@ import instanceSelection.abstracts.AbstractIS
  * @author Alejandro
  * @version 1.1.0
  */
-class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
-
-  // TODO Podríamos sobrecargar el constructor para que además de aceptar el
-  // array de strings acepte también valores sueltos.
+class LSHIS extends AbstractIS {
 
   // Valores por defecto
 
@@ -43,23 +39,16 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   // Número de componentes-AND a utilizar.
-  var ANDs: Int = 0
+  var ANDs: Int = 10
   // Número de componentes-OR a utilizar
-  var ORs: Int = 0
+  var ORs: Int = 1
   // Tamaño de los "buckets".
   var width: Double = 1
   // Semilla para los números aleatorios
   var seed: Long = 1
-
-  // Reasignación de los valores por defecto en función de lo recibido al instanciar
-  // la clase.
-  readArgs(args)
-
   // Generador de números aleatorios.
-  var r = new Random(seed)
+  var r:Random = new Random(seed)
 
-  // TODO Mejora sugerida: Asignar a cada instancia un número para no tener
-  // que arrastrarla todo el proceso.
   override def instSelection(
     sc: SparkContext,
     parsedData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
@@ -81,19 +70,21 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
 
       if (i == 0) { // Si es la primera iteración del bucle for
         // seleccionamos una instancia por key
+
         finalResult = keyInstRDDGroupBy.map[LabeledPoint] {
           case (tupla, instancias) => instancias.head
         }
-      } else { // Si no es la primera iteración del bucle for (primer componente OR)
+
+      } else { 
+        // Si no es la primera iteración del bucle for (primer componente OR)
         // Recalculamos los buckets para las instancias ya seleccionadas
         // en otras iteraciones
-        val alreadySelectedInst = finalResult.map { instancia =>
 
+        val alreadySelectedInst = finalResult.map { instancia =>
           ((andTable.hash(instancia), instancia.label), instancia)
         }
-
         // Sobre la RDD de la iteración, seleccionamos una instancia por key
-        val keyClassRDD = keyInstRDDGroupBy.map[((Long, Double), LabeledPoint)] {
+        val keyClassRDD = keyInstRDDGroupBy.map[((Int, Double), LabeledPoint)] {
           case (tupla, instancias) => (tupla, instancias.head)
         }
 
@@ -104,7 +95,8 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
           case (tupla, instancia) => instancia
         }
 
-        // Unimos el resultado de la iteración con el resultado parcial ya almacenado
+        // Unimos el resultado de la iteración con el resultado parcial ya
+        // almacenado
         finalResult = finalResult.union(selectedInstances)
       }
     }
@@ -128,11 +120,12 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
     for (i <- 0 until args.size by 2) {
       args(i) match {
         case "-and" => ANDs = args(i + 1).toInt
-        case "-w"   => width = args(i + 1).toInt
-        case "-s"   => seed = args(i + 1).toInt
+        case "-w"   => width = args(i + 1).toDouble
+        case "-s"   => {seed = args(i + 1).toInt
+          r = new Random(seed)}
         case "-or"  => ORs = args(i + 1).toInt
-        case _ =>
-          logger.log(Level.SEVERE, "LSHISWrongArgsError")
+        case any =>
+          logger.log(Level.SEVERE, "LSHISWrongArgsError", any.toString())
           logger.log(Level.SEVERE, "LSHISPossibleArgs")
           throw new IllegalArgumentException()
       }
@@ -140,7 +133,7 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
 
     // Si las variables no han sido asignadas con un valor correcto.
     if (ANDs <= 0 || ORs <= 0 || width <= 0) {
-      logger.log(Level.SEVERE, "LSHISWrongArgsError")
+      logger.log(Level.SEVERE, "LSHISWrongArgsValuesError")
       logger.log(Level.SEVERE, "LSHISPossibleArgs")
       throw new IllegalArgumentException()
     }
@@ -164,4 +157,15 @@ class LSHIS(args: Array[String]) extends AbstractIS(args: Array[String]) {
     andTables
   } // end createANDTables
 
-}// end printWrongArgsError
+  override def listOptions: Iterable[Option] = {
+    val options: MutableList[Option] = MutableList.empty[Option]
+    options += new Option("ANDs", "Número de funciones-AND", "-and", ANDs, 1)
+    options += new Option("ORs", "Número de funciones-OR", "-or", ORs, 1)
+    options += new Option("Anchura", "Anchura de los buckets", "-w", width, 1)
+    options += new Option("Semilla", "Semilla del generador de números"+
+        "aleatorios", "-s", seed, 1)
+
+    options
+  } // end listOptions
+
+}

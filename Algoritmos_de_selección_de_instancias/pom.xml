@@ -64,6 +64,12 @@
 			<scope>compile</scope>
 		</dependency>
 
+<dependency>
+    <groupId>org.scala-lang.modules</groupId>
+    <artifactId>scala-swing_2.11</artifactId>
+    <version>1.0.1</version>
+    <scope>compile</scope>
+</dependency>
 		
 	</dependencies>
 

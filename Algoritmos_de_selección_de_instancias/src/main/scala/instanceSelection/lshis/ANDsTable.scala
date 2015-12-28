@@ -1,8 +1,8 @@
 package instanceSelection.lshis
 
 import scala.util.Random
-
 import org.apache.spark.mllib.regression.LabeledPoint
+import java.util.Arrays
 
 /**
  *
@@ -25,9 +25,12 @@ private class ANDsTable(var numOfANDs: Int,
                         seed: Long) extends Serializable {
 
   // Creamos tantos objetos EuclideanHash como se requieran
-  val ands = for (i <- 0 until numOfANDs)
-    yield new EuclideanHash(dim, width, seed + i)
+    val ands = for (i <- 0 until numOfANDs)
+      yield new EuclideanHash(dim, width, seed + i)
 
+    
+     
+  
   /**
    *
    * Clase que contiene una función hash basada en la distancia euclidea entre
@@ -68,7 +71,7 @@ private class ANDsTable(var numOfANDs: Int,
      *   Incluye atributo de clase.
      * @param Valor hash para el vector
      */
-    def hash(attr: Array[Double]): Long = {
+    def hash(attr: Array[Double]): Int = {
 
       var sum = 0.0;
       for (i <- 0 until attr.size) {
@@ -77,7 +80,7 @@ private class ANDsTable(var numOfANDs: Int,
 
       var result = (sum + offset) / width
 
-      result.round.toLong
+      result.round.toInt
     }
 
   }
@@ -89,7 +92,7 @@ private class ANDsTable(var numOfANDs: Int,
    * @param  int  Instancia sobre la que calcula el hash
    * @param Valor hash para el vector
    */
-  def hash(inst: LabeledPoint): Long = {
+  def hash(inst: LabeledPoint): Int = {
 
     val attr = inst.features.toArray :+ inst.label
     // Calculamos todos los valores resultantes de pasar el vector por cada una
@@ -97,8 +100,7 @@ private class ANDsTable(var numOfANDs: Int,
     val hashValues = for (i <- 0 until ands.size)
       yield ands(i).hash(attr)
 
-    hashValues.hashCode()
-
+    Arrays.hashCode(hashValues.toArray)
   }
 
 }
