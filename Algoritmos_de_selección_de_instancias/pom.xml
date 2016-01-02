@@ -57,13 +57,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.9-RC1</version>
-			<scope>compile</scope>
-		</dependency>
-
 <dependency>
     <groupId>org.scala-lang.modules</groupId>
     <artifactId>scala-swing_2.11</artifactId>

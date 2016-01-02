@@ -53,7 +53,7 @@ class LSHIS extends AbstractIS {
     sc: SparkContext,
     parsedData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
-    val andTables = createANDTables(parsedData.first().features.size + 1)
+    val andTables = createANDTables(parsedData.first().features.size /*+ 1*/)
 
     // Variable para almacenar el resultado final
     var finalResult: RDD[LabeledPoint] = null
@@ -115,7 +115,7 @@ class LSHIS extends AbstractIS {
    * @throws  IllegalArgumentException En caso de no respetarse el formato
    *  mencionado.
    */
-  override def readArgs(args: Array[String]): Unit = {
+  override def setParameters(args: Array[String]): Unit = {
 
     for (i <- 0 until args.size by 2) {
       args(i) match {

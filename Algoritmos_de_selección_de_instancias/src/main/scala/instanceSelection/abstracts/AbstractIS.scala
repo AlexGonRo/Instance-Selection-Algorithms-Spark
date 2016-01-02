@@ -31,12 +31,12 @@ trait AbstractIS{
   def instSelection(sc: SparkContext, data: RDD[LabeledPoint]): RDD[LabeledPoint]
 
   /**
-   * Dado un conjunto de datos, este método es capaz de analizarlos e inicializar
+   * Dada una lista de parámetros, este método es capaz de analizarlos e inicializar
    * con ellos los valores iniciales del algoritmo.
    *
    * @param  args  Argumentos para inicializar el algoritmo.
    */
-  def readArgs(args: Array[String]): Unit
+  def setParameters(args: Array[String]): Unit
   
   /**
    * Devuelve un elemento iterable que contiene todas las opciones que ofrece

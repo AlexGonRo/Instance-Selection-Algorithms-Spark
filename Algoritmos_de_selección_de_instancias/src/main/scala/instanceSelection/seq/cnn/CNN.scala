@@ -7,6 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.mllib.linalg.Vector
 import scala.collection.mutable.MutableList
 import instanceSelection.seq.abstracts.LinearISTrait
+import utils.Option
 
 /**
  * Algoritmo de selección de instancias Condensed Nearest Neighbor (CNN)
@@ -121,4 +122,21 @@ class CNN extends LinearISTrait {
     return dist
   }
 
+  
+    /**
+   * Devuelve un elemento iterable que contiene todas las opciones que ofrece
+   * configurar el selector de instancias.
+   * 
+   * @return Listado de opciones que admite el el selector de instancias. 
+   */
+   override def listOptions:Iterable[Option] ={
+     MutableList.empty[Option]
+   }
+   
+
+  override def setParameters(args: Array[String]): Unit = {
+    
+  }
+  
+  
 }

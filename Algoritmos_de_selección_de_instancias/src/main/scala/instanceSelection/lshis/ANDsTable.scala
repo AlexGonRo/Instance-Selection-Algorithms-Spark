@@ -94,7 +94,7 @@ private class ANDsTable(var numOfANDs: Int,
    */
   def hash(inst: LabeledPoint): Int = {
 
-    val attr = inst.features.toArray :+ inst.label
+    val attr = inst.features.toArray /*:+ inst.label*/
     // Calculamos todos los valores resultantes de pasar el vector por cada una
     // de las funciones hash (ANDs) que guarda el objeto.
     val hashValues = for (i <- 0 until ands.size)

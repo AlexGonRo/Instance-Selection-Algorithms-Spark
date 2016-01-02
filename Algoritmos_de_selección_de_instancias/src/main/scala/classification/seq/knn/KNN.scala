@@ -1,10 +1,11 @@
 package classification.seq.knn
 
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.mllib.regression.LabeledPoint
-
 import classification.seq.abstracts.TraitClassifier
+import utils.Option
+import java.util.logging.Logger
+import java.util.logging.Level
 
 /**
  * Clasificador KNN.
@@ -20,8 +21,38 @@ import classification.seq.abstracts.TraitClassifier
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class KNN(var k: Int, var data: Iterable[LabeledPoint]) extends TraitClassifier {
+class KNN extends TraitClassifier {
 
+  private val bundleName = "strings.stringsKNN";
+  private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
+  
+  var k = 1
+  var data:Iterable[LabeledPoint] = Iterable.empty[LabeledPoint]
+  
+
+  override def setParameters(args: Array[String]): Unit = {
+        for (i <- 0 until args.size by 2) {
+      args(i) match {
+        case "-k" => k = args(i + 1).toInt
+        case any =>
+          logger.log(Level.SEVERE, "KNNWrongArgsError", any.toString())
+          logger.log(Level.SEVERE, "KNNISPossibleArgs")
+          throw new IllegalArgumentException()
+      }
+    }
+
+    // Si las variables no han sido asignadas con un valor correcto.
+    if (k <= 0) {
+      logger.log(Level.SEVERE, "KNNWrongArgsValuesError")
+      logger.log(Level.SEVERE, "KNNPossibleArgs")
+      throw new IllegalArgumentException()
+    }
+  }
+  
+  override def train(trainingSet:Iterable[LabeledPoint]):Unit = {
+    data = trainingSet
+  }
+  
   override def classify(inst: LabeledPoint): Double = {
 
     // Calculamos la distancia a cada una de las instancias del conjunto de
@@ -100,5 +131,11 @@ class KNN(var k: Int, var data: Iterable[LabeledPoint]) extends TraitClassifier 
 
     closest
   }
+  
+    override def listOptions: Iterable[Option] = {
+    val options: MutableList[Option] = MutableList.empty[Option]
+    options += new Option("Vecinos", "Número de vecinos cercanos", "-k", k, 1)
+    options
+  } // end listOptions
 
 }

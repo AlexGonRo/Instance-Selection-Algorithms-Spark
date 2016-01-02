@@ -85,7 +85,7 @@ class DemoIS extends AbstractIS {
    * @throws  IllegalArgumentException En caso de no respetarse el formato
    *  mencionado.
    */
-  override def readArgs(args: Array[String]): Unit = {
+  override def setParameters(args: Array[String]): Unit = {
 
     for (i <- 0 until args.size by 2) {
       args(i) match {
@@ -94,7 +94,7 @@ class DemoIS extends AbstractIS {
         case "-s"      => seed = args(i + 1).toInt
         case "-k"      => k = args(i + 1).toInt
         case "-np"     => numPartitions = args(i + 1).toInt
-        case "-dsperc" => datasetPerc = args(i + 1).toInt
+        case "-dsperc" => datasetPerc = args(i + 1).toDouble
         case any =>
           logger.log(Level.SEVERE, "DemoISWrongArgsError", any.toString())
           logger.log(Level.SEVERE, "DemoISPossibleArgs")
@@ -197,7 +197,12 @@ class DemoIS extends AbstractIS {
     val subDatasize = selectedInst.size.toDouble / dataSetSize
 
     // Calculamos la tasa de error
-    val knn = new KNN(k, selectedInst)
+    val knn = new KNN()
+    val knnParameters:Array[String] = Array.ofDim(2)
+    knnParameters(0)="-k"
+    knnParameters(1)=k.toString()
+    knn.setParameters(knnParameters)
+    knn.train(selectedInst)
     var failures = 0
     for (instancia <- testRDD) {
       var result = knn.classify(instancia)
@@ -217,9 +222,9 @@ class DemoIS extends AbstractIS {
     options += new Option("Alpha", "Valor alpha", "-alpha", alpha, 1)
     options += new Option("Vecinos", "Número de vecinos más cercanos en KNN", "-k", k, 1)
     options += new Option("Parciciones", "Número de particiones en las" +
-      "que se dividirá el conjunto de datos original", "-pn", numPartitions, 1)
+      "que se dividirá el conjunto de datos original", "-np", numPartitions, 1)
     options += new Option("Porcentaje error", "Porcentaje del conjunto de datos" +
-      "utilizado para calcular el error durante el cálculo del fitness", "dsperc", datasetPerc, 1)
+      "utilizado para calcular el error durante el cálculo del fitness", "-dsperc", datasetPerc, 1)
     options += new Option("Semilla", "Semilla del generador de números aleatorios", "-s", seed, 1)
 
     options

@@ -39,13 +39,9 @@ class FileReader {
    * ser el directorio donde se almacena el fichero a leer.
    * @return  RDD generada
    */
-  def readCSV(sc: SparkContext, args: Array[String]): RDD[LabeledPoint] = {
+  def readCSV(sc: SparkContext,filePath:String): RDD[LabeledPoint] = {
 
-    val path = args(0)
-
-    readCSVParam(args.drop(1))
-
-    var data = sc.textFile(path)
+    var data = sc.textFile(filePath)
 
     // En el caso de que el fichero contenga una cabezera lo eliminamos
     if (header) {
@@ -78,7 +74,7 @@ class FileReader {
    *
    * @param  args  Serie de argumentos
    */
-  private def readCSVParam(args: Array[String]): Unit = {
+  def setCSVParam(args: Array[String]): Unit = {
     var readingHL = false
     var it = args.iterator
 
@@ -106,46 +102,6 @@ class FileReader {
       }
 
     }
-  }
-
-  /**
-   * Dada una cadena de argumentos inicial, la subdivide en dos: una que contiene
-   * los argumentos para el selector de instancias y otra que contiene el resto de
-   * argumentos.
-   *
-   * La cadena inicial ha de contener los argumentos ordenados de la siguiente
-   * manera: argumentosLector restoArgumentos.
-   *
-   * @param  args  Cadena de argumentos inicial.
-   * @return  Dos cadenas de argumentos.
-   */
-  def divideArgs(args: Array[String]): (Array[String], Array[String]) = {
-
-    var otherArgs: ArrayBuffer[String] = ArrayBuffer.empty[String]
-    var readerArgs: ArrayBuffer[String] = ArrayBuffer.empty[String]
-    readerArgs += args(1)
-
-    var takeNext = false
-    var weDone = false
-    for (i <- 2 until args.size) {
-      if (weDone) {
-        otherArgs += args(i)
-      } else if (takeNext) {
-        readerArgs += args(i)
-        takeNext = false
-      } else if (args(i) == "-hl") {
-        readerArgs += args(i)
-        takeNext = true
-      } else if (args(i) == "-f") {
-        readerArgs += args(i)
-      } else {
-        otherArgs += args(i)
-        weDone = true
-      }
-
-    }
-
-    (otherArgs.toArray, readerArgs.toArray)
   }
 
 }
