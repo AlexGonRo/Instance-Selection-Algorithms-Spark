@@ -51,28 +51,32 @@ class ResultSaver {
   /**
    * Almacena en un fichero de texto información sobre el resultado de las
    * operaciones.
-   * 
+   *
    * @param  args  argumentos de llamada de la ejecución
    * @param  initialData  Conjunto de datos inicial
-   * @param  dataPostFilter  Conjunto de datos tras la operación de selección 
+   * @param  dataPostFilter  Conjunto de datos tras la operación de selección
    *   de instancias.
    * @param  classifierName  Nombre del clasificador de instancias
    * @param  classificationResult  Tasa de acierto de clasificación
    * @param  filterTime  Tiempo tardado en ejecutar la selección de instancias.
-   * 
+   *
    */
   def storeResultsInFile(args: Array[String],
-      filterTime: Double,
-      reduction:Double,
-      classificationResult: Double,
-      filterName:String,
-      classifierName: String): Unit = {
+                         filterTime: Double,
+                         reduction: Double,
+                         classificationResult: Double,
+                         filterName: String,
+                         classifierName: String): Unit = {
+
+    val resultFile = new File(resultPath)
+    if (!resultFile.exists())
+      resultFile.mkdir()
 
     val writer = new PrintWriter(new File(resultPath + System.getProperty("file.separator") + classifierName + ": " +
       Calendar.getInstance.getTime))
     try {
       printSummaryInFile(writer, args)
-      printResultsInFile(writer, filterTime,reduction,classificationResult,filterName,classifierName)
+      printResultsInFile(writer, filterTime, reduction, classificationResult, filterName, classifierName)
     } finally {
       writer.close()
     }
@@ -117,19 +121,19 @@ class ResultSaver {
   }
 
   private def printResultsInFile(writer: PrintWriter,
-      filterTime: Double,
-      reduction:Double,
-      classificationResult: Double,
-      filterName:String,
-      classifierName: String ): Unit = {
-    writer.write("Filter: "+filterName+"\n")
-    writer.write("Classifier: "+classifierName+"\n")
+                                 filterTime: Double,
+                                 reduction: Double,
+                                 classificationResult: Double,
+                                 filterName: String,
+                                 classifierName: String): Unit = {
+    writer.write("Filter: " + filterName + "\n")
+    writer.write("Classifier: " + classifierName + "\n")
     writer.write("++++++++++++++++++++++\n")
     writer.write("Reduction(%) \t" + "+ " + reduction + "\n")
     writer.write("++++++++++++++++++++++\n")
     writer.write("Accuracy(%) \t" + "+ " + classificationResult + "\n")
     writer.write("++++++++++++++++++++++\n")
-    writer.write("Filter time(s) \t" + "+ " + filterTime/1000 + "\n") 
+    writer.write("Filter time(s) \t" + "+ " + filterTime / 1000 + "\n")
     writer.write("++++++++++++++++++++++\n")
 
   }
