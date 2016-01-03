@@ -11,7 +11,6 @@
 		<scala.compat.version>2.11</scala.compat.version>
 	</properties>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
@@ -57,13 +56,13 @@
 			<scope>provided</scope>
 		</dependency>
 
-<dependency>
-    <groupId>org.scala-lang.modules</groupId>
-    <artifactId>scala-swing_2.11</artifactId>
-    <version>1.0.1</version>
-    <scope>compile</scope>
-</dependency>
-		
+		<dependency>
+			<groupId>org.scala-lang.modules</groupId>
+			<artifactId>scala-swing_2.11</artifactId>
+			<version>1.0.1</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 
@@ -73,7 +72,10 @@
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
 		<resources>
 			<resource>
-				<directory>resources</directory>
+				<directory>.</directory>
+				<includes>
+					<include>resources/**/*.*</include>
+				</includes>
 			</resource>
 		</resources>
 		<plugins>
@@ -163,7 +165,7 @@
 			<!-- AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -->
 
 			<!-- AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -->
-			
+
 		</plugins>
 	</build>
 	<artifactId>ISAlgorithms</artifactId>
