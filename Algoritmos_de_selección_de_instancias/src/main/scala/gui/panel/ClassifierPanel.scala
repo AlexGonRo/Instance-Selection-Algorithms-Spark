@@ -33,6 +33,8 @@ class ClassifierPanel(parentPanel: UI,
   val crossValidationLabel = new Label("Cross-validation")
   val crossValidationCheckBox = new CheckBox
   val crossValidationTextField = new TextField()
+  val cvSeedLabel = new Label("Semilla")
+  val cvSeedTextField = new TextField()
 
   var options = Iterable.empty[utils.Option]
   var classificationAlg: TraitClassifier = null
@@ -48,10 +50,14 @@ class ClassifierPanel(parentPanel: UI,
   }
 
   val panel3 = new BoxPanel(Orientation.Horizontal) {
-    contents += crossValidationCheckBox
     contents += crossValidationLabel
+    contents += crossValidationCheckBox
     contents += Swing.HStrut(6)
     contents += crossValidationTextField
+    contents += Swing.HStrut(6)
+    contents += cvSeedLabel
+    contents += Swing.HStrut(6)
+    contents += cvSeedTextField
   }
 
   //TODO SOLO INSTANCIAMOS ALGO SIN SENTIDO QUE EN NINGÚN MOMENTO USAMOS. Revisarlo
@@ -146,7 +152,7 @@ class ClassifierPanel(parentPanel: UI,
   def getCrossValidationOptions(): String = {
     if(crossValidationCheckBox.selected){
       //TODO No hay campo para la semilla, así que se mete aquí de momento
-      crossValidationTextField.text + " " + 1000
+      crossValidationTextField.text + " " + cvSeedTextField.text + " "
     }
     else{
       ""

@@ -22,11 +22,12 @@ import utils.io.ResultSaver
  * @author Alejandro González Rogel
  * @version 2.0.0
  */
-object MainWithFilter {
+object MainWithIS {
 
   private val bundleName = "strings.stringsMain";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
+  
   /**
    * Función principal de la ejecución.
    *
@@ -42,8 +43,7 @@ object MainWithFilter {
    */
   def main(args: Array[String]): Unit = {
 
-    var crossValidationFolds = 1
-    var crossValidationSeed = 1
+
     var executionTimes = ArrayBuffer.empty[Long]
     var reduction = ArrayBuffer.empty[Double]
     var classificationResults = ArrayBuffer.empty[Double]
@@ -51,10 +51,11 @@ object MainWithFilter {
     val argsDivided = divideArgs(args)
 
     val readerArgs = argsDivided(0)
-    val filterArgs = argsDivided(1)
+    val instSelectorArgs = argsDivided(1)
     val classifierArgs = argsDivided(2)
     val crossValidationArgs = argsDivided(3)
 
+    
     //Utilizado solo para pruebas lanzadas desde Eclipse
         val sparkConf = new SparkConf().setMaster("local[2]").setAppName("Prueba_Eclipse")
         val sc = new SparkContext(sparkConf)
@@ -70,17 +71,13 @@ object MainWithFilter {
       originalData.foreachPartition { i => None }
 
 
-      //Vemos si existe validación cruzada
-      if (!crossValidationArgs.isEmpty) {
-        crossValidationFolds = crossValidationArgs.head.toInt
-        if (crossValidationArgs.size == 2)
-          crossValidationSeed = crossValidationArgs(1).toInt
-      }
-
-      //Subdividimos el conjunto inicial para la validación cruzada
-      //TODO Obligatorio de momento
-      val cvfolds =
-        MLUtils.kFold(originalData, crossValidationFolds, crossValidationSeed)
+      // Subdividimos el conjunto inicial para la validación cruzada
+      val cvfolds = createCVFolds(originalData, crossValidationArgs)
+      
+      // Instanciamos tanto el selector de instancias como el classificador
+      
+      val instSelector = createInstSelector(instSelectorArgs)
+      val classifier = createClassifier(classifierArgs)
 
       // Obtenemos los datos de clasificación
       val foldResult = cvfolds.map {
@@ -90,30 +87,33 @@ object MainWithFilter {
           // Instanciamos y utilizamos el selector de instancias
           val start = System.currentTimeMillis
 
-          val resultFilter = applyFilter(filterArgs, train, sc)
+          val resultInstSelector = applyInstSelector(instSelector, train, sc)
           //TODO ¿Forzar operacion?
-          resultFilter.foreachPartition { i => None }
+          resultInstSelector.foreachPartition { i => None }
           executionTimes += System.currentTimeMillis - start
-          reduction += 1- (resultFilter.count()/train.count().toDouble)
+          reduction += 1- (resultInstSelector.count()/train.count().toDouble)
 
-          val classifierResults = applyClassifier(classifierArgs,
-            resultFilter, test, sc)
+          val classifierResults = applyClassifier(classifier,
+            resultInstSelector, test, sc)
           classificationResults += classifierResults
+          
+          logger.log(Level.INFO, "iterationDone")
         }
       }
 
 
-      val meanFilterExecTime = 
-        executionTimes.reduceLeft { _ + _ } / crossValidationFolds
+      val meanInstSelectorExecTime = 
+        executionTimes.reduceLeft { _ + _ } / cvfolds.size
       val meanReduction =
-        reduction.reduceLeft { _ + _ } / crossValidationFolds
+        reduction.reduceLeft { _ + _ } / cvfolds.size
       val meanAccuracy =
-        classificationResults.reduceLeft{ _ + _ } / crossValidationFolds
+        classificationResults.reduceLeft{ _ + _ } / cvfolds.size
 
-      // salvamos el resultado del filtro en un fichero
-      val filterName = filterArgs(0).split("\\.").last
+      // salvamos el resultado del selector en un fichero
+      val instSelectorName = instSelectorArgs(0).split("\\.").last
       val classifierName = classifierArgs(0).split("\\.").last
-      saveResults(args, meanFilterExecTime,meanReduction, meanAccuracy, filterName, classifierName)
+      saveResults(args, meanInstSelectorExecTime,meanReduction,
+          meanAccuracy, instSelectorName, classifierName)
 
       logger.log(Level.INFO, "Done")
 
@@ -123,8 +123,8 @@ object MainWithFilter {
   }
 
   /**
-   * Divide los argumentos de entrada según sean para el lector, filtro,
-   * clasificador o la validación cruzada
+   * Divide los argumentos de entrada según sean para el lector, selector de 
+   * instancias, clasificador o la validación cruzada
    *
    * @param   args Argumentos de entrada al programa
    *
@@ -143,9 +143,10 @@ object MainWithFilter {
     for (i <- 0 until flags.size)
       optionsArrays(i) = new ArrayBuffer[String]
 
-    if (args(0) != "-r")
-      throw new IllegalArgumentException() //TODO INDICAR UN ERROR AQUÍ SI LA SENTENCIA NO EMPIEZA POR -r
-
+    if (args(0) != "-r"){
+      logger.log(Level.SEVERE,"WrongBeginningParam")
+      throw new IllegalArgumentException()
+    }
     for (i <- 0 until args.size) {
       if (step == flags.size || args(i) != flags(step)) {
         optionsArrays(step - 1) += args(i)
@@ -155,7 +156,7 @@ object MainWithFilter {
     }
     // Comprobamos que se cumplen los requisitos mínimos:
     // Debe existir al menos un atributo para el el lector 
-    // Debe haber opciones para el filtro o para un clasificador
+    // Debe haber opciones para el selector o para un clasificador
     if (optionsArrays(0).isEmpty) {
       logger.log(Level.SEVERE, "NoCommonParameters")
       throw new IllegalArgumentException()
@@ -189,26 +190,84 @@ object MainWithFilter {
     reader.setCSVParam(readerArgs.drop(1))
     reader.readCSV(sc, readerArgs.head)
   }
+  
+  
+  /**
+   * Genera tantos pares de conjuntos entrenamiento-test como se hayan requerido
+   * por parámetro.
+   * 
+   * De no indicarse nada mediante parámetro, se generará un conjunto de test
+   * con el 10% de las instancias.
+   * 
+   * @param  originalData  Conjunto de datos inicial
+   * @param  crossValidationArgs  Argumentos para la validación cruzada
+   * 
+   * @return pares entrenamiento-test
+   */
+  protected def createCVFolds(originalData:RDD[LabeledPoint],
+      crossValidationArgs: Array[String]
+      ): 
+      Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
+    
+      var crossValidationFolds = 1
+      var crossValidationSeed = 1
+      
+            //Vemos si existe validación cruzada
+      if (!crossValidationArgs.isEmpty) {
+        crossValidationFolds = crossValidationArgs.head.toInt
+        if (crossValidationArgs.size == 2)
+          crossValidationSeed = crossValidationArgs(1).toInt
+      }
 
+      if(crossValidationFolds==1){
+        val testANDtrain = originalData.randomSplit(Array(0.1, 0.9), crossValidationSeed)
+       Array((testANDtrain(1),testANDtrain(0)))
+      }else{
+        MLUtils.kFold(originalData, crossValidationFolds, crossValidationSeed)
+      }
+ 
+  }
+  
+  /**
+   * Instancia y configura un selector de instancias
+   * 
+   * @param instSelectorArgs Configuración del selector de instancias
+   * @return Instancia del nuevo selector de instancias
+   */
+  protected def createInstSelector(instSelectorArgs:Array[String]):AbstractIS = {
+    val instSelectorName = instSelectorArgs.head //Seleccionamos el nombre del algoritmo
+    val argsWithoutInstSelectorName = instSelectorArgs.drop(1)
+    val instSelector = Class.forName(instSelectorName).newInstance.asInstanceOf[AbstractIS]
+    instSelector.setParameters(argsWithoutInstSelectorName)
+    instSelector
+  }
+  
+  
+  /**
+   * Intancia y configura un clasificador.
+   */
+  protected def createClassifier(
+      classifierArgs:Array[String]):TraitClassifier = {
+    val classifierName = classifierArgs.head //Seleccionamos el nombre del algoritmo
+    val argsWithoutClassiName = classifierArgs.drop(1)
+    val classifier = Class.forName(classifierName).newInstance.asInstanceOf[TraitClassifier]
+    classifier.setParameters(argsWithoutClassiName)
+    classifier
+  }
   /**
    * Aplica un algoritmo de selección de instancias sobre el conjunto de datos
    * inicial
    *
-   * @param  filterArgs  Argumentos para el ajuste de los parámetros del
-   *   filtro
+   * @param  InstSelector  Selector de isntancias
    * @param originalData  Conjunto de datos inicial
    * @param  sc  Contexto Spark
    * @return Conjunto de instancias resultado
    */
-  protected def applyFilter(filterArgs: Array[String],
+  protected def applyInstSelector(instSelector: AbstractIS,
                             originalData: RDD[LabeledPoint],
                             sc: SparkContext): RDD[LabeledPoint] = {
     logger.log(Level.INFO, "ApplyingIS")
-    val filterName = filterArgs.head //Seleccionamos el nombre del algoritmo
-    val argsWithoutFilterName = filterArgs.drop(1)
-    val filter = Class.forName(filterName).newInstance.asInstanceOf[AbstractIS]
-    filter.setParameters(argsWithoutFilterName)
-    filter.instSelection(sc, originalData)
+    instSelector.instSelection(sc, originalData)
   }
 
   /**
@@ -224,17 +283,12 @@ object MainWithFilter {
    * @param postFilterData  Conjunto de datos de test
    * @param  sc  Contexto Spark
    */
-  protected def applyClassifier(classifierArgs: Array[String],
+  protected def applyClassifier(classifier: TraitClassifier,
                                 trainData: RDD[LabeledPoint],
                                 testData: RDD[LabeledPoint],
                                 sc: SparkContext): Double = {
     //Iniciamos el clasficicador
     logger.log(Level.INFO, "ApplyingClassifier")
-
-    val classifierName = classifierArgs.head //Seleccionamos el nombre del algoritmo
-    val argsWithoutClassiName = classifierArgs.drop(1)
-    val classifier = Class.forName(classifierName).newInstance.asInstanceOf[TraitClassifier]
-    classifier.setParameters(argsWithoutClassiName)
 
     //Entrenamos
     classifier.train(trainData.collect())
@@ -257,22 +311,23 @@ object MainWithFilter {
    * Otro, contendrá un resumen de la ejecución.
    *
    * @param  args  argumentos de llamada de la ejecución
-   * @param  initialData  Conjunto de datos inicial
-   * @param  classifierName  Nombre del clasificador de instancias
+   * @param  instSelectionTime  Tiempo tardado en ejecutar la selección de
+   *   instancias.
+   * @param  reduction Porcentaje de reducción del selector de instancias
    * @param  classificationResult  Tasa de acierto de clasificación
-   * @param  filterTime  Tiempo tardado en ejecutar la selección de instancias.
-   *
+   * @param  instSelectorName Nombre del selector de instancias
+   * @param  classifierName  Nombre del clasificador de instancias
    */
   protected def saveResults(args: Array[String],
-                            filterTime: Double,
+                            instSelectionTime: Double,
                             reduction:Double,
                             classifierResult: Double,
-                            filterName: String,
+                            instSelectorName: String,
                             classifierName: String): Unit = {
     logger.log(Level.INFO, "Saving")
     val resultSaver = new ResultSaver()
-    resultSaver.storeResultsInFile(args,filterTime,reduction, classifierResult,
-      filterName, classifierName)
+    resultSaver.storeResultsInFile(args,instSelectionTime,reduction, classifierResult,
+      instSelectorName, classifierName)
   }
 
 }

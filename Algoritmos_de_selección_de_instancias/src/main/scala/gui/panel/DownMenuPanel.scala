@@ -6,7 +6,6 @@ import java.io.FileOutputStream
 import java.io.PrintWriter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-
 import scala.collection.immutable.Stream.consWrapper
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
@@ -21,16 +20,20 @@ import scala.swing.Label
 import scala.swing.Orientation
 import scala.swing.event.ButtonClicked
 import scala.sys.process.Process
-
 import gui.UI
+import scala.swing.Panel
+import scala.swing.TextField
 
 /**
  * Panel que contiene las opciones de ejecución del programa.
- * 
+ *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
 class DownMenuPanel(parent: UI) extends BorderPanel {
+
+  // Indica si estamos ejecutando un comando o no.
+  var working = false
 
   // Componentes
   val zipButton = new Button("ZIP")
@@ -51,45 +54,32 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
   reactions += {
 
     case ButtonClicked(`executeButton`) => {
-      val commands = getAllExecutionCommands
-      for (i <- 0 until commands.size) {
-        val shCommand = createSHCommand(commands(i))
-        actualOperation.text =
-          "Realizando operación " + (i + 1) + " de " + commands.size + "..."
-          //TODO LANZAR ESTO EN UN NUEVO HILO QE NO DIFICULTE EL USO DE LA GUI
-        Process("sh", shCommand.split(" ")).!! 
+      if (working) {
+        Dialog.showMessage(this, "Hay una operación en curso")
+      } else {
+        var execThread = new Thread(new executionRunnable)
+        execThread.start()
       }
-      actualOperation.text = ""
-      Dialog.showMessage(this, "Todas las operaciones han sido completadas")
 
     }
 
     case ButtonClicked(`zipButton`) => {
-      val commands = getAllExecutionCommands
-      val shCommands: Array[String] = Array.ofDim(commands.size)
-      for (i <- 0 until commands.size) {
-        shCommands(i) = createSHZipCommand(commands(i))
+      if (working) {
+        Dialog.showMessage(this, "Hay una operación en curso")
+      } else {
+        var zipThread = new Thread(new zipRunnable)
+        zipThread.start()
       }
-
-      val commandsFilePath = createSHFile(shCommands)
-
-      // Seleccionamos todos los datasets diferentes
-      var datasetOptions = parent.datasetPanel.seqConfigurations
-      var elementsPath = ArrayBuffer.empty[String]
-      datasetOptions.foreach { option =>
-        var datasetpath = option.split(" ")(0)
-        if (!elementsPath.contains(datasetpath))
-          elementsPath += datasetpath
-
-      }
-
-      elementsPath += commandsFilePath
-      createZIP(elementsPath) //Lanzar esto desde un hilo aparte
-      Dialog.showMessage(this, "El archivo ZIP ha sido creado")
     }
 
   }
 
+  /**
+   * Recolecta toda la información contenida en los diferentes paneles de la
+   * aplicación y genera con ella todos los comandos de ejecución posibles.
+   * 
+   * @return Secuencia con todos los comandos de ejecución.
+   */
   private def getAllExecutionCommands(): IndexedSeq[String] = {
 
     // Seleccionamos todas las opciones existentes en cada uno de los paneles
@@ -100,22 +90,31 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     var datasetOptions = parent.datasetPanel.seqConfigurations
     var filterOptions = parent.filterPanel.seqConfigurations
     var classifierOptions = parent.classifierPanel.getClassifierOptions()
-    var crossValidationOptions = 
+    var crossValidationOptions =
       parent.classifierPanel.getCrossValidationOptions()
+    // Variable resultado donde almacenaremos todas las opciones.
     var commands: ArrayBuffer[String] = ArrayBuffer.empty[String]
 
+    // Generamos todas las combinaciones de configuraciones posibles
     sparkOptions.foreach { sparkOption =>
       var partialCommand = sparkOption
       datasetOptions.foreach { datasetOption =>
         var tmp1 = partialCommand + "-r " + datasetOption
         filterOptions.foreach { filterOptions =>
-          var tmp2 = 
-            tmp1 + "-f " + filterOptions + "-c " + classifierOptions + "-cv " + crossValidationOptions
-          commands += tmp2
+          {
+            var tmp2 = if (crossValidationOptions.equals("")) {
+              tmp1 + "-f " + filterOptions + "-c " + classifierOptions
+            } else {
+              tmp1 + "-f " + filterOptions + "-c " + classifierOptions + "-cv " + crossValidationOptions
+            }
+            commands += tmp2
+          }
         }
       }
     }
 
+    // Añadimos a cada comando un apéndice al principio con información de
+    // Spark común para todos los comandos
     val completeCommands = for (i <- 0 until commands.size)
       yield sparkHome + " " + sparkMaster + " " + commands(i)
 
@@ -123,6 +122,14 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
 
   }
 
+  /**
+   * Genera una sentencia que corresponde a la ejecución de una configuración
+   * en una consola de comandos.
+   * 
+   * @param command Texto con la configuración que queremos convertir.
+   * 
+   * @return Comando de ejecución en consola.
+   */
   private def createSHCommand(command: String): String = {
     var commandSplited = command.split(" ")
     //TODO Revisar este comando
@@ -143,7 +150,7 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
       }
     }
 
-    commandSH += "--class main.MainWithFilter " + thisJarPath + " "
+    commandSH += "--class main.MainWithIS " + thisJarPath + " "
 
     for (i <- count until commandSplited.size) {
       commandSH += commandSplited(i) + " "
@@ -151,6 +158,18 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     return commandSH
   }
 
+  /**
+   * Genera una sentencia que corresponde a la ejecución de una configuración
+   * en una consola de comandos.
+   * 
+   * La ruta donde podemos encontrar los conjuntos de datos es el propio
+   * directorio, pues se supone que estos comandos serán incluidos más adelante
+   * en un archivo .zip que contendrá todos los conjuntos de datos necesarios.
+   * 
+   * @param command Texto con la configuración que queremos convertir.
+   * 
+   * @return Comando de ejecución en consola.
+   */
   private def createSHZipCommand(command: String): String = {
     var commandSplited = command.split(" ")
     //TODO Revisar este comando
@@ -171,7 +190,7 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
       }
     }
 
-    commandSH += "--class main.MainWithFilter " + thisJarPath + " "
+    commandSH += "--class main.MainWithIS " + thisJarPath + " "
 
     commandSH += "-r "
     commandSH +=
@@ -185,6 +204,14 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
 
   }
 
+  /**
+   * Dada una secuencia de comandos, genera un archivo .sh con el listado de
+   * dichos comandos.
+   * 
+   * @param  shCommands  Listado con todos los comandos sh a añadir al fichero.
+   * 
+   * @return Ruta del fichero generado
+   */
   private def createSHFile(shCommands: Array[String]): String = {
     val resultPath = "zip"
     val resultFile = new File(resultPath)
@@ -201,7 +228,7 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     shCommands.foreach { command =>
       actualCommand += 1
       writer.write(
-          command + "\n\necho " + actualCommand + " de " + totalCommands + "\n\n")
+        command + "\n\necho " + actualCommand + " de " + totalCommands + "\n\n")
     }
 
     writer.close()
@@ -210,6 +237,13 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
 
   }
 
+  /**
+   * Genera un archivo .zip con un archivo de ejecución .sh dentro y todos
+   * los conjuntos de datos requeridos para la ejecución de dicho achivo.
+   * 
+   * @param elementsPath  Ruta de todos los archivos a añadir al zip
+   * 
+   */
   private def createZIP(elementsPath: ArrayBuffer[String]): Unit = {
 
     var zipFilePath = "zip" + System.getProperty("file.separator") + "zip" + ": " +
@@ -242,4 +276,62 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     }
   }
 
+  /**
+   * Clase destinada a la ejecución de una batería de ejecuciones de Spark sin
+   * que dichas ejecuciones paralicen el funcionamiento normal de la interfaz.
+   * 
+   */
+  class executionRunnable extends Runnable {
+    def run() {
+      working = true
+      val commands = getAllExecutionCommands
+      for (i <- 0 until commands.size) {
+        val shCommand = createSHCommand(commands(i))
+        actualOperation.text =
+          "Realizando operación " + (i + 1) + " de " + commands.size + "..."
+        Process("sh", shCommand.split(" ")).!
+      }
+      actualOperation.text = ""
+      Dialog.showMessage(null, "Todas las operaciones han sido completadas")
+      working = false
+    }
+  }
+
+  /**
+   * Clase destinada a la creación de un archivo .zip sin que la creación de 
+   * dicho documento bloquee el funcionamiento normal de la interfaz.
+   */
+  class zipRunnable extends Runnable {
+    def run() {
+      working = true
+      actualOperation.text =
+        "Creando archivo ZIP"
+
+      val commands = getAllExecutionCommands
+      val shCommands: Array[String] = Array.ofDim(commands.size)
+      for (i <- 0 until commands.size) {
+        shCommands(i) = createSHZipCommand(commands(i))
+      }
+
+      val commandsFilePath = createSHFile(shCommands)
+
+      // Seleccionamos todos los datasets diferentes
+      var datasetOptions = parent.datasetPanel.seqConfigurations
+      var elementsPath = ArrayBuffer.empty[String]
+      datasetOptions.foreach { option =>
+        var datasetpath = option.split(" ")(0)
+        if (!elementsPath.contains(datasetpath))
+          elementsPath += datasetpath
+
+      }
+      elementsPath += commandsFilePath
+
+      createZIP(elementsPath)
+
+      actualOperation.text =
+        ""
+      Dialog.showMessage(null, "El archivo ZIP ha sido creado")
+      working = false
+    }
+  }
 }
