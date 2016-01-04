@@ -24,6 +24,7 @@ class ClassifierPanel(parentPanel: UI,
 
   border = new TitledBorder(new LineBorder(Color.BLACK, 1, true),
     "Clasificador")
+  val listOfClassifiersPath = "/resources/availableClassifiers.xml"
 
   // Elementos del panel
   val classifierLabel = new Label("Clasificador")
@@ -83,7 +84,7 @@ class ClassifierPanel(parentPanel: UI,
 
       //TODO Ese if...(como en todas las comunicaciones entre paneles y dialogos)
       val chooseElementDialog = new ChooseElementDialog(this.peer,
-          "resources/availableClassifiers.xml")
+          listOfClassifiersPath)
       if (chooseElementDialog.chosenAlgorithm != "") {
         panel2.contents.remove(0, panel2.contents.size)
         val algorithmName = chooseElementDialog.chosenAlgorithm

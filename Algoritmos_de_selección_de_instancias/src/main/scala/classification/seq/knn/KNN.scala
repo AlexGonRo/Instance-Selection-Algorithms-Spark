@@ -23,7 +23,7 @@ import java.util.logging.Level
  */
 class KNN extends TraitClassifier {
 
-  private val bundleName = "strings.stringsKNN";
+  private val bundleName = "resources.loggerStrings.stringsKNN";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
   
   var k = 1

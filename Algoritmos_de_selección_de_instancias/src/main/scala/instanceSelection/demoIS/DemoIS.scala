@@ -32,7 +32,7 @@ import utils.partitioner.RandomPartitioner
  */
 class DemoIS extends AbstractIS {
 
-  private val bundleName = "strings.stringsDemoIS";
+  private val bundleName = "resources.loggerStrings.stringsDemoIS";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   // Valores por defecto

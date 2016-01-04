@@ -20,7 +20,7 @@ import java.util.logging.Level
 class FileReader {
 
   // Logger
-  private val bundleName = "strings.stringsUtils";
+  private val bundleName = "resources.loggerStrings.stringsUtils";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   // Atributo de clase es el primero

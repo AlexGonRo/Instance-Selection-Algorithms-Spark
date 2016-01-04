@@ -35,7 +35,7 @@ class LSHIS extends AbstractIS {
 
   // Valores por defecto
 
-  private val bundleName = "strings.stringsLSHIS";
+  private val bundleName = "resources.loggerStrings.stringsLSHIS";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   // Número de componentes-AND a utilizar.

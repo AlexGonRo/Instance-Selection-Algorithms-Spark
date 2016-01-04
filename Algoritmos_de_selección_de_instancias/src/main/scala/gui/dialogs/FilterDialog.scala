@@ -32,6 +32,7 @@ class FilterDialog(myParent: FilterPanel, modal: Boolean) extends JDialog {
   var algorithmOptions: Iterable[utils.Option] = Iterable.empty[utils.Option]
   var isAlgorithm: AbstractIS = null 
   var dinamicOptions: ArrayBuffer[JComponent] = ArrayBuffer.empty[JComponent]
+  val listOfFiltersPath = "/resources/availableFilters.xml"
   
   // Componentes de la ventana
   val filterLabel = new JLabel("Filtro")
@@ -71,7 +72,7 @@ class FilterDialog(myParent: FilterPanel, modal: Boolean) extends JDialog {
       //TODO y ese if...
       //TODO (como en todas las comunicaciones entre paneles y dialogos)
       val chooseElementDialog = new ChooseElementDialog(null,
-          "resources/availableFilters.xml")
+          listOfFiltersPath)
       if (chooseElementDialog.chosenAlgorithm != "") {
         panel2.removeAll()
         panel2.revalidate()
@@ -109,7 +110,7 @@ class FilterDialog(myParent: FilterPanel, modal: Boolean) extends JDialog {
             }
           }
           //Dibujar
-          //TODO REvisar por qué pack() no funciona correctamente
+          //TODO Revisar por qué pack() no funciona correctamente
           setSize(new Dimension(400, 250)) 
           //  pack()
           revalidate()

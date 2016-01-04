@@ -11,10 +11,14 @@ import gui.UI
 import gui.dialogs.AboutDialog
 import java.awt.Desktop
 import java.io.File
+import org.apache.commons.io.FilenameUtils
+import javax.swing.JScrollPane
+import javax.swing.JFrame
+import java.net.URL
 
 /**
  * Panel que contiene la cabecera de la interfaz gráfica.
- * 
+ *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
@@ -39,7 +43,6 @@ class UpMenuPanel(val parent: UI) extends BorderPanel {
     contents += helpButton
   } -> East
 
-  
   // Listener y eventos
   listenTo(aboutButton)
   listenTo(helpButton)
@@ -48,11 +51,18 @@ class UpMenuPanel(val parent: UI) extends BorderPanel {
       new AboutDialog(false)
     }
     case ButtonClicked(`helpButton`) => {
-      val htmlPath = "resources"+System.getProperty("file.separator")+"html"+
-          System.getProperty("file.separator")+"help.html"
-      val htmlFile = new File(htmlPath
-          );
-      Desktop.getDesktop().browse(htmlFile.toURI());
+      //TODO Comprobar si esto puede hacerse de alguna otra manera.
+      val htmlPath = System.getProperty("file.separator") + "resources" + System.getProperty("file.separator") + "html" +
+        System.getProperty("file.separator") + "help.html"
+      val in = getClass.getResource(htmlPath).toString()
+      val url = new URL(in);
+      val panelEditor = new JEditorPane(url);
+      val newFrame = new JFrame("HELP");
+      newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      newFrame.add(new JScrollPane(panelEditor));
+      newFrame.pack();
+      newFrame.setVisible(true);
+
     }
   }
 

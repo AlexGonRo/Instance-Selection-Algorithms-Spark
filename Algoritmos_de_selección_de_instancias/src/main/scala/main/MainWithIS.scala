@@ -24,7 +24,7 @@ import utils.io.ResultSaver
  */
 object MainWithIS {
 
-  private val bundleName = "strings.stringsMain";
+  private val bundleName = "resources.loggerStrings.stringsMain";
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   

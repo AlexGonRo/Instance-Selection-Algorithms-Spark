@@ -33,11 +33,11 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
   val okButton = new JButton("Elegir")
   val cancelButton = new JButton("Cancelar")
 
-  var filters: ArrayBuffer[String] = findAvailableElements()
+  var elements: ArrayBuffer[String] = findAvailableElements()
   val elementsList = new JList[String]
   val listModel = new DefaultListModel[String]
-  for (i <- 0 until filters.size)
-    listModel.addElement(filters(i))
+  for (i <- 0 until elements.size)
+    listModel.addElement(elements(i))
   elementsList.setModel(listModel)
   elementsList.setBorder(new LineBorder(Color.GRAY, 1, true))
   elementsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION)
@@ -91,9 +91,11 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
     }
 
   private def findAvailableElements(): ArrayBuffer[String] = {
-    val xmlFile = new File(xmlPath)
+ 
+    val xmlFile = getClass.getResourceAsStream(xmlPath)
+    /*   val xmlFile = new File(xmlPath)
+*/   
     val elements = ArrayBuffer.empty[String]
-
     val db = DocumentBuilderFactory.newInstance().newDocumentBuilder()
     val parsedDoc = db.parse(xmlFile)
 

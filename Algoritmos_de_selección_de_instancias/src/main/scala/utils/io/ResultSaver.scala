@@ -33,9 +33,9 @@ class ResultSaver {
 
     // TODO La carpeta results se crea donde sea que llamemos a la función main.
     // ¿Variables del sistema para arreglarlo?
-    val resultFile = new File(resultPath)
-    if (!resultFile.exists())
-      resultFile.mkdir()
+    val resultDir = new File(resultPath)
+    if (!resultDir.exists())
+      resultDir.mkdir()
 
     val writer = new PrintWriter(new File(resultPath + System.getProperty("file.separator") + filterName + ": " +
       Calendar.getInstance.getTime))
@@ -68,9 +68,10 @@ class ResultSaver {
                          filterName: String,
                          classifierName: String): Unit = {
 
-    val resultFile = new File(resultPath)
-    if (!resultFile.exists())
-      resultFile.mkdir()
+    val resultDir = new File(resultPath)
+    if (!resultDir.exists()) {
+      resultDir.mkdir()
+    }
 
     val writer = new PrintWriter(new File(resultPath + System.getProperty("file.separator") + classifierName + ": " +
       Calendar.getInstance.getTime))

@@ -7,8 +7,7 @@ import utils.Option
 
 /**
  * Abstracción que incluye todos los métodos que deberán ser implementados por
- * un algoritmo de selección de instancias para funcionar bajo la clase principal
- * definida en [[main.main]]
+ * un algoritmo de selección de instancias.
  *
  * @param args Agumentos destinados a dar un valor inicial a parámetros del
  *   algoritmo.
