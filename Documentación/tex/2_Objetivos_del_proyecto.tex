@@ -1,44 +1,41 @@
-\capitulo{2}{Objetivos del proyecto}
+\capitulo{2}{Objetivos del proyecto}\label{ChapObjetivos}
 
 % Este apartado explica de forma precisa y concisa cuales son los objetivos que se persiguen con la realización del proyecto. Se puede distinguir entre los objetivos marcados por los requisitos del software a construir y los objetivos de carácter técnico que plantea a la hora de llevar a la práctica el proyecto.
 
-%Descripción inicial del objetivo del proyecto
-%Este proyecto es una prueba tecnológica para mejorar la eficiencia de la ejecución de un tipo de algoritmos como se indica en Big Data.
+En el escenario actual de la minería de datos (ver definición en \ref{DefMineria}) la creciente cantidad de datos que requieren ser analizados, así como el aumento de su complejidad,  ha generado un problema a la hora de tratar esos datos con eficiencia y velocidad. El hecho de que este problema parezca ir en aumento ha dado lugar a una búsqueda de soluciones que proporcionen una alta capacidad de cálculo y una fácil escalabilidad~\cite{DataMiningConcepts}. 
 
+Una de las propuestas ha sido la posibilidad de ejecutar las labores de minería de manera paralela. Por otro lado, analizando el problema desde un enfoque diferente aunque no incompatible, han adquirido gran popularidad los algoritmos encargados de reducir el número de instancias y atributos, de manera que podamos hacer más pequeño el conjunto a estudiar o incluso reducir su nivel de ruido. Este trabajo surge bajo la motivación de explorar estas nuevas soluciones. 
 
-En el escenario actual de la minería de datos (ver \nameref{DefMineria}) la creciente cantidad de datos que requieren ser analizados, así como el aumento de su complejidad,  ha generado un problema a la hora de tratar esos datos con eficiencia y velocidad. El hecho de que este problema parezca ir en aumento ha dado lugar a una búsqueda de soluciones que proporcionen una alta capacidad de cálculo y una fácil escalabilidad (ver \ref{sec:DefEscalabilidad})~\cite{DataMiningConcepts}. 
+Será un proyecto con dos objetivos principales: por un lado la implementación de diferentes algoritmos de reducción de instancias que, además de correr en paralelo, nos permitirán mejorar la calidad de los datos y reducir su cantidad. Por otro, el análisis del rendimiento de implementaciones lineales frente a nuestras implementaciones paralelas.
 
-Una de las propuestas ha sido la posibilidad de ejecutar las labores de minería de manera paralela. Por otro lado, analizando el problema desde un enfoque diferente aunque no incompatible, han adquirido gran popularidad los algoritmos encargados de reducir el número de instancias y atributos, de manera que podamos hacer más pequeño el conjunto a estudiar. Este trabajo surge bajo la motivación de explorar estas nuevas soluciones. 
-
-Será un proyecto con dos objetivos: por un lado la implementación de diferentes algoritmos de reducción de instancias que, además de correr en paralelo, nos permitirán mejorar la calidad de los datos y reducir su cantidad. Por otro, el análisis del rendimiento de implementaciones lineales frente a las implementaciones paralelas % tanto en lo que se refiere a la ejecución de algoritmos de selección como a algoritmos de clasificación
-.
-\todo{Este final del párrafo igual hay que modificarlo, pero no sabemos si vamos a comparar Weka con Spark también con los algoritmos de selección de instancias.}
-
-\section{Estudio del rendimiento de la minería de datos en un modelo de ejecución en paralelo}
-
-La minería de datos se trasladó a los entornos paralelos como una manera de poder tratar con grandes conjuntos de datos.
-
-Como primera aproximación, utilizaremos dos herramientas diferentes: Weka (ver sección \nameref{sec:DefWeka}) para la ejecución lineal y Spark (ver sección \nameref{sec:DefSpark}) para la ejecución en paralelo, para comparar el rendimiento de ambas modelos de ejecución frente a conjuntos de datos de diferentes proporciones.
-
-\todo{Completar una vez terminada la comparación Weka-Spark}
-%===============================================
-%A AÑADIR MÁS ADELANTE
-%===============================================
-%Probablemente se añadan pruebas con distribuciones de computación en la nube.
+Como objetivo adicional, surgido durante la realización del trabajo, tendremos en consideración la creación de un entorno visual y más intuitivo donde el usuario pueda ejecutar nuestro código de una manera más sencilla.
 
 \section{Implementación de algoritmos de selección de instancias}
 
-Se programarán un conjunto de algoritmos que puedan aplicarse sobre grandes conjuntos de instancias con el fin de reducir su tamaño y mejorar el rendimiento de cualquier otro algoritmo que use posteriormente los datos. Para una definición más precisa de lo que es un algoritmo de selección de instancias ver la sección \nameref{sec:DefAlgSel}.
+Se programarán un conjunto de algoritmos que puedan aplicarse sobre grandes conjuntos de instancias con el fin de reducir su tamaño sin perjudicar en exceso la información que transmiten. Para una definición más precisa de lo que es un algoritmo de selección de instancias ver la sección \ref{sec:DefAlgSel}.
 
 Se ha realizado la implementación de los siguientes algoritmos:
 
 \begin{itemize}
-	\item Algoritmos implementados.
+	\item \textit{Localy sensitive hashing instance selection} (LSHIS) (ver \ref{sec:defLSHIS})
+	\item \textit{Democratic instance selection} (DemoIS) (ver \ref{sec:defDemoIS})
 \end{itemize}
 
-	\todo{Faltan indicar que algoritmos de selección de instancias implementaremos y más información.}	
 
-%===============================================
-%A AÑADIR MÁS ADELANTE
-%===============================================
-%Probablemente los algoritmos se usen también en las distribuciones de Spark que encontremos por la nube o se realicen mediciones de rendimiento.
+\section{Estudio del rendimiento de la minería de datos en un modelo de ejecución en paralelo}
+
+El principal objetivo de este estudio será comprobar los tiempos de ejecución según qué paradigma (secuencial o paralelo) y según que conjunto de datos.
+
+Utilizaremos dos herramientas diferentes: Weka (ver definición en \ref{sec:DefWeka}) para la ejecución lineal y Spark (ver definición \ref{sec:DefSpark}) para la ejecución en paralelo.
+
+%En lo referente a Spark, se ha procedido a tomar los datos de funcionamiento en una sola máquina...
+
+\todo{Completar cuando sepamos qué pasa con google y las ejecuciones.}
+
+
+\section{Implementación de una interfaz gráfica de usuario}
+
+Con el objetivo de hacer más atractivo el uso de la aplicación y sus algoritmos, se ha incluido el desarrollo de una interfaz gráfica que permita plantear experimentos sin la necesidad de que el usuario tenga que acceder a su consola de comandos.
+
+Dicha implementación no solo permitirá configurar de manera simple los algoritmos, sino que también será un entorno donde poder seleccionar algunas de las opciones de lanzamiento de Spark o incluso seleccionar los conjuntos de datos a utilizar.
+
