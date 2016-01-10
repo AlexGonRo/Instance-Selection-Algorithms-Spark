@@ -326,6 +326,7 @@
 % Capítulos
 \chapterstyle{bianchi}
 \newcommand{\capitulo}[2]{
+	\setcounter{secnumdepth}{3}
 	\setcounter{chapter}{#1}
 	\setcounter{section}{0}
 	\chapter*{#2}
@@ -462,7 +463,7 @@ D. nombre co-tutor
 % Abstract en castellano
 \renewcommand*\abstractname{Resumen}
 \begin{abstract}
-La enorme cantidad de datos a los que ahora tenemos acceso han generado una serie de problemas cuando queremos extraer y estudiar la información contenida en dichos datos. Por esta razón, recientemente se ha empezado a desarrollar y mejorar nuevas técnicas que permitiesen resolver el problema, dos de las cuales serán analizadas y desarrolladas a lo largo de esta memoria: la computación paralela y los algoritmos de selección de instancias.
+La enorme cantidad de datos a los que ahora tenemos acceso han generado una serie de problemas cuando queremos extraer y estudiar la información contenida en dichos datos. Por esta razón, recientemente se ha empezado a desarrollar y mejorar nuevas técnicas que permitan resolver el problema, dos de las cuales serán analizadas y desarrolladas a lo largo de esta memoria: la computación paralela y los algoritmos de selección de instancias.
 
 Usando Apache Spark, el objetivo principal de este proyecto será la comparación entre técnicas secuenciales y paralelas de minería de datos y la implementación y evaluación de dos algoritmos concretos de selección de instancias: \textit{Locality sensitive hashing instance selection} y \textit{Democratic instance selection}.
 \end{abstract}
@@ -517,7 +518,6 @@ Data mining, big data, parallelization, instance selection, Apache Spark, Locali
 \include{./tex/6_Trabajos_relacionados}
 \include{./tex/7_Conclusiones_Lineas_de_trabajo_futuras}
 
-\todo{Chequear que la nota bibliográfica de LSHIS esté bien.}
 \bibliographystyle{plain}
 \bibliography{bibliografia}
 

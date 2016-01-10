@@ -4,12 +4,20 @@
 
 \section{Weka}
 
-Aunque ya ha sido mencionado con anterioridad en esta memoria (ver \ref{sec:DefWeka}), parece obligatoria una mención a dicho programa en este apartado.
+Aunque ya ha sido mencionado y definido con anterioridad en esta memoria (ver \ref{sec:DefWeka}), parece obligatoria una mención a dicho programa en este apartado.
 
 Cabe destacar que, aunque tanto Weka como este proyecto comparten un objetivo común como es el de presentar una biblioteca con algoritmos de minería de datos y hacerlo de manera que sea fácil su utilización, el ámbito de aplicación de ambos programas es completamente distinto. Mientras que Weka parece pensado enfocado a pequeños/medianos conjuntos de datos y una ejecución secuencial de sus algoritmos, este proyecto utiliza Spark para hacer factible la idea de aplicar algoritmos demasiado costosos como para ser ejecutados con grandes conjuntos de datos en una sola máquina.
+
+\section{Knowledge Extraction based on Evolutionary Learning (KEEL)}
+
+KEEL es una herramienta de minería de datos basada en Java que permite la aplicación, sobre conjuntos de datos, de algoritmos de extracción de conocimiento. Al igual que Weka, también posibilita la opción de aplicar métodos de pre procesamiento sobre los datos originales antes de que sean utilizados en las labores de minería.
+
+La diferencia fundamental de este software, con respecto al presentado a lo largo de la memoria, vuelve a ser, de nuevo, la ejecución secuencial de algoritmos de KEEL con respecto a la ejecución paralela de Spark.
 
 \section{Documentos científicos de LSHIS y DemoIS}
 
 A lo largo del proyecto, y en especial todo lo relacionado con la implementación y prueba de los algoritmos, se ha contado con los documentos científicos que definían la implementación y uso de LSHIS y DemoIS. Dichos documentos, ya mencionados anteriormente en la memoria, han sido ``LSH-IS: Un nuevo algoritmo de selección de instancias de complejidad lineal para grandes conjuntos de datos''\cite{LSHISPaper} y ``Democratic instance selection: A linear complexity instance selection algorithm based on classifier ensemble concepts''\cite{DemoISPaper}.
 
-Ambos documentos, además de contener información sobre los algoritmos implementados, también contienen comparaciones de rendimiento con otras alternativas de selección de instancias. En lo que se refiere a este proyecto, las pruebas realizadas han tenido como objetivo la comparativa entre tiempos de ejecución de las implementaciones secuencial y paralela, por lo que podemos defender que se han evaluado aspectos diferentes durante la etapa de experimentación. 
+Ambos documentos, además de contener información sobre los algoritmos implementados, también contienen comparaciones de rendimiento con otras alternativas de selección de instancias. En lo que se refiere a este proyecto, las pruebas realizadas han tenido como objetivo la comparativa entre tiempos de ejecución de las implementaciones secuencial y paralela, por lo que podemos defender que se han evaluado aspectos diferentes durante la etapa de experimentación.
+
+Además, se ha contado con la implementación de los algoritmos LSHIS y DemoIS para su ejecución en Weka \cite{arnaiz2012herramienta}, lo que ha posibilitado realizar las experimentaciones defendidas en esta memoria y los documentos anexos.

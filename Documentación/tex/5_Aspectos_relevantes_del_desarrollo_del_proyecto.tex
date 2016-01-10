@@ -40,8 +40,6 @@ Nótese que la tabla \ref{tabla:ComparativaJavaScalaPython} es una comparativa e
 \centering Documentación disponible & Existe buena documentación en la página oficial de Spark, aunque es más escasa en otras fuentes. Además, muchas veces la documentación no trabaja sobre Java 8. & \multicolumn{2}{m{11.05cm}}{Existe una amplia documentación sobre el uso de ambos lenguajes en Spark.} \\ [0.2cm]
 } 
 
-\newpage
-
 
 La elección final del lenguaje a utilizar será Scala, argumentando lo siguiente sobre los puntos que hemos comparado:
 
@@ -89,29 +87,28 @@ Como primer aspecto a evaluar durante la realización del proyecto, se llevó a 
 
 La intención de esta prueba era doble: por un lado, suponía un primer acercamiento a la librería Spark y al modelo de funcionamiento en este tipo de entornos. Por otro, se pretendía probar el tiempo de ejecución de Spark frente a alternativas anteriores que, como principal diferencia, no están pensadas para ser ejecutadas en paralelo.
 
-Para realizar las mediciones utilizamos conjuntos de datos de diferentes tamaños (detallados en la sección \ref{Datasets}), pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico y relativamente simple que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido.
+Para realizar las mediciones utilizamos conjuntos de datos de diferentes tamaños, pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico y relativamente simple que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido.
 
-Los resultados, así como una explicación más detallada del experimento, pueden encontrarse en la sección...
+Los resultados, así como una explicación más detallada del experimento, pueden encontrarse en el material adjunto a la memoria
 
-\todo{¿Dónde metemos finalmente la definición del experimento y los resultados?}
-\todo{Comprobar la referencia a la tabla datasets, puede que se cambie}
+\todo{Incluir pequeña conclusión del resultado}
 
 
 
 \section{Implementación de algoritmos de selección de instancias}
 
-Marcada como el objetivo fundamental de este proyecto, la realización de dos algoritmos de selección de instancias ha ocupado gran parte de tiempo dentro del mismo. A continuación se expondrán algunos de los aspectos que más influencia han tenido durante esta fase de implementación y una pequeña explicación más concreta de la propia implementación de los algoritmos.
+Marcada como el objetivo fundamental de este proyecto, la realización de dos algoritmos de selección de instancias ha ocupado la mayor parte de tiempo dentro del mismo. A continuación se expondrán algunos de los aspectos que más influencia han tenido durante esta fase de implementación y una pequeña explicación más concreta de la propia implementación de los algoritmos.
 
 
 \subsection{Indeterminismo, comunicación limitada y grandes conjuntos de datos}
 
-Por la propia naturaleza de la librería, la programación en Spark se ha diferenciado en muchos aspectos del tipo de programación secuencial que se ha aplicado hasta ahora. El hecho de que nuestros algoritmos estén pensados para ejecutarse en paralelo y distribuidos en una gran red de nodos nos proporciona numerosas ventajas, a las que ya nos referimos en las secciones \ref{ChapObjetivos} y \ref{chapConceptos}, pero también plantea problemas que es necesario tener muy en cuenta para la correcta ejecución del programa.
+Por la propia naturaleza de la librería, la programación en Spark se ha diferenciado en muchos aspectos del tipo de programación secuencial que se ha aplicado hasta ahora. El hecho de que nuestros algoritmos estén pensados para ejecutarse en paralelo y distribuidos en una gran red de nodos nos proporciona numerosas ventajas, a las que ya nos referimos en las secciones \ref{sec:CompParalela} y \ref{sec:DefEscalabilidad}, pero también plantea problemas que es necesario tener muy en cuenta para la correcta ejecución del programa.
 
-En primer lugar, una ejecución como la nuestra pierde la capacidad de predecir el orden en el que se ejecutarán las operaciones o el propio orden de las instancias cuando son distribuidas o intercambiadas por la red de trabajadores. Este problema ha obligado a modificar el planteamiento inicial de los algoritmos propuestos, pensados para ser ejecutados secuencialmente, y a adaptarlos al nuevo escenario.
+En primer lugar, una ejecución como la nuestra pierde la capacidad de predecir el orden en el que se ejecutarán las operaciones o el propio orden de las instancias cuando son distribuidas o intercambiadas por la red de trabajadores. Este problema ha obligado a modificar el planteamiento inicial de los algoritmos propuestos, pensados para ser ejecutados secuencialmente, y adaptarlos al nuevo escenario.
 
 Así mismo, y con la misma consecuencia, se nos plantea el problema de la comunicación entre nodos. Suponiendo una amplia red de nodos con un gran poder de computación en cada uno de ellos, es sencillo pensar que la comunicación entre todos ellos puede ser complicada si no queremos que esto afecte de manera muy negativa al rendimiento. Es por ello que Spark, pensado para la ejecución en este tipo de entornos, no proporciona demasiadas posibilidades en este aspecto o, aquellas que ofrece, son bastante específicas o realmente costosas, como las operaciones de unión (\textit{Join}). Todo esto ha sido tenido en cuenta durante la fase de implementación, afectando a las operaciones o incluso a la manera en la que almacenamos los conjuntos de datos, cuyas instancias han sido a menudo ligadas a diferentes valores que permiten controlar el flujo del programa.
 
-Por último, en un intento de optimización por parte de Spark, nos encontramos dentro de la librería con un intento de evitar la aparición de operaciones costosas o, por lo menos, realizarlas de manera tal que no tengan un efecto tan perjudicial en el rendimiento. Esto tiene influencia en varios aspectos, siendo el más fácil de entender él de la distribución de las instancias entre los nodos. Algo tan aparentemente sencillo como la división de un conjunto de datos en particiones de igual tamaño es algo que no ha sido implementado en Spark por el altísimo coste y complejidad que supondría ejecutarlo eficientemente sobre un gran conjunto de datos. En cambio, se proporcionan estrategias basadas en tablas hash o el análisis de pequeños subconjuntos de prueba que permitan realizar la división en particiones aproximadamente iguales. Este tipo de limitaciones también han sido tenidas en cuenta de cara al desarrollo.
+Por último, en un intento de optimización por parte de Spark, nos encontramos dentro de la librería con un intento de evitar la aparición de operaciones costosas o, por lo menos, realizarlas de manera tal que no tengan un efecto tan perjudicial en el rendimiento. Esto tiene influencia en varios aspectos, siendo el más fácil de entender el de la distribución de las instancias entre los nodos. Algo tan aparentemente sencillo como la división de un conjunto de datos en particiones de igual tamaño, es algo que no ha sido implementado en Spark por el altísimo coste y complejidad que supondría ejecutarlo eficientemente sobre un gran conjunto de datos. En cambio, se proporcionan estrategias basadas en tablas hash o el análisis de pequeños subconjuntos de prueba que permitan realizar la división en particiones aproximadamente iguales. Este tipo de limitaciones también han sido tenidas en cuenta de cara al desarrollo.
 
 Por lo mencionado en este último punto, durante la realización del proyecto se han llegado a detectar funcionamientos anómalos de la librería Spark cuando opera con conjuntos de datos muy pequeños. 
 
@@ -124,7 +121,6 @@ Dado que esto podría suponer una carga de trabajo aún mayor y ya han tenido qu
 \begin{itemize}
 \item El conjunto de datos ha de contener solamente atributos numéricos, y esto incluye el atributo de clase.
 \item El conjunto de datos debe haber sido normalizado con anterioridad para una correcta clasificación.
-\todo{Referencia a un paper donde hable de esta necesidad con el KNN}
 \end{itemize}
 
 \subsection{Implementación de resursos necesarios}\label{sec:ImplRecursosAdicionales}
@@ -132,17 +128,15 @@ Dado que esto podría suponer una carga de trabajo aún mayor y ya han tenido qu
 Como ya se ha comentado anteriormente, la librería MLlib de Spark con la que hemos estado trabajando aún se encuentra en una fase donde no contamos con una amplia colección de clases. Es por ello que han tenido que implementarse algunos algoritmos adicionales a los propuestos como objetivo. Cabe destacar:
 
 \begin{itemize}
-\item \textbf{Algoritmo Condensed Nearest Neighbour (CNN):} Un algoritmo de selección de instancias simple y cuya ejecución es secuencial. Ha sido incluido de manera obligatoria para poder ejecutar correctamente nuestro algoritmo Democratic instance selector (ver \ref{sec:defDemoIS}). Además, es obligatorio que dicho algoritmo posea la capacidad de serialización, pues es necesario distribuirlo a cada uno de nuestros nodos trabajadores por exigencias del algoritmo que deseamos implementar.
-\item  \textbf{Algoritmo K-Nearest Neighbours (KNN):} Un clasificador simple necesario tanto para la implementación de Democratic instance selector como para comparar la correcta salida de nuestros selectores de instancias. Está programado de manera secuencial, de manera que requiere que todos los datos sean recogidos en una sola máquina para poder aplicar el algoritmo. En un primer momento se creyó que podríamos contar con una implementación en Spark del KNN gracias al material presentado en la Conferencia de la Asociación Española para la Inteligencia Artificial 2015 (CAEPIA 2015), pero finalmente tuvo que implementarse una versión menos ambiciosa del clasificador.
+\item \textbf{Algoritmo Condensed Nearest Neighbour (CNN):} Un algoritmo de selección de instancias simple y cuya ejecución es secuencial. Ha sido incluido de manera obligatoria para poder ejecutar correctamente nuestro algoritmo Democratic instance selection (ver algoritmo \ref{sec:defDemoIS}). Además, es obligatorio que éste posea la capacidad de serialización, pues es necesario distribuirlo a cada uno de nuestros nodos trabajadores por exigencias del algoritmo que deseamos implementar.
+\item  \textbf{Algoritmo K-Nearest Neighbours (KNN):} Un clasificador simple necesario tanto para la implementación de Democratic instance selection como para comparar la correcta salida de nuestros selectores de instancias. Está programado de manera secuencial, de manera que requiere que todos los datos sean recogidos en una sola máquina para poder aplicar el algoritmo. En un primer momento se creyó que podríamos contar con una implementación en Spark del KNN gracias al material presentado en la Conferencia de la Asociación Española para la Inteligencia Artificial 2015 (CAEPIA 2015) \cite{KNNConferencia}, pero finalmente tuvo que implementarse una versión menos ambiciosa del clasificador.
 \end{itemize}
-
-\todo{¿Estará bien nombrado o de la conferencia?}
 
 \subsection{Implementación concreta de LSHIS}
 
-Dadas las restricciones ya mencionadas en esta misma sección, la implementación del algoritmo LSHIS ha sufrido modificaciones con respecto a su propuesta original, cuyo pseudocódigo puede verse en \ref{alg:LSHIS}.
+Dadas las restricciones ya mencionadas en esta misma sección, la implementación del algoritmo LSHIS ha sufrido modificaciones con respecto a su propuesta original, cuyo pseudocódigo puede verse en el algoritmo \ref{alg:LSHIS}.
 
-En lo que a código se refiere, podemos ver una nueva versión del algoritmo en el pseudocódigo \ref{alg:LSHISSPARK}. El cambio fundamental puede apreciarse cuando existen dos o más construcciones-OR. Por culpa del indeterminismo que genera la ejecución en paralelo nos vemos obligados a ejecutar una serie de operaciones sobre conjuntos que no eran necesarias en la ejecución secuencial, donde se solucionaba el problema mediante el uso de un nuevo bucle \textit{for}.
+En lo que a código se refiere, podemos ver una nueva versión del método en el pseudocódigo \ref{alg:LSHISSPARK}. El cambio fundamental puede apreciarse cuando existen dos o más construcciones-OR. Por culpa del indeterminismo que genera la ejecución en paralelo nos vemos obligados a ejecutar una serie de operaciones sobre conjuntos que no eran necesarias en la ejecución secuencial, donde se solucionaba el problema mediante el uso de un nuevo bucle \textit{for}.
 
 Cabe destacar que en estas operaciones realizadas cuando hay dos o más construcciones OR no usan en ningún momento el conjunto de instancias completo, sino que usan el conjunto solución generado por iteraciones anteriores, que se supone pequeño, y el conjunto solución generado por esta nueva iteración, que también debería tener un tamaño pequeño. Esta es una consideración muy importante en comparación con otras alternativas que surgieron, porque implica que la carga de trabajo va a ser mucho menor que si tuviésemos que operar con todo el conjunto de instancias inicial.
 
@@ -157,35 +151,35 @@ Cabe destacar que en estas operaciones realizadas cuando hay dos o más construc
 
 $ S = \varnothing $
 
-\ForEach {componente OR} {
+\ForEach {familia de funciones hash en $\mathcal{G}$} {
 	$g\leftarrow$ Nuevo conjunto de funciones hash
 	
   \ForEach {instancia} {
-		$u,c\leftarrow$ cubeta asignada por las funciones hash $g$ a la instancia $\mathbf{x}$ y clase de dicha instancia 
+		$\{u,c\}\leftarrow$ cubeta asignada por las funciones hash de $g$ a la instancia $\mathbf{x}$ y clase de $\mathbf{x}$ 
 
-		Asociamos la instancia a su tupla $u,c$
+		Asociar $\mathbf{x}$ a su tupla $\{u,c\}$
 	}
 	
-	$instAgrupadas\leftarrow$ Conjunto de instancias agrupadas según su valor $u,c$
+	$instAgrupadas\leftarrow$ Agrupar las instancias según su tupla $\{u,c\}$
 	
-	$sel\leftarrow$ Conjunto con una instancia aleatoria por cada par llave $u,c$
+	$sel\leftarrow$ Seleccionar una instancia aleatoria por cada par llave $\{u,c\}$
 	
-	\If {Es la primera iteración}{
+	\If {es la primera iteración}{
 	$ S = sel $
 	}
 	\Else{
 
 	\ForEach {instancia en S} {
-			$u,c\leftarrow$ cubeta asignada por las funciones hash $g$ a la instancia $\mathbf{x}$ y clase de dicha instancia 
+			$\{u,c\}\leftarrow$ cubeta asignada por las funciones hash de $g$ a la instancia $\mathbf{x}$ y clase de $\mathbf{x}$
 
-	Asociamos la instancia a su tupla $u,c$
+	Asociar $\mathbf{x}$ a su tupla $\{u,c\}$
 	
 	}
 
-	$sel' = sel - S \leftarrow$	 Teniendo en cuenta la llave $u,c$ asignada a cada instancia
+	$sel' = sel - S$	 /* Teniendo en cuenta la tupla $\{u,c\}$ asignada a cada instancia
 		
 		
-	$S += sel'$
+	Añadir $sel'$ a $S$
 	}
 		
 }
@@ -207,7 +201,7 @@ Como del pseudocódigo anterior no puede deducirse con claridad cómo están est
 		\begin{figure}[!h]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/memoria/diagram_LSHIS2}
-		\caption{Diagrama de la ejecución del algoritmo LSHIS durante su segunda o mayor iteración.}\label{fig:img/memoria/diagram_LSHIS2}
+		\caption{Diagrama de la ejecución del algoritmo LSHIS durante su segunda iteración y sucesivas.}\label{fig:img/memoria/diagram_LSHIS2}
 	\end{figure}
 	\FloatBarrier
 
@@ -217,7 +211,7 @@ Como del pseudocódigo anterior no puede deducirse con claridad cómo están est
 
 \subsection{Implementación concreta de DemoIS}
 
-La implementación de este algoritmo no ha requerido modificar el pseudocódigo del mismo (ver \ref{sec:defDemoIS}) pero sí existen varios detalles que conviene destacar sobre la actual implementación.
+La implementación de este algoritmo no ha requerido modificar el pseudocódigo del mismo (ver algoritmo \ref{sec:defDemoIS}) pero sí existen varios detalles que conviene destacar sobre la actual implementación.
 
 En primer lugar, como puede apreciarse en la figura \ref{fig:img/memoria/diagram_DemoIS}, no todo el algoritmo se ejecuta en paralelo. A la hora de calcular el \textit{fitness} óptimo lo hacemos de manera secuencial. Esto es así porque no contamos con una implementación paralela del algoritmo KNN, necesario para este proceso (ver \ref{sec:ImplRecursosAdicionales}). Aún con esto, durante esa etapa del proceso solo seleccionamos un pequeño grupo de instancias en comparación con el conjunto inicial, por lo que operar con tal número de datos no supone un problema de rendimiento tan grande.
 
@@ -242,25 +236,25 @@ De nuevo, la finalidad de esta comparación tenía varios objetivos: evaluar el 
 
 Existe una sección más detallada donde se profundizará sobre todos los aspectos relacionados con la comparativa en la sección...
 
-\todo{Incluir sección donde comparar los algoritmos de selección de instancias.}
+\todo{Incluir pequeña conclusión del resultado, con gráfica si es posible}
+
 
 \section{Implementación de un entorno gráfico}
 
-En la etapa final, se vio como el proyecto había alcanzado una complejidad considerable en cuando a las opciones de lanzamiento se refiere. Este hecho hacía de la ejecución por línea de comandos un método de lanzamiento mucho más tedioso de lo que a un usuario normal podría resultarle ya de principio. Es por esta razón que, con la intención de facilitar el uso de la biblioteca, que se decidió la implementación de una pequeña interfaz gráfica que hiciese más intuitívo el uso del proyecto.
+En la etapa final, se vio como el proyecto había alcanzado una complejidad considerable en cuando a las opciones de lanzamiento se refiere. Este hecho hacía de la ejecución por línea de comandos un método de lanzamiento mucho más tedioso de lo que a un usuario normal podría resultarle ya de principio. Es por esta razón que, con la intención de facilitar el uso de la biblioteca, se decidió la implementación de una pequeña interfaz gráfica que hiciese más intuitívo el uso del proyecto.
 
 Así pues, se ha realizado una interfaz gráfica que permita introducir, mediante campos de texto, todas las opciones necesarias para la ejecución de los algoritmos, así como la posibilidad de seleccionar los diferentes conjuntos de datos o selectores de instancias. Además, posibilita la acción de crear baterías de ejecuciones al dar la opción de indicar más de una configuración de Spark, conjunto de datos y/o filtro a la vez.
 
 Esta interfaz ofrece dos modos de ejecución:
 
 \begin{itemize}
-\item Permite ejecutar los algoritmos directamente desde la interfaz gráfica. Es una opción no recomendada si lo que se busca es eficiencia en los tiempos de ejecución pero es una manera sencilla de realizar pruebas sobre conjuntos de datos pequeños
-\item Permite la compresión en un archivo de extensión .zip de todos los conjuntos de datos necesarios para llevar a cabo las ejecuciones y de un archivo .sh generado dinámicamente que permita la ejecución de todas las ejecuciones seleccionadas. Este tipo de operación facilita que el usuario pueda definir todas las operaciones desde su máquina y, posteriormente, pueda trasladarlas de manera sencilla a un servidor más potente donde serán ejecutadas.
+\item Permite ejecutar los algoritmos directamente desde la interfaz gráfica. Es una opción no recomendada si lo que se busca es eficiencia en los tiempos de ejecución pero es una manera sencilla de realizar pruebas en modo local.
+\item Permite la compresión, en un archivo de extensión .zip, de todos los conjuntos de datos necesarios para llevar a cabo las ejecuciones y de un archivo .sh generado dinámicamente que permita la ejecución de todas las ejecuciones seleccionadas. Este tipo de operación facilita que el usuario pueda definir todas las operaciones desde su máquina y, posteriormente, pueda trasladarlas de manera sencilla a un servidor más potente donde serán ejecutadas.
 \end{itemize}
 
-\todo{Podría meterse la evolución de los prototipos aquí.}
-\todo{Meter foto}
+Despues de la creación y revisión de algunos prototipos no funcionales, la apariencia final del producto evolucionó hasta alcanzar el aspecto que muestra la figura \ref{fig:img/memoria/full_interface}.
 
-
+\imagen{img/memoria/full_interface}{Apariencia final de la interfaz gráfica del proyecto.}
 
 
 \begin{comment}
@@ -284,8 +278,6 @@ Los aspectos que hemos tenido en cuenta a la hora de recoger datos han sido:
 	\item \textbf{Porcentaje de CPU:} Media del porcentaje de CPU utilizado con respecto a la potencia total de la CPU. Estas pruebas han sido realizadas sobre una máquina con capacidad para soportar 4 hilos al mismo tiempo, por lo que el uso completo de uno de los hilos supondría un porcentaje de carga de la CPU del 25\% con respecto al total, el uso exclusivo de dos hilos sería un 50\% y así sucesivamente.
 	\item \textbf{Comportamiento de los hilos:} Como actúan los hilos del programa cuando se ejecuta el clasificador. Al ser un elemento que no puede medirse directamente, se recurrirá a hablar de él en la sección \ref{ConclusionesWekaSpark} para sustentar otros argumentos, incluyendo imágenes que muestren el comportamiento en el caso de necesitarlas.
 \end{itemize}
-
-\todo{Las palabras "Media" aparecen subrayadas, no se por qué}
 
 \subsection{Entorno de las pruebas}
 
