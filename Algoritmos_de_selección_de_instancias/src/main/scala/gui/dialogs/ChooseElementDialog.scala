@@ -1,73 +1,104 @@
 package gui.dialogs
 
-import javax.swing.JDialog
-import javax.swing.JButton
-import javax.swing.JPanel
-import javax.swing.border.EmptyBorder
-import javax.swing.BoxLayout
-import javax.swing.JCheckBox
-import scala.collection.mutable.ArrayBuffer
-import java.io.File
-import javax.swing.border.LineBorder
 import java.awt.Color
-import javax.swing.JList
+
+import scala.collection.mutable.ArrayBuffer
+
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+
+import javax.swing.BoxLayout
 import javax.swing.DefaultListModel
+import javax.swing.JButton
+import javax.swing.JDialog
+import javax.swing.JList
+import javax.swing.JPanel
 import javax.swing.ListSelectionModel
-import org.w3c.dom._
-import javax.xml.parsers._
-import java.io._
+import javax.swing.border.EmptyBorder
+import javax.swing.border.LineBorder
+import javax.xml.parsers.DocumentBuilderFactory
 
 /**
- * Ventana que permite la selección de diferentes opciones mostradas en una 
+ * Ventana que permite la selección de diferentes opciones mostradas en una
  * lista.
- * 
+ *
+ * @constructor Genera una lista con diferentes opciones leidas de un archivo
+ *   .xml y permite la selección de una de ellas.
+ * @param  myParent Panel desde donde se ha invocado este diálogo.
+ * @param  xmlPath  Ruta al fichero .xml de donde leeremos los datos para la lista.
+ *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
 class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
 
-  setTitle("Elegir...")
+  /**
+   * Texto que contiene la ruta al algoritmo seleccionado.
+   */
   var chosenAlgorithm = ""
-  
-  // Elementos de la ventana
-  val okButton = new JButton("Elegir")
-  val cancelButton = new JButton("Cancelar")
 
-  var elements: ArrayBuffer[String] = findAvailableElements()
-  val elementsList = new JList[String]
-  val listModel = new DefaultListModel[String]
-  for (i <- 0 until elements.size)
+  // Elementos de la ventana
+  /**
+   * Botón de aceptar.
+   */
+  private val okButton = new JButton("Elegir")
+  /**
+   * Botón de cancelar.
+   */
+  private val cancelButton = new JButton("Cancelar")
+
+  /**
+   * Componente lista
+   */
+  private val elementsList = new JList[String]
+  /**
+   * Array con todos los elementos a aparecer en el listado.
+   */
+  private var elements: ArrayBuffer[String] = findAvailableElements()
+  /**
+   * Modelo del componente lista.
+   */
+  private val listModel = new DefaultListModel[String]
+
+  for { i <- 0 until elements.size } {
     listModel.addElement(elements(i))
+  }
   elementsList.setModel(listModel)
   elementsList.setBorder(new LineBorder(Color.GRAY, 1, true))
   elementsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION)
 
-  
   // Paneles de la ventana
-  val panel1 = new JPanel()
+  /**
+   * Panel con una lista que muestra las diferentes opciones.
+   */
+  private val panel1 = new JPanel()
   panel1.setBorder(new EmptyBorder(6, 10, 3, 10))
   panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS))
   panel1.add(elementsList)
 
-  val panel2 = new JPanel()
+  /**
+   * Panel con los botones para aceptar o cancelar.
+   */
+  private val panel2 = new JPanel()
   panel2.setBorder(new EmptyBorder(3, 10, 6, 10))
   panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS))
   panel2.add(cancelButton)
   panel2.add(okButton)
 
   // Añadimos los paneles a nuestro dialogo
+  setTitle("Elegir...")
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(panel1)
   add(panel2)
 
   okButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent) {
+    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
       okActionPerformed(evt);
     }
   })
 
   cancelButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent) {
+    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
       cancelActionPerformed(evt);
     }
   })
@@ -77,6 +108,11 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
   setModal(true)
   setVisible(true);
 
+  /**
+   * Acción realizada cuando presionamos el botón de aceptar.
+   *
+   * @param  evt  Evento lanzado al presionar sobre el botón.
+   */
   private def okActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
       if (elementsList.getSelectedIndices().length != 0) {
@@ -85,33 +121,45 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
         this.dispose();
       }
     }
+
+  /**
+   * Acción realizada cuando presionamos el botón de cancelar.
+   *
+   * @param  evt  Evento lanzado al presionar sobre el botón.
+   */
   private def cancelActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
       this.dispose();
     }
 
+  /**
+   * Busca en un fichero .xml aquellos elementos contenidos dentro de la etiqueta
+   * "name".
+   *
+   * @return Todos los elementos contenidos dentro de la etiqueta "name".
+   */
   private def findAvailableElements(): ArrayBuffer[String] = {
- 
+
     val xmlFile = getClass.getResourceAsStream(xmlPath)
-    /*   val xmlFile = new File(xmlPath)
-*/   
     val elements = ArrayBuffer.empty[String]
     val db = DocumentBuilderFactory.newInstance().newDocumentBuilder()
     val parsedDoc = db.parse(xmlFile)
 
     parsedDoc.getDocumentElement().normalize()
 
-    val nList = parsedDoc.getElementsByTagName("name"); //TODO Revisar el nivel de las etiquetas del XML
+    // TODO Revisar el nivel de las etiquetas del XML
+    val nList = parsedDoc.getElementsByTagName("name");
 
-    for (i <- 0 until nList.getLength) {
+    for { i <- 0 until nList.getLength } {
       val node = nList.item(i)
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         elements += node.asInstanceOf[Element].getTextContent
       }
     }
 
-    return elements
+    elements
 
   }
 
 }
+

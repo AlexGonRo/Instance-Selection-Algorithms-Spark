@@ -55,6 +55,30 @@
 
 		<plugins>
 
+			<!-- Plugin para la comprobación de medidas estáticas de calidad -->
+			<plugin>
+				<groupId>org.scalastyle</groupId>
+				<artifactId>scalastyle-maven-plugin</artifactId>
+				<version>0.7.0</version>
+				<configuration>
+					<verbose>false</verbose>
+					<failOnViolation>true</failOnViolation>
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					<failOnWarning>false</failOnWarning>
+					<sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
+					<configLocation>${basedir}/scalastyle_config.xml</configLocation>
+					<outputFile>${basedir}/scalastyle-output.xml</outputFile>
+					<outputEncoding>UTF-8</outputEncoding>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Plugin para compilar en Scala y la generación de Scaladoc -->
 			<plugin>
 				<!-- see http://davidb.github.com/scala-maven-plugin -->
@@ -71,6 +95,8 @@
 						<configuration>
 							<args>
 								<arg>-no-link-warnings</arg>
+								<arg>-doc-root-content</arg>
+								<arg>ISAlgorithms_Scaladoc_info</arg>
 							</args>
 						</configuration>
 					</execution>
@@ -90,8 +116,7 @@
 				</executions>
 			</plugin>
 
-			<!-- Plugin para la generación de un jar con todas las dependencias
-			incluidas -->
+			<!-- Plugin para la generación de un jar con todas las dependencias incluidas -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -105,7 +130,7 @@
 					</execution>
 				</executions>
 				<configuration>
-				<finalName>${project.name}</finalName>
+					<finalName>${project.name}</finalName>
 					<transformers>
 						<transformer
 							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

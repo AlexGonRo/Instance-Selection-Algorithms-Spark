@@ -1,6 +1,7 @@
 package instanceSelection.seq.abstracts
 
 import org.apache.spark.mllib.regression.LabeledPoint
+
 import utils.Option
 
 /**
@@ -12,7 +13,7 @@ import utils.Option
  */
 
 @SerialVersionUID(1L)
-trait LinearISTrait extends Serializable{
+trait LinearISTrait extends Serializable {
 
   /**
    *
@@ -21,24 +22,27 @@ trait LinearISTrait extends Serializable{
    *
    * @param  data  Conjunto inicial.
    * @return  Conjunto resultante tras aplicar el algoritmo.
+   *
+   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
+   *   no es correcto.
    */
+  @throws(classOf[IllegalArgumentException])
   def instSelection(data: Iterable[LabeledPoint]): Iterable[LabeledPoint]
-  
-    /**
-   * Devuelve un elemento iterable que contiene todas las opciones que ofrece
-   * configurar el selector de instancias.
-   * 
-   * @return Listado de opciones que admite el el selector de instancias. 
+
+  /**
+   * Devuelve un elemento iterable que contiene todas las opciones que se pueden
+   * configurar en el selector de instancias.
+   *
+   * @return Listado de opciones que admite el el selector de instancias.
    */
-   def listOptions:Iterable[Option]
-  
-    /**
-   * Dada una lista de parametros, este método es capaz de analizarlos e inicializar
-   * con ellos los valores iniciales del algoritmo.
+  def listOptions: Iterable[Option]
+
+  /**
+   * Dada una lista de parametros, este método es capaz de analizarlos y
+   * modificar los atributos del algoritmo de acuerdo a esos datos.
    *
    * @param  args  Argumentos para inicializar el algoritmo.
    */
   def setParameters(args: Array[String]): Unit
-  
-  
+
 }

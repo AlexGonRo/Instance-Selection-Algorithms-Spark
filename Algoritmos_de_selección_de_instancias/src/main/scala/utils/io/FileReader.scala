@@ -8,38 +8,57 @@ import org.apache.spark.rdd.RDD
 import java.util.logging.Logger
 import java.util.logging.Level
 
-// TODO Manera de leer valores nominales. Posible aproximación con StringIndexer
-
 /**
- * Proporciona métodos para poder realizar la lectura de conjuntos de datos
- * almacenados en ficheros.
+ * Clase destinada la lectura de conjuntos de datos almacenados en ficheros y a
+ * su conversión en estructuras RDD.
+ *
+ *
+ * @constructor Genera un nuevo lector de ficheros
  *
  * @version 1.0.0
  * @author Alejandro González Rogel
  */
 class FileReader {
 
-  // Logger
+  /**
+   * Ruta al fichero que almacena los mensajes de log.
+   */
   private val bundleName = "resources.loggerStrings.stringsUtils";
+  /**
+   * Logger.
+   */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
-  // Atributo de clase es el primero
+  /**
+   * Indica si el atributo de clase es el primero de los atributos de una
+   * instancia.
+   *
+   * Por defecto, el atributo de clase es el último de los atributos.
+   */
   var first = false
-  // El fichero contiene cabecera
+
+  /**
+   * Indica si el fichero contiene unas lineas descriptivas antes de los datos.
+   *
+   * Por defecto, se asume que un fichero no tiene cabecera.
+   */
   var header = false
-  // Número de lineas que tiene la cabecera.
+
+  /**
+   * Número de lineas que tiene la cabecera.
+   */
   var headerLines = 0
 
   /**
-   * Realiza la lectura de un fichero en formato CSV (con atributos separados por
-   * comas) y genera una RDD con ellos.
+   * Realiza la lectura de un fichero en formato CSV y genera una RDD con ellos.
    *
-   * @param  sc  Contexto Spark
-   * @param  args  Opciones para la lectura del fichero. El primer argumento ha de
-   * ser el directorio donde se almacena el fichero a leer.
-   * @return  RDD generada
+   * Los atributos han de estar separados por comas.
+   *
+   * @param  sc  Contexto Spark.
+   * @param  filePath  Ruta al fichero.
+   * @return  RDD generada.
    */
-  def readCSV(sc: SparkContext,filePath:String): RDD[LabeledPoint] = {
+  def readCSV(sc: SparkContext, filePath: String): RDD[LabeledPoint] = {
 
     var data = sc.textFile(filePath)
 
@@ -69,39 +88,52 @@ class FileReader {
   }
 
   /**
-   * Lee una serie de argumentos para actualizar los valores de los atributos de la
-   * clase.
+   * Lee una cadena de argumentos para actualizar los valores de los
+   * atributos de la clase.
    *
-   * @param  args  Serie de argumentos
+   * Este método está pensado para actualizar aquellos atributos relacionados
+   * con la lectura de ficheros en formato CSV.
+   *
+   * @param  args  Serie de argumentos.
+   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
+   *   no es correcto.
    */
+  @throws(classOf[IllegalArgumentException])
   def setCSVParam(args: Array[String]): Unit = {
     var readingHL = false
-    var it = args.iterator
 
-    while (it.hasNext) { // Por cada argumento
-      it.next() match {
+    for { i <- 0 until args.size } { // Por cada argumento
+      args(i) match {
         case "-f" => first = true
         case "-hl" => {
           header = true
           try {
-            headerLines = it.next.toInt
+            headerLines = args(i + 1).toInt
           } catch {
             // Si el siguiente parámetro no es numérico o directamente no existe
             case e @ (_: IllegalStateException | _: NumberFormatException) =>
-              logger.log(Level.SEVERE, "FileReaderWrongArgsCSVError")
-              logger.log(Level.SEVERE, "FileReaderPossibleArgsCSV")
-              throw new IllegalArgumentException("Wrong parameter format when" +
-                "trying to read the dataset")
+              printErrorReadingCSVArgs
           }
         }
         case _ =>
-          logger.log(Level.SEVERE, "FileReaderWrongArgsCSVError")
-          logger.log(Level.SEVERE, "FileReaderPossibleArgsCSV")
-          throw new IllegalArgumentException("Wrong parameter format when trying" +
-            "to read the dataset")
+          printErrorReadingCSVArgs
       }
-
     }
+  }
+
+  /**
+   * Emite mensajes de error por la salida estándar, generados por un error
+   * durante la lectura de argumentos para el lector.
+   *
+   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
+   *   no es correcto.
+   */
+  @throws(classOf[IllegalArgumentException])
+  private def printErrorReadingCSVArgs(): Unit = {
+    logger.log(Level.SEVERE, "FileReaderWrongArgsCSVError")
+    logger.log(Level.SEVERE, "FileReaderPossibleArgsCSV")
+    throw new IllegalArgumentException("Wrong parameter format when trying" +
+      "to read the dataset")
   }
 
 }

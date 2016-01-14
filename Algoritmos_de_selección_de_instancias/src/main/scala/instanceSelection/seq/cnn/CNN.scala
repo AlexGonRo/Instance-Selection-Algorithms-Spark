@@ -1,11 +1,9 @@
 package instanceSelection.seq.cnn
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.SparkContext
-import org.apache.spark.mllib.regression.LabeledPoint
-import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.mllib.linalg.Vector
 import scala.collection.mutable.MutableList
+
+import org.apache.spark.mllib.regression.LabeledPoint
+
 import instanceSelection.seq.abstracts.LinearISTrait
 import utils.Option
 
@@ -15,6 +13,9 @@ import utils.Option
  * CNN construye un conjunto resultado S de un conjunto original T
  * tal que todo ejemplo de T está más cerca a un ejemplo de S de la misma
  * clase que a otro de S de clase distinta.
+ *
+ * @constructor Genera un nuevo selector de instancias basado en el algoritmo.
+ *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
@@ -38,15 +39,15 @@ class CNN extends LinearISTrait {
 
     }
 
-    return s
+    s
 
   }
 
   /**
    * Dados dos conjuntos de datos, recorre el segundo asegurandose de que toda
    * instancia existente en él posee un vecino más cercano de la misma clase
-   * en el primer conjunto. En caso de no ser así, devuelve la instancia donde no se
-   * ha complido la premisa
+   * en el primer conjunto. En caso de no ser así, devuelve la instancia donde
+   * no se ha complido la premisa
    *
    * @param  s  Subconjunto de data
    * @param  data Conjunto inicial de datos
@@ -60,19 +61,27 @@ class CNN extends LinearISTrait {
     var iter = data.iterator
     while (iter.hasNext) {
       val actualInst = iter.next()
+      // Calculamos la instancia o instancias más cercanas
       val closestInst = closestInstances(s, actualInst)
+
+      // Comprobamos si alguna de las instancias más cercanas es de la misma
+      // clase
       var addToS = true
-      for (instance <- closestInst) {
+      for { instance <- closestInst } {
         if (instance.label == actualInst.label) {
           addToS = false
         }
       }
+
+      // Si no hay instancia cercana de la misma clase, devolvemos la
+      // instancia problemática
       if (addToS) {
         return Left(actualInst)
       }
 
     }
 
+    // Fin del algoritmo
     return Right(false)
   }
 
@@ -93,16 +102,16 @@ class CNN extends LinearISTrait {
       var actualInstance = iterador.next()
       val actualDist = euclideanDistance(
         inst.features.toArray, actualInstance.features.toArray)
-      if (actualDist == minDist)
+      if (actualDist == minDist) {
         closest += actualInstance
-      else if (actualDist < minDist) { 
+      } else if (actualDist < minDist) {
         minDist = actualDist
         closest = MutableList.empty[LabeledPoint]
         closest += actualInstance
       }
     }
 
-    return closest
+    closest
   }
 
   /**
@@ -110,33 +119,40 @@ class CNN extends LinearISTrait {
    *
    * El cálculo de esta distancia no es completo, se suprime la operación de la
    * raiz cuadrada con la intención de ahorrar operaciones.
+   *
+   * @param point1  Un punto de la medición.
+   * @param point2  Segundo punto.
    */
   private def euclideanDistance(point1: Array[Double],
                                 point2: Array[Double]): Double = {
 
     var dist = 0.0
-    var i = 0
-    for (i <- 0 until point1.size)
+    for { i <- 0 until point1.size } {
       dist += Math.pow((point1(i) - point2(i)), 2)
+    }
 
-    return dist
+    dist
   }
 
-  
-    /**
+  /**
    * Devuelve un elemento iterable que contiene todas las opciones que ofrece
    * configurar el selector de instancias.
-   * 
-   * @return Listado de opciones que admite el el selector de instancias. 
+   *
+   * @return Listado de opciones que admite el el selector de instancias.
    */
-   override def listOptions:Iterable[Option] ={
-     MutableList.empty[Option]
-   }
-   
-
-  override def setParameters(args: Array[String]): Unit = {
-    
+  override def listOptions: Iterable[Option] = {
+    MutableList.empty[Option]
   }
-  
-  
+
+  /**
+   *
+   * CNN no necesita ningún parámetro para su funcionamiento.
+   *
+   * Método vacío.
+   *
+   * @param args Cadena de texto con argumentos.
+   */
+  override def setParameters(args: Array[String]): Unit = {
+  }
+
 }

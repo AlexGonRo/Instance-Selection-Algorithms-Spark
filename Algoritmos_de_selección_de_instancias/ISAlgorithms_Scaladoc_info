@@ -1,0 +1,20 @@
+==Biblioteca para la paralelización de algoritmos de selección de instancias con la arquitectura Spark==
+
+Esta librería ofrece una serie de clases cuyo objetivo es el de aplicar técnicas de minería de datos '''de manera paralela''' apoyandose en Apache Spark™ y sus estructuras RDD.
+
+Incluidos dentro de este software, encontramos diferentes algoritmos de selección de instancias, de clasificación y todas aquellas clases que, sin ser propiamente algoritmos de minería de datos, son necesarios para la correcta ejecución de los mismos.
+
+De igual manera, existe una sección dedicada a la interfaz gráfica de la aplicación.
+
+Proyecto de fin de grado del Grado de Ingeniería Informática por Universidad de Burgos.
+
+
+===Autor===
+
+- Alejandro González Rogel
+
+===Tutores===
+
+- Álvar Arnaiz González
+
+- Carlos López Nozal

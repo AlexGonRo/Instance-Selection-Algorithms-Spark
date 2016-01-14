@@ -2,7 +2,7 @@
 
 ##Descripción
 
-Este proyecto software ofrece una herramienta capaz de aplicar técnicas de minería de datos **de manera paralela** apoyandose en Apache Spark™ y sus estructuras RDD.
+Este proyecto software ofrece una herramienta capaz de aplicar técnicas de minería de datos **de manera paralela** apoyándose en Apache Spark™ y sus estructuras RDD.
 
 
 El área concreta en la que está centrado este trabajo es la implementación de algoritmos de selección de instancias. Sin embargo, su estructua no impide la creación y utilización de algoritmos de minería, algunos de los cuales ya se encuentran implementados (K-NN).

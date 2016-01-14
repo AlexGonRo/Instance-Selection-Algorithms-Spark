@@ -5,8 +5,7 @@ import java.awt.GridLayout
 
 import scala.collection.mutable.ArrayBuffer
 
-import gui.panel.FilterPanel
-import instanceSelection.abstracts.AbstractIS
+import instanceSelection.abstracts.TraitIS
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JCheckBox
@@ -17,72 +16,163 @@ import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTextField
 import javax.swing.border.EmptyBorder
+import utils.Option
 
 /**
  * Ventana que permite la selección de un un filtro para el conjunto de datos
  * así como ajustar los parámetros del mismo.
- * 
+ *
+ * En el momento de la invocación, este diálogo únicamente contará con una
+ * serie de componentes para seleccionar un filtro. Una vez seleccionado el
+ * filtro, este diálogo se actualizará permitiendo configurar todas las
+ * opciones que posibilite el algoritmo seleccionado.
+ *
+ * @constructor Genera un nuevo panel con componentes que permiten elegir un
+ * filtro.
+ * @param  myParent  Panel que ha creado este diálogo.
+ * @param  modal  Si el diálogo debe bloquear o no la interacción con el resto
+ *   de la interfaz mientras esté abierto.
+ *
+ *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class FilterDialog(myParent: FilterPanel, modal: Boolean) extends JDialog {
+class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
 
-  setTitle("Añadir nuevo filtro")
+  /**
+   * Comando generado al traducir toda la información del diálogo a una cadena
+   * de texto que la clase de ejecución pueda entender.
+   */
   var command = ""
-  var algorithmOptions: Iterable[utils.Option] = Iterable.empty[utils.Option]
-  var isAlgorithm: AbstractIS = null 
-  var dinamicOptions: ArrayBuffer[JComponent] = ArrayBuffer.empty[JComponent]
-  val listOfFiltersPath = "/resources/availableFilters.xml"
-  
-  // Componentes de la ventana
-  val filterLabel = new JLabel("Filtro")
-  val filterTextField = new JTextField("None")
-  val chooseButton = new JButton("Elegir...")
 
-  val okButton = new JButton("Añadir")
-  val cancelButton = new JButton("Cancelar")
+  /**
+   * Opciones configurables del algoritmo seleccionado.
+   */
+  var algorithmOptions: Iterable[Option] = Iterable.empty[utils.Option]
+  /**
+   * Algoritmo de filtrado de instancias seleccionado.
+   */
+  var isAlgorithm: TraitIS = null
+  /**
+   * Listado con todos los componentes que permiten la selección y
+   * configuración de las opciones del filtro.
+   */
+  var dinamicOptions: ArrayBuffer[JComponent] = ArrayBuffer.empty[JComponent]
+  /**
+   * Ruta donde se encuentra el fichero .xml con todas los posibles
+   * filtros seleccionables.
+   */
+  val listOfFiltersPath = "/resources/availableFilters.xml"
+
+  // Componentes de la ventana
+  /**
+   * Texto indicativo para indicar que estamos hablando sobre la selección
+   * de un filtro.
+   */
+  private val filterLabel = new JLabel("Filtro")
+  /**
+   * Campo con la ruta del filtro seleccionado.
+   */
+  private val filterTextField = new JTextField("None")
+  /**
+   * Botón para permitir la selección de un filtro.
+   */
+  private val chooseButton = new JButton("Elegir...")
+
+  /**
+   * Botón de aceptar.
+   */
+  private val okButton = new JButton("Añadir")
+  /**
+   * Botón de cancelar.
+   */
+  private val cancelButton = new JButton("Cancelar")
 
   // Paneles del diálogo
-  val panel1 = new JPanel()
+  /**
+   * Panel con todos los componentes para seleccionar un filtro
+   */
+  private val panel1 = new JPanel()
   panel1.setBorder(new EmptyBorder(6, 10, 3, 10))
   panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS))
   panel1.add(filterLabel)
   panel1.add(filterTextField)
   panel1.add(chooseButton)
 
-  var panel2 = new JPanel()
+  /**
+   * Panel para configurar todas las opciones del filtro seleccionado.
+   *
+   * Sus componentes pueden variar dependiendo del filtro seleccionado.
+   */
+  private var panel2 = new JPanel()
   panel2.setBorder(new EmptyBorder(6, 10, 3, 10))
 
-  val panel3 = new JPanel()
+  /**
+   * Panel con los botones para aceptar/cancelar una determinada selección del
+   * fitro.
+   */
+  private val panel3 = new JPanel()
   panel3.setBorder(new EmptyBorder(3, 10, 6, 10))
   panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS))
   panel3.add(cancelButton)
   panel3.add(okButton)
 
   // Añadimos los elementos a la ventana
+  setTitle("Añadir nuevo filtro")
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(panel1)
   add(panel2)
   add(panel3)
 
-  chooseButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent) {
+  // Damos la capacidad a los botones de escuchar eventos cuando se hace
+  // click sobre ellos.
 
-      //TODO Revisar este null
-      //TODO y ese if...
-      //TODO (como en todas las comunicaciones entre paneles y dialogos)
+  chooseButton.addActionListener(new java.awt.event.ActionListener() {
+    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+      chooseActionPerformed(evt)
+    }
+  })
+
+  okButton.addActionListener(new java.awt.event.ActionListener() {
+    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+      okActionPerformed(evt);
+    }
+  })
+
+  cancelButton.addActionListener(new java.awt.event.ActionListener() {
+    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+      cancelActionPerformed(evt);
+    }
+  })
+
+  pack()
+  setLocationRelativeTo(myParent)
+  setModal(modal)
+  setVisible(true);
+
+  /**
+   * Acción realizada cuando presionamos el botón de selección.
+   *
+   * @param  evt  Evento lanzado al presionar sobre el botón.
+   */
+  private def chooseActionPerformed(evt: java.awt.event.ActionEvent): Unit =
+    {
+
+      // TODO Revisar este null
+      // TODO y ese if...
+      // TODO (como en todas las comunicaciones entre paneles y dialogos)
       val chooseElementDialog = new ChooseElementDialog(null,
-          listOfFiltersPath)
+        listOfFiltersPath)
       if (chooseElementDialog.chosenAlgorithm != "") {
         panel2.removeAll()
         panel2.revalidate()
         panel2.repaint()
         val algorithmName = chooseElementDialog.chosenAlgorithm
         filterTextField.setText(algorithmName)
-        //Cargar la clase
+        // Cargar la clase
         isAlgorithm =
-          Class.forName(algorithmName).newInstance.asInstanceOf[AbstractIS]
-        //Cargar el número de atributos con toda su información
+          Class.forName(algorithmName).newInstance.asInstanceOf[TraitIS]
+        // Cargar el número de atributos con toda su información
         dinamicOptions = ArrayBuffer.empty[JComponent]
         algorithmOptions = isAlgorithm.listOptions
 
@@ -109,59 +199,57 @@ class FilterDialog(myParent: FilterPanel, modal: Boolean) extends JDialog {
               dinamicOptions += tmp
             }
           }
-          //Dibujar
-          //TODO Revisar por qué pack() no funciona correctamente
-          setSize(new Dimension(400, 250)) 
-          //  pack()
+          // Dibujar
+          // TODO Revisar por qué pack() no funciona correctamente
+          setSize(new Dimension(400, 250))
+          // pack()
           revalidate()
           repaint()
 
         })
       }
     }
-  })
 
-  okButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent) {
-      okActionPerformed(evt);
-    }
-  })
-
-  cancelButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent) {
-      cancelActionPerformed(evt);
-    }
-  })
-
-  pack()
-  setLocationRelativeTo(myParent.peer)
-  setModal(modal)
-  setVisible(true);
-
+  /**
+   * Acción realizada cuando presionamos el botón de aceptar.
+   *
+   * @param  evt  Evento lanzado al presionar sobre el botón.
+   */
   private def okActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
 
       if (!algorithmOptions.isEmpty) {
         var iter = algorithmOptions.iterator
-        //Seleccionamos el dataset
+        // Seleccionamos el dataset
         command += filterTextField.getText + " "
 
-        for (i <- 0 until algorithmOptions.size) {
+        for { i <- 0 until algorithmOptions.size } {
           var actualOption = iter.next()
           if (actualOption.optionType == 0) {
-            if (dinamicOptions(i).asInstanceOf[JCheckBox].isSelected())
+            if (dinamicOptions(i).asInstanceOf[JCheckBox].isSelected()) {
               command += actualOption.command + " "
+            }
           } else if (actualOption.optionType == 1) {
-            command += 
-              actualOption.command + " " + dinamicOptions(i).asInstanceOf[JTextField].getText + " "
+            command +=
+              actualOption.command + " " +
+              dinamicOptions(i).asInstanceOf[JTextField].getText + " "
           } else {
-            command += 
-              actualOption.command + " " + dinamicOptions(i).asInstanceOf[JComboBox[String]].getSelectedItem.toString + " " //TODO Comprobar si esta opción funciona bien
+            // TODO Comprobar si esta opción funciona bien
+            command +=
+              actualOption.command + " " +
+              dinamicOptions(i).asInstanceOf[JComboBox[String]].
+              getSelectedItem.toString + " "
           }
         }
         this.dispose();
       }
     }
+
+  /**
+   * Acción realizada cuando presionamos el botón de cancelar.
+   *
+   * @param  evt  Evento lanzado al presionar sobre el botón.
+   */
   private def cancelActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
       this.dispose();

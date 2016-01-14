@@ -6,7 +6,8 @@ import java.util.Arrays
 
 /**
  *
- * Conjunto de funciones hash [[EuclideanHash]].
+ * Conjunto de funciones hash que permite asignar valores hash parecidos a
+ * instancias similares.
  *
  * @param  numOfHashes  Número de vectores aleatorios que contendrá este conjunto.
  * @param  dim  Número de dimensiones que ha de tener el vector.
@@ -25,15 +26,12 @@ private class ANDsTable(var numOfANDs: Int,
                         seed: Long) extends Serializable {
 
   // Creamos tantos objetos EuclideanHash como se requieran
-    val ands = for (i <- 0 until numOfANDs)
-      yield new EuclideanHash(dim, width, seed + i)
+  val ands = for { i <- 0 until numOfANDs }
+    yield new EuclideanHash(dim, width, seed + i)
 
-    
-     
-  
   /**
    *
-   * Clase que contiene una función hash basada en la distancia euclidea entre
+   * Función hash basada en la distancia euclidea entre
    * los puntos de dos vectores.
    *
    * @param  dim  Número de dimensiones del vector.
@@ -42,6 +40,8 @@ private class ANDsTable(var numOfANDs: Int,
    * @param  width  Anchura de los "buckets".
    * @param  seed  Semilla para calcular los valores aleatorios.
    *
+   * @constructor Genera un nuevo vector de valores aleatorios, junto con un
+   *   desplazamiento también aleatorio.
    * @author Alejandro González Rogel
    * @version 1.1.0
    */
@@ -50,19 +50,26 @@ private class ANDsTable(var numOfANDs: Int,
                       var width: Double,
                       seed: Long) extends Serializable {
 
-    // Generador de números aleatorios.
-    val rand = new Random(seed)
+    /**
+     * Generador de números aleatorios
+     */
+    private val rand = new Random(seed)
 
-    // El desplazamiento para el cálculo del valor hash.
+    /**
+     * Desplazamiento para el cálculo del valor hash.
+     */
     val offset = {
-      if (width < 1.0)
+      if (width < 1.0) {
         rand.nextInt((width * 10).toInt) / 10.0
-      else
+      } else {
         rand.nextInt(width.toInt)
+      }
     }
 
-    // Vector con valores aleatorios
-    val randomProjection = for (i <- 0 until dim) yield rand.nextGaussian()
+    /**
+     * Vector con valores aleatorios
+     */
+    val randomProjection = for { i <- 0 until dim } yield rand.nextGaussian()
 
     /**
      * Genera un valor entero al pasar un vector sobre esta función Hash.
@@ -74,7 +81,7 @@ private class ANDsTable(var numOfANDs: Int,
     def hash(attr: Array[Double]): Int = {
 
       var sum = 0.0;
-      for (i <- 0 until attr.size) {
+      for { i <- 0 until attr.size } {
         sum += (randomProjection(i) * attr(i))
       }
 
@@ -86,18 +93,22 @@ private class ANDsTable(var numOfANDs: Int,
   }
 
   /**
-   * Genera un valor al pasar un vector sobre todas las funciones [[EuclideanHash]]
-   * almacenadas.
+   *
+   * Calcula el valor hash para una determinada instancia.
+   *
+   * Genera un valor al pasar un vector sobre todas las funciones hash
+   * almacenadas y, vuelve a aplicar una función hash sobre los resultados
+   * para obtener el valor final.
    *
    * @param  int  Instancia sobre la que calcula el hash
    * @param Valor hash para el vector
    */
   def hash(inst: LabeledPoint): Int = {
 
-    val attr = inst.features.toArray /*:+ inst.label*/
+    val attr = inst.features.toArray /* :+ inst.label */
     // Calculamos todos los valores resultantes de pasar el vector por cada una
     // de las funciones hash (ANDs) que guarda el objeto.
-    val hashValues = for (i <- 0 until ands.size)
+    val hashValues = for { i <- 0 until ands.size }
       yield ands(i).hash(attr)
 
     Arrays.hashCode(hashValues.toArray)

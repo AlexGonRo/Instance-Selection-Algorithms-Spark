@@ -1,19 +1,29 @@
 package gui.component
 
 import java.io.File
+
 import javax.swing.filechooser.FileFilter
-import javax.swing._
-import javax.swing.filechooser._
- 
+
 /**
  * Filtro del selector de archivos de Java que permite visualizar unicamente
- * los archivos con extensión .csv
- * 
+ * los archivos con extensión .csv.
+ *
+ * @constructor Crea un nuevo filtro.
+ *
  * @version 1.0
  * @author Alejandro González Rogel
  */
 class CSVFilter extends FileFilter {
 
+  /**
+   * Decide si un archivo o directorio pasa o no el filtro.
+   *
+   * Este filtro en concreto, permite el paso de directorios y de todos aquellos
+   * archivos terminados con la extensión .csv.
+   *
+   * @param  f  Archivo que queremos filtrar.
+   * @return Booleano indicando si el archivo debe mostrarse o no.
+   */
   override def accept(f: File): Boolean = {
     if (f.isDirectory()) {
       return true
@@ -21,17 +31,18 @@ class CSVFilter extends FileFilter {
 
     val fileName = f.getName()
     val extension = fileName.substring(fileName.lastIndexOf(".") + 1)
-    if (extension != null) {
-      if (extension.equals("csv")) {
-        return true;
-      } else {
-        return false;
-      }
+    if (extension != null && extension.equals("csv")) {
+      return true;
     }
 
     return false;
   }
 
+  /**
+   * Nombre descriptivo de la funcionalidad del filtro.
+   *
+   * @return Nombre descriptivo para el filtro.
+   */
   override def getDescription(): String = {
     "Archivos CSV";
   }

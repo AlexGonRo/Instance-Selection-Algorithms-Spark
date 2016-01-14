@@ -11,7 +11,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
 import classification.seq.knn.KNN
-import instanceSelection.abstracts.AbstractIS
+import instanceSelection.abstracts.TraitIS
 import instanceSelection.seq.abstracts.LinearISTrait
 import instanceSelection.seq.cnn.CNN
 import utils.Option
@@ -27,34 +27,53 @@ import utils.partitioner.RandomPartitioner
  * en base a un criterio que busca adecuar precisión y tamaño del conjunto
  * final.
  *
+ * @constructor Crea un nuevo selector de instancias con los parámetros por
+ *   defecto.
+ *
  * @author  Alejandro González Rogel
  * @version 1.0.0
  */
-class DemoIS extends AbstractIS {
+class DemoIS extends TraitIS {
 
-  private val bundleName = "resources.loggerStrings.stringsDemoIS";
-  private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
+  /**
+   * Ruta al fichero que guarda los mensajes de log.
+   */
+  private val bundleName = "resources.loggerStrings.stringsDemoIS"
+  /**
+   * Logger.
+   */
+  private val logger = Logger.getLogger(this.getClass.getName(), bundleName)
 
-  // Valores por defecto
-
-  // Número de repeticiones que se realizará la votación.
+  /**
+   * Número de repeticiones que se realizará la votación.
+   */
   var numRepeticiones = 10
 
-  // Peso de la precisión sobre el tamaño al calcular el criterio de selección
+  /**
+   *  Peso de la precisión sobre el tamaño al calcular el criterio de selección.
+   */
   var alpha = 0.75
 
-  // Número de paticiones en las que dividiremos el conjunto de datos para
-  // las realizar las votaciones.
+  /**
+   *  Número de paticiones en las que dividiremos el conjunto de datos para
+   *  las realizar las votaciones.
+   */
   var numPartitions = 10
 
-  // Semilla para el generador de números aleatorios
+  /**
+   * Semilla para el generador de números aleatorios.
+   */
   var seed = 1
 
-  // Número de vecinos cercanos a utilizar en el KNN
+  /**
+   * Número de vecinos cercanos a utilizar en el KNN.
+   */
   var k = 1
 
-  // Porcentaje del conjunto de datos inicial usado para calcular la precisión
-  // de las diferentes aproximaciones según el número de votos de las instancias.
+  /**
+   * Porcentaje del conjunto de datos inicial usado para calcular la precisión
+   * de las diferentes aproximaciones según el número de votos de las instancias.
+   */
   var datasetPerc = 1.0
 
   override def instSelection(
@@ -69,57 +88,20 @@ class DemoIS extends AbstractIS {
 
     val (indexBestCrit, bestCrit) = lookForBestCriterion(resultIter)
 
-    return resultIter.filter(
-      tupla => tupla._1 < indexBestCrit + 1).map(tupla => tupla._2)
-
-  }
-
-  /**
-   * Leemos cada valor del array pasado por parámetro y actualizamos
-   * los atributos correspondientes.
-   *
-   * @param args  Argumentos del programa para inicializar el algoritmo.
-   *  El formato requerido es el siguiente: Existirá un par
-   *  "String"-"Valor" por cada atributo, siendo el String
-   *  el que indicará a que atributo nos referimos.
-   * @throws  IllegalArgumentException En caso de no respetarse el formato
-   *  mencionado.
-   */
-  override def setParameters(args: Array[String]): Unit = {
-
-    for (i <- 0 until args.size by 2) {
-      args(i) match {
-        case "-rep"    => numRepeticiones = args(i + 1).toInt
-        case "-alpha"  => alpha = args(i + 1).toDouble
-        case "-s"      => seed = args(i + 1).toInt
-        case "-k"      => k = args(i + 1).toInt
-        case "-np"     => numPartitions = args(i + 1).toInt
-        case "-dsperc" => datasetPerc = args(i + 1).toDouble
-        case any =>
-          logger.log(Level.SEVERE, "DemoISWrongArgsError", any.toString())
-          logger.log(Level.SEVERE, "DemoISPossibleArgs")
-          throw new IllegalArgumentException()
-      }
-
-      if (numRepeticiones <= 0 || alpha < 0 || alpha > 1 || k <= 0 ||
-        numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100) {
-        logger.log(Level.SEVERE, "DemoISWrongArgsValuesError")
-        logger.log(Level.SEVERE, "DemoISPossibleArgs")
-        throw new IllegalArgumentException()
-      }
-    }
+    resultIter.filter(
+      tupla => tupla._1 < indexBestCrit).map(tupla => tupla._2)
 
   }
 
   /**
    * Durante un número fijado de veces, reparticionará el conjunto original
    * y aplicará sobre cada subconjunto un algoritmo de selección de instancias,
-   * indicando aquellas instancias que han sido seleccionadas.
+   * actualizando los votos de aquellas instancias que han sido no seleccionadas.
    *
    * @param RDDconContador Conjunto de datos original y donde cada instancia
    *   tiene un contador asociado que indica el número de veces que ha sido
-   *   seleccionada
-   * @return Conjunto de datos original con los contadores actualizados
+   *   seleccionada.
+   * @return Conjunto de datos original con los contadores actualizados.
    */
   private def doIterations(
     RDDconContador: RDD[(Int, LabeledPoint)]): RDD[(Int, LabeledPoint)] = {
@@ -128,17 +110,18 @@ class DemoIS extends AbstractIS {
     // TODO De momento no se habilita la posibilidad de cambiar este parametro.
     val seqAlgorithm: LinearISTrait = new CNN()
 
-    var isInNodes = new ISInNodes()
+    val votingInNodes = new VotingInNodes()
     var actualRDD = RDDconContador
+    val partitioner = new RandomPartitioner(numPartitions, seed)
 
-    for (i <- 0 until numRepeticiones) {
+    for { i <- 0 until numRepeticiones } {
       // Redistribuimos las instancias en los nodos
       actualRDD = actualRDD.partitionBy(
-        new RandomPartitioner(numPartitions, seed + 1))
+        partitioner)
 
       // En cada nodo aplicamos el algoritmo de selección de instancias
       actualRDD = actualRDD.mapPartitions(instancesIterator => {
-        isInNodes.applyIterationPerPartition(instancesIterator, seqAlgorithm)
+        votingInNodes.applyIterationPerPartition(instancesIterator, seqAlgorithm)
       })
     }
     actualRDD
@@ -148,12 +131,12 @@ class DemoIS extends AbstractIS {
    * Calcula la adecuación de cada una de las posibles soluciones y encuentra
    * aquella cuyo valor sea más bajo.
    *
-   * @param  RDDconContador Conjunto de datos original y donde cada instancia
+   * @param  RDDconContador Conjunto de datos original. Cada instancia
    *   tiene un contador asociado que indica el número de veces que ha sido
-   *   seleccionada
+   *   seleccionada.
    *
-   * @return Tupla con el índice (número mínimo de veces que la instancia ha sido
-   *   seleccionada) que conduce al criterio más bajo y el propio valor de
+   * @return Tupla con el número máximo de veces que la instancia no ha
+   *   sido seleccionada y que conduce al criterio más bajo y el propio valor de
    *   dicho criterio.
    *
    */
@@ -165,21 +148,21 @@ class DemoIS extends AbstractIS {
     val testRDD =
       RDDconContador.sample(false, datasetPerc / 100, seed).map(tupla => tupla._2)
 
-    for (i <- 1 to numRepeticiones) {
+    for { i <- 1 to numRepeticiones } {
 
       // Seleccionamos todas las instancias que superan el tresshold parcial
       val selectedInst = RDDconContador.filter(
         tupla => tupla._1 < i).map(tupla => tupla._2)
 
-      if (selectedInst.isEmpty())
+      if (selectedInst.isEmpty()) {
         criterion += Double.MaxValue
-      else
+      } else {
         criterion += calcCriterion(selectedInst.collect(), testRDD.collect(),
           RDDconContador.count())
-
+      }
     }
 
-    (criterion.indexOf(criterion.min), criterion.min)
+    (criterion.indexOf(criterion.min) + 1, criterion.min)
   }
 
   /**
@@ -198,21 +181,66 @@ class DemoIS extends AbstractIS {
 
     // Calculamos la tasa de error
     val knn = new KNN()
-    val knnParameters:Array[String] = Array.ofDim(2)
-    knnParameters(0)="-k"
-    knnParameters(1)=k.toString()
+    val knnParameters: Array[String] = Array.ofDim(2)
+    knnParameters(0) = "-k"
+    knnParameters(1) = k.toString()
     knn.setParameters(knnParameters)
     knn.train(selectedInst)
     var failures = 0
-    for (instancia <- testRDD) {
+    for { instancia <- testRDD } {
       var result = knn.classify(instancia)
-      if (result != instancia.label)
+      if (result != instancia.label) {
         failures += 1
+      }
     }
     val testError = failures.toDouble / testRDD.size
 
     // Calculamos el criterio de selección.
-    return alpha * testError + (1 - alpha) * subDatasize
+    alpha * testError + (1 - alpha) * subDatasize
+  }
+
+  override def setParameters(args: Array[String]): Unit = {
+
+    for { i <- 0 until args.size by 2 } {
+      val identifier = args(i)
+      val value = args(i + 1)
+      assignValToParam(identifier, value)
+    }
+
+    if (numRepeticiones <= 0 || alpha < 0 || alpha > 1 || k <= 0 ||
+      numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100) {
+      logger.log(Level.SEVERE, "DemoISWrongArgsValuesError")
+      logger.log(Level.SEVERE, "DemoISPossibleArgs")
+      throw new IllegalArgumentException()
+    }
+
+  }
+
+  /**
+   * Asigna un valor a un parámetro basandose en el comando identificativo del
+   * mismo.
+   *
+   * @param  identifier Identificador del parámetro en un comando de consola.
+   * @param  value  Valor que deseamos asignar.
+   *
+   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
+   *   no es correcto.
+   */
+  @throws(classOf[IllegalArgumentException])
+  private def assignValToParam(identifier: String, value: String): Unit = {
+    identifier match {
+      case "-rep"    => numRepeticiones = value.toInt
+      case "-alpha"  => alpha = value.toDouble
+      case "-s"      => seed = value.toInt
+      case "-k"      => k = value.toInt
+      case "-np"     => numPartitions = value.toInt
+      case "-dsperc" => datasetPerc = value.toDouble
+      case somethingElse: Any =>
+        logger.log(Level.SEVERE, "DemoISWrongArgsError",
+          somethingElse.toString())
+        logger.log(Level.SEVERE, "DemoISPossibleArgs")
+        throw new IllegalArgumentException()
+    }
   }
 
   override def listOptions: Iterable[Option] = {
@@ -220,12 +248,15 @@ class DemoIS extends AbstractIS {
     options += new Option("Nº rondas", "Número de rondas de votación", "-rep",
       numRepeticiones, 1)
     options += new Option("Alpha", "Valor alpha", "-alpha", alpha, 1)
-    options += new Option("Vecinos", "Número de vecinos más cercanos en KNN", "-k", k, 1)
+    options += new Option("Vecinos", "Número de vecinos más cercanos en KNN",
+      "-k", k, 1)
     options += new Option("Parciciones", "Número de particiones en las" +
       "que se dividirá el conjunto de datos original", "-np", numPartitions, 1)
-    options += new Option("Porcentaje error", "Porcentaje del conjunto de datos" +
-      "utilizado para calcular el error durante el cálculo del fitness", "-dsperc", datasetPerc, 1)
-    options += new Option("Semilla", "Semilla del generador de números aleatorios", "-s", seed, 1)
+    options += new Option("Porcentaje error", "Porcentaje del conjunto de" +
+      " datos utilizado para calcular el error durante el cálculo del fitness",
+      "-dsperc", datasetPerc, 1)
+    options += new Option("Semilla", "Semilla del generador de números aleatorios",
+      "-s", seed, 1)
 
     options
   }
