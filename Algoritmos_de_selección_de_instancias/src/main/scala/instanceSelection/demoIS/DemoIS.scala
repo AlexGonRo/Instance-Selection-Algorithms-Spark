@@ -110,19 +110,22 @@ class DemoIS extends TraitIS {
     // TODO De momento no se habilita la posibilidad de cambiar este parametro.
     val seqAlgorithm: LinearISTrait = new CNN()
 
+    // Operación a realizar en cada uno de los nodos.
     val votingInNodes = new VotingInNodes()
+    // RDD usada en la iteración concreta.
     var actualRDD = RDDconContador
+    // Particionador para asignar nuevas particiones a las instancias.
     val partitioner = new RandomPartitioner(numPartitions, seed)
 
     for { i <- 0 until numRepeticiones } {
       // Redistribuimos las instancias en los nodos
       actualRDD = actualRDD.partitionBy(
         partitioner)
-
+        
       // En cada nodo aplicamos el algoritmo de selección de instancias
-      actualRDD = actualRDD.mapPartitions(instancesIterator => {
+      actualRDD = actualRDD.mapPartitions(instancesIterator => 
         votingInNodes.applyIterationPerPartition(instancesIterator, seqAlgorithm)
-      })
+      )
     }
     actualRDD
   }
@@ -143,22 +146,26 @@ class DemoIS extends TraitIS {
   private def lookForBestCriterion(
     RDDconContador: RDD[(Int, LabeledPoint)]): (Int, Double) = {
 
+    // Donde almacenar los valores del criterion de cada número de votos.
     var criterion = new MutableList[Double]
     // Creamos un conjunto de test
     val testRDD =
       RDDconContador.sample(false, datasetPerc / 100, seed).map(tupla => tupla._2)
+        .collect()
+
+    val originalDatasetSize = RDDconContador.count()
 
     for { i <- 1 to numRepeticiones } {
 
-      // Seleccionamos todas las instancias que superan el tresshold parcial
+      // Seleccionamos todas las instancias que no superan el tresshold parcial
       val selectedInst = RDDconContador.filter(
-        tupla => tupla._1 < i).map(tupla => tupla._2)
+        tupla => tupla._1 < i).map(tupla => tupla._2).collect()
 
-      if (selectedInst.isEmpty()) {
+      if (selectedInst.isEmpty) {
         criterion += Double.MaxValue
       } else {
-        criterion += calcCriterion(selectedInst.collect(), testRDD.collect(),
-          RDDconContador.count())
+        criterion += calcCriterion(selectedInst, testRDD,
+          originalDatasetSize)
       }
     }
 

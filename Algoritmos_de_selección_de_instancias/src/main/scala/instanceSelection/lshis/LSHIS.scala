@@ -83,29 +83,22 @@ class LSHIS extends TraitIS {
       val keyInstRDD = parsedData.map { instancia =>
         ((andTable.hash(instancia), instancia.label), instancia)
       }
-      val keyInstRDDGroupBy = keyInstRDD.groupByKey
+
+      // Seleccionamos una instancia por cada par (bucket,clase)
+      val partialResult = keyInstRDD.reduceByKey { (inst1, inst2) => inst1 }
 
       if (i == 0) { // Si es la primera iteración del bucle for
-        // seleccionamos una instancia por key
-
-        finalResult = keyInstRDDGroupBy.map[LabeledPoint] {
-          case (tupla, instancias) => instancias.head
-        }
+        finalResult = partialResult.values
       } else {
-        // Si no es la primera iteración del bucle for (primer componente OR)
         // Recalculamos los buckets para las instancias ya seleccionadas
         // en otras iteraciones
         val alreadySelectedInst = finalResult.map { instancia =>
           ((andTable.hash(instancia), instancia.label), instancia)
         }
-        // Sobre la RDD de la iteración, seleccionamos una instancia por key
-        val keyClassRDD = keyInstRDDGroupBy.map[((Int, Double), LabeledPoint)] {
-          case (tupla, instancias) => (tupla, instancias.head)
-        }
 
         // Sobre la RDD de la iteración, seleccionamos aquellas las instancia
         // cuya key no esté repetida en el resultado final
-        val keyClassRDDGroupBy = keyClassRDD.subtractByKey(alreadySelectedInst)
+        val keyClassRDDGroupBy = partialResult.subtractByKey(alreadySelectedInst)
         val selectedInstances = keyClassRDDGroupBy.map[LabeledPoint] {
           case (tupla, instancia) => instancia
         }
