@@ -70,6 +70,10 @@ class LSHIS extends TraitIS {
     sc: SparkContext,
     parsedData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
+    parsedData.persist()
+
+    parsedData.name = "TrainInLSHIS"
+
     val andTables = createANDTables(parsedData.first().features.size /* + 1 */ )
 
     // Variable para almacenar el resultado final
@@ -88,7 +92,8 @@ class LSHIS extends TraitIS {
       val partialResult = keyInstRDD.reduceByKey { (inst1, inst2) => inst1 }
 
       if (i == 0) { // Si es la primera iteración del bucle for
-        finalResult = partialResult.values
+        finalResult = partialResult.values.persist
+        finalResult.name = "FinalResult"
       } else {
         // Recalculamos los buckets para las instancias ya seleccionadas
         // en otras iteraciones
@@ -105,7 +110,7 @@ class LSHIS extends TraitIS {
 
         // Unimos el resultado de la iteración con el resultado parcial ya
         // almacenado
-        finalResult = finalResult.union(selectedInstances)
+        finalResult = finalResult.union(selectedInstances).persist
       }
     }
 
