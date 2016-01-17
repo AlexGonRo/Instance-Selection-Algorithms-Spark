@@ -82,7 +82,7 @@ class DemoIS extends TraitIS {
 
     // Añadimos a las instancias un contador para llevar la cuenta del número
     // de veces que han sido seleccionadas en el siguiente paso
-    val RDDconContador = parsedData.map(instance => ((0, instance)))
+    val RDDconContador = parsedData.map(instance => (0, instance))
 
     val resultIter = doIterations(RDDconContador)
 
@@ -128,6 +128,8 @@ class DemoIS extends TraitIS {
           .applyIterationPerPartition(instancesIterator, seqAlgorithm))
     }
     actualRDD.persist()
+    actualRDD.name = "InstancesAndVotes"
+    actualRDD
   }
 
   /**

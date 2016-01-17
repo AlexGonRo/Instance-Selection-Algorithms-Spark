@@ -93,7 +93,7 @@ class LSHIS extends TraitIS {
 
       if (i == 0) { // Si es la primera iteración del bucle for
         finalResult = partialResult.values.persist
-        finalResult.name = "FinalResult"
+        finalResult.name = "PartialResult"
       } else {
         // Recalculamos los buckets para las instancias ya seleccionadas
         // en otras iteraciones

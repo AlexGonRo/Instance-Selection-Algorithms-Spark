@@ -69,21 +69,24 @@ class ResultSaver {
    * operaciones.
    *
    * @param  args  argumentos de llamada de la ejecución.
-   * @param  filterTime  Tiempo tardado en ejecutar la selección de instancias.
    * @param  reduction  Porcentaje de redución del conjunto de datos inicial tras
    *   aplicarse un selector de instancias.
    * @param classificationAccuracy  Porcentaje de acierto del clasificador.
    * @param  filterName  Nombre del filtro o selector de instancias utilizado.
    * @param  classifierName  Nombre del clasificador de instancias.
-   *
+   * @param  isTest Indica si el resultado a almacenar es producto de una
+   *   ejecución de test para comprobar el tiempo de ejecución.
+   * @param  execTime  Tiempo tardado en ejecutar el proceso medido.
+   *   Solo útil cuando queremos almacenar una ejecución de test.
    *
    */
   def storeResultsInFile(args: Array[String],
-                         filterTime: Double,
                          reduction: Double,
                          classificationAccuracy: Double,
                          filterName: String,
-                         classifierName: String): Unit = {
+                         classifierName: String,
+                         isTest: Boolean = false,
+                         execTime: Double = 0.0): Unit = {
 
     val resultDir = new File(resultPath)
     if (!resultDir.exists()) {
@@ -95,8 +98,8 @@ class ResultSaver {
     val writer = new PrintWriter(new File(fileName))
     try {
       printSummaryInFile(writer, args)
-      printResultsInFile(writer, filterTime, reduction,
-        classificationAccuracy, filterName, classifierName)
+      printResultsInFile(writer, reduction,
+        classificationAccuracy, filterName, classifierName, isTest, execTime)
     } finally {
       writer.close()
     }
@@ -150,14 +153,18 @@ class ResultSaver {
    * @param  classificationAccuracy  Porcentaje de acierto de la clasificación.
    * @param  filterName  Nombre del filtro utilizado.
    * @param  classifierName  Nombre del clasificador utilizado.
-   *
+   * @param  isTest Indica si el resultado a almacenar es producto de una
+   *   ejecución para testear tiempos de ejecución.
+   * @param  execTime  Tiempo medio en realizar la acción medida. Solo cuando
+   *   la ejecución es de tipo test.
    */
   private def printResultsInFile(writer: PrintWriter,
-                                 filterTime: Double,
                                  reduction: Double,
                                  classificationAccuracy: Double,
                                  filterName: String,
-                                 classifierName: String): Unit = {
+                                 classifierName: String,
+                                 isTest: Boolean = false,
+                                 execTime: Double = 0.0): Unit = {
     val divisor = "++++++++++++++++++++++\n"
     writer.write("Filter: " + filterName + "\n")
     writer.write("Classifier: " + classifierName + "\n")
@@ -166,8 +173,9 @@ class ResultSaver {
     writer.write(divisor)
     writer.write("Accuracy(%) \t" + "+ " + classificationAccuracy + "\n")
     writer.write(divisor)
-    writer.write("Filter time(s) \t" + "+ " + filterTime / 1000 + "\n")
-    writer.write(divisor)
-
+    if (isTest) {
+      writer.write("Filter time(s) \t" + "+ " + execTime / 1000 + "\n")
+      writer.write(divisor)
+    }
   }
 }

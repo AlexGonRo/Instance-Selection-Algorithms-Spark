@@ -45,6 +45,11 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
    */
   private var working = false
 
+  /**
+   * Tipo de ejecución.
+   */
+  private val execType = "ISClassExec"
+
   // Componentes
   /**
    * Botón para realizar la compresión de los ficheros para realizar un
@@ -179,7 +184,7 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     }
 
     commandSH += "--class main.MainWithIS " + thisJarPath + " "
-
+    commandSH += execType + " "
     for { i <- count until commandSplited.size } {
       commandSH += commandSplited(i) + " "
     }
@@ -222,7 +227,7 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     }
 
     commandSH += "--class main.MainWithIS " + thisJarPath + " "
-
+    commandSH += execType + " "
     commandSH += READER_SEPARATOR.toString() + " "
     commandSH += commandSplited(count + 1).split(fsep).last + " "
     count += 2

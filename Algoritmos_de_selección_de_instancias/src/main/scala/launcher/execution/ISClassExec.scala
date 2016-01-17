@@ -1,4 +1,4 @@
-package main
+package launcher.execution
 
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -17,38 +17,34 @@ import utils.io.FileReader
 import utils.io.ResultSaver
 
 /**
- * Clase lanzadora de las ejecuciones del programa.
+ * Permite la ejecución de una labor de minería de datos que contenga un
+ * selector de instancias y un classificador, utilizado tras el filtrado.
  *
  * @author Alejandro González Rogel
- * @version 2.0.0
+ * @version 1.0.0
  */
-object MainWithIS {
+class ISClassExec extends TraitExec {
 
   /**
    * Ruta del fichero donde se almacenan los mensajes de log.
    */
-  private val bundleName = "resources.loggerStrings.stringsMain";
+  private val bundleName = "resources.loggerStrings.stringsExec";
   /**
-   * Logger
+   * Logger.
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Tiempos de ejecucion del filtro en cada iteración de la validación
-   * cruzada.
-   */
-  private val executionTimes = ArrayBuffer.empty[Long]
-  /**
    * Porcentajes de reducción del conjunto de datos original en cada
    * iteración de la validación cruzada.
    */
-  private val reduction = ArrayBuffer.empty[Double]
+  protected val reduction = ArrayBuffer.empty[Double]
 
   /**
    * Porcentajes de acierto en test del clasificador en cada iteración
    * de la validación cruzada.
    */
-  private val classificationResults = ArrayBuffer.empty[Double]
+  protected val classificationResults = ArrayBuffer.empty[Double]
 
   /**
    * Ejecución de un clasificador tras la aplicación de un filtro.
@@ -68,9 +64,9 @@ object MainWithIS {
    *   para la validación cruzada. La única partición que puede no aparecer será
    *   la relacionada con la validación cruzada
    */
-  def main(args: Array[String]): Unit = {
+  override def launchExecution(args: Array[String]): Unit = {
 
-    // Argumentos dividios según el objeto al que afectarán
+    // Argumentos divididos según el objeto al que afectarán
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
 
@@ -83,22 +79,18 @@ object MainWithIS {
     val classifierName = classiArgs(0).split("\\.").last
 
     // Creamos un nuevo contexto de Spark
-    //    val sc = new SparkContext(new SparkConf())
+       val sc = new SparkContext(new SparkConf())
     // Utilizarlo solo para pruebas lanzadas desde Eclipse
-    val sparkConf =
-      new SparkConf().setMaster("local[2]").setAppName("Prueba_Eclipse")
-    val sc = new SparkContext(sparkConf)
+    // val sparkConf =
+    //   new SparkConf().setMaster("local[2]").setAppName("Prueba_Eclipse")
+    // val sc = new SparkContext(sparkConf)
 
     try {
 
-      val originalData = readDataset(readerArgs, sc)
+      val originalData = readDataset(readerArgs, sc).persist
+      originalData.name = "OriginalData"
 
       val cvfolds = createCVFolds(originalData, cvArgs)
-
-      // TODO ¿Forzar operacion?
-      for { i <- 0 until cvfolds.size } {
-        cvfolds(i)._1.foreachPartition { i => None }
-      }
 
       cvfolds.map {
         // Por cada par de entrenamiento-test
@@ -200,8 +192,7 @@ object MainWithIS {
    * @return pares entrenamiento-test
    */
   protected def createCVFolds(originalData: RDD[LabeledPoint],
-                              crossValidationArgs: Array[String]):
-                              ArrayBuffer[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
+                              crossValidationArgs: Array[String]): ArrayBuffer[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
 
     var crossValidationFolds = 1
     var crossValidationSeed = 1
@@ -260,18 +251,16 @@ object MainWithIS {
                                   classifier: TraitClassifier,
                                   train: RDD[LabeledPoint],
                                   test: RDD[LabeledPoint]): Unit = {
+
     // Instanciamos y utilizamos el selector de instancias
-    val start = System.currentTimeMillis
 
     val resultInstSelector = applyInstSelector(instSelector, train, sc)
-    // TODO ¿Forzar operacion?
-    resultInstSelector.foreachPartition { i => None }
-    executionTimes += System.currentTimeMillis - start
     reduction += 1 - (resultInstSelector.count() / train.count().toDouble)
 
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
     classificationResults += classifierResults
+    classificationResults += 1
   }
 
   /**
@@ -356,11 +345,9 @@ object MainWithIS {
                             classifierName: String): Unit = {
 
     // Número de folds que hemos utilizado
-    val numFolds = executionTimes.size.toDouble
+    val numFolds = reduction.size.toDouble
 
     // Calculamos los resultados medios de la ejecución
-    val meanInstSelectorExecTime =
-      executionTimes.reduceLeft { _ + _ } / numFolds
     val meanReduction =
       reduction.reduceLeft { _ + _ } / numFolds
     val meanAccuracy =
@@ -368,7 +355,7 @@ object MainWithIS {
 
     // Salvamos los resultados
     val resultSaver = new ResultSaver()
-    resultSaver.storeResultsInFile(args, meanInstSelectorExecTime, meanReduction,
+    resultSaver.storeResultsInFile(args, meanReduction,
       meanAccuracy, instSelectorName, classifierName)
   }
 
