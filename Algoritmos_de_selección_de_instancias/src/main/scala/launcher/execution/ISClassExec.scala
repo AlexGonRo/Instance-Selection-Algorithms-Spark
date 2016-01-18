@@ -9,6 +9,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
+import org.apache.spark.storage.StorageLevel
 
 import classification.seq.abstracts.TraitClassifier
 import instanceSelection.abstracts.TraitIS
@@ -79,11 +80,11 @@ class ISClassExec extends TraitExec {
     val classifierName = classiArgs(0).split("\\.").last
 
     // Creamos un nuevo contexto de Spark
-       val sc = new SparkContext(new SparkConf())
+    val sc = new SparkContext(new SparkConf())
     // Utilizarlo solo para pruebas lanzadas desde Eclipse
     // val sparkConf =
-    //   new SparkConf().setMaster("local[2]").setAppName("Prueba_Eclipse")
-    // val sc = new SparkContext(sparkConf)
+    //  new SparkConf().setMaster("local[2]").setAppName("Prueba_Eclipse")
+    //val sc = new SparkContext(sparkConf)
 
     try {
 
@@ -205,11 +206,25 @@ class ISClassExec extends TraitExec {
       }
     }
 
+    // Porcentaje de instancias del conjunto de datos inicial que tendrán
+    // los bloques de test
     val testPerc = 1 / crossValidationFolds.toDouble
 
+    // Instancias todavía no incluidas en ningún bloque.    
+    var notSelectedYetOriginalData = originalData
+
     var result = ArrayBuffer.empty[(RDD[LabeledPoint], RDD[LabeledPoint])]
+
     for { i <- 0 until crossValidationFolds } {
-      val test = originalData.sample(false, testPerc, crossValidationSeed + i)
+      // Porcentaje de instancias aún no seleccionadas que necesitamos
+      // seleccionar para esta ronda.
+      // TODO ¿Eliminar persistencia y persistir nueva RDD?
+      // notSelectedYetOriginalData.unpersist(false)
+      val selectedPerc = testPerc / (1 - (testPerc * i))
+      val test = notSelectedYetOriginalData
+        .sample(false, selectedPerc, crossValidationSeed + i)
+      notSelectedYetOriginalData = notSelectedYetOriginalData.subtract(test)
+      // notSelectedYetOriginalData.persist(StorageLevel.MEMORY_AND_DISK)
       val train = originalData.subtract(test)
       result += ((train, test))
     }
