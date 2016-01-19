@@ -1,6 +1,6 @@
 package instanceSelection.lshis
 
-import scala.util.Random
+import java.util.Random
 import org.apache.spark.mllib.regression.LabeledPoint
 import java.util.Arrays
 

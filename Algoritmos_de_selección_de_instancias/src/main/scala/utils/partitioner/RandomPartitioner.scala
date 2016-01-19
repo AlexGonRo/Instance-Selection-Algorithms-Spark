@@ -1,7 +1,7 @@
 package utils.partitioner
 
 import org.apache.spark.Partitioner
-import scala.util.Random
+import java.util.Random
 
 /**
  * Particionador completamente aleatorio un conjunto de datos en una RDD.

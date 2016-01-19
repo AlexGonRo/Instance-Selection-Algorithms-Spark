@@ -3,9 +3,9 @@ package utils.io
 import java.io.File
 import java.io.PrintWriter
 import java.util.Calendar
-
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
+import java.text.SimpleDateFormat
 
 /**
  * Proporciona métodos para almacenar el resultado obtenido tras la ejecución de
@@ -32,6 +32,11 @@ class ResultSaver {
   final private val fileSeparator = System.getProperty("file.separator")
 
   /**
+   * Formato de escritura de la fecha y hora actual
+   */
+  val myDateFormat = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+
+  /**
    * Guarda una RDD en un único fichero en la máquina principal.
    *
    * El fichero será almacenado en una carpeta definida po (de no existir
@@ -51,8 +56,9 @@ class ResultSaver {
       resultDir.mkdir()
     }
 
-    val fileName = resultPath + fileSeparator + fileId + ": " +
-      Calendar.getInstance.getTime
+    val now = Calendar.getInstance().getTime()
+    val fileName = resultPath + fileSeparator + fileId + "_" +
+      myDateFormat.format(now)
 
     val writer = new PrintWriter(new File(fileName))
     try {
@@ -93,8 +99,10 @@ class ResultSaver {
       resultDir.mkdir()
     }
 
-    val fileName = resultPath + fileSeparator + classifierName + ": " +
-      Calendar.getInstance.getTime
+    val now = Calendar.getInstance().getTime()
+    val fileName = resultPath + fileSeparator + classifierName + "_" +
+      myDateFormat.format(now)
+
     val writer = new PrintWriter(new File(fileName))
     try {
       printSummaryInFile(writer, args)

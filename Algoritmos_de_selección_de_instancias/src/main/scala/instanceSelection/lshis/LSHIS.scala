@@ -5,7 +5,7 @@ import java.util.logging.Logger
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.MutableList
-import scala.util.Random
+import java.util.Random
 
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
