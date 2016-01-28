@@ -87,17 +87,19 @@ Como primer aspecto a evaluar durante la realización del proyecto, se llevó a 
 
 La intención de esta prueba era doble: por un lado, suponía un primer acercamiento a la librería Spark y al modelo de funcionamiento en este tipo de entornos. Por otro, se pretendía probar el tiempo de ejecución de Spark frente a alternativas anteriores que, como principal diferencia, no están pensadas para ser ejecutadas en paralelo.
 
-Para realizar las mediciones utilizamos conjuntos de datos de diferentes tamaños, pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico y relativamente simple que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido.
+Para realizar las mediciones utilizamos conjuntos de datos de diferentes tamaños, pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido.
 
-Los resultados, así como una explicación más detallada del experimento, pueden encontrarse en el material adjunto a la memoria
+Los resultados, así como una explicación más detallada del experimento, pueden encontrarse en el material adjunto a la memoria. Sin embargo, como pequeña aproximación, se muestra en la gráfica \ref{fig:img/compartido/timeTendencyBayes} la evolución del tiempo de ejecución según el número de instancias en diferentes configuraciones de lanzamiento (Weka y Spark con diferente número de ejecutores). Sin entrar a detalle, puede apreciarse claramente una reducción del tiempo de ejecución en Spark a medida que añadimos nuevos ejecutores, lo que se traduce en añadir más unidades de procesamiento a la ejecución. 
 
-\todo{Incluir pequeña conclusión del resultado}
-
-
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/compartido/timeTendencyBayes}
+		\caption{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando Naive Bayes.}\label{fig:img/compartido/timeTendencyBayes}
+	\end{figure}
 
 \section{Implementación de algoritmos de selección de instancias}
 
-Marcada como el objetivo fundamental de este proyecto, la realización de dos algoritmos de selección de instancias ha ocupado la mayor parte de tiempo dentro del mismo. A continuación se expondrán algunos de los aspectos que más influencia han tenido durante esta fase de implementación y una pequeña explicación más concreta de la propia implementación de los algoritmos.
+Marcado como el objetivo fundamental de este proyecto, la realización de dos algoritmos de selección de instancias ha ocupado la mayor parte de tiempo dentro del mismo. A continuación se expondrán algunos de los aspectos que más influencia han tenido durante esta fase de implementación y una pequeña explicación más concreta de la propia implementación de los algoritmos.
 
 
 \subsection{Indeterminismo, comunicación limitada y grandes conjuntos de datos}
@@ -112,16 +114,58 @@ Por último, en un intento de optimización por parte de Spark, nos encontramos 
 
 Por lo mencionado en este último punto, durante la realización del proyecto se han llegado a detectar funcionamientos anómalos de la librería Spark cuando opera con conjuntos de datos muy pequeños. 
 
-\subsection{Normalización y pre procesamiento de los datos}
+\subsection{Lazy evaluation}
 
-Spark, y en particular MLlib, es una librería relativamente moderna que todavía no proporciona soporte para muchos tipos de operaciones. En lo que a este proyecto se refiere, se ha notado la falta de posibilidades para pre procesar los conjuntos de entrada que utilizamos para nuestros algoritmos.
+Un aspecto importante de la implementación es el hecho de que Spark utiliza una estrategia de evaluación perezosa (\textit{Lazy Evaluation}) como ya ha sido definido en \ref{sec:DefSpark}.
 
-Dado que esto podría suponer una carga de trabajo aún mayor y ya han tenido que implementarse clases adicionales para el funcionamiento de los algoritmos propuestos (ver \ref{sec:ImplRecursosAdicionales}), los conjuntos de datos utilizados necesitan cumplir dos requisitos para ser correctamente tratados:
+Esto, si bien se hace en un intento de conseguir optimizar las operaciones, ha de tenerse en cuenta si no se quiere obtener la situación contraria. Hay que comprender que las RDD solo se crean cuando se necesitan y que, por ello, no todas las operaciones se realizan estrictamente en el orden en el que se definen en el código.
 
-\begin{itemize}
-\item El conjunto de datos ha de contener solamente atributos numéricos, y esto incluye el atributo de clase.
-\item El conjunto de datos debe haber sido normalizado con anterioridad para una correcta clasificación.
-\end{itemize}
+En el siguiente ejemplo (\ref{lst:cvScala}), mostramos un fragmento con el código que genera un conjunto de pares entrenamient-test y realiza sobre cada uno de ellos una operación cualquiera:
+
+\begin{lstlisting}[language=Java,tabsize=4,frame = single,caption=Código de ejecución de una validación cruzada en Scala,captionpos=b,label=lst:cvScala,]
+
+	// Lectura
+	val originalData = readDataset(readerArgs)
+	// Creación de conjuntos para la validación cruzada
+    val cvfolds = createCVFolds(originalData)
+    // Por cada conjunto entrenamiento-test
+    cvfolds.map {
+        case (train, test) => {
+          // Realiza operaciones
+        }
+      }
+\end{lstlisting}
+
+Una primera impresión del código \ref{lst:cvScala} puede hacernos suponer que primero se generan todossubconjuntos y, posteriormente, sobre cada uno de ellos se realiza la operación que se le pide. Sin embargo, el comportamiento real es muy distinto y es que, hasta que no necesitamos los conjuntos ``train'' y ``test'' dentro del bucle, no calculamos creamos dichos conjuntos. De esta manera, cada vez que realicemos una iteración sobre el bucle calcularemos solo los conjuntos que vayamos a necesitar.
+
+Tener esto en cuenta es importante a la hora de programar, pues puede provocar,entre otros aspectos negativos, cuellos de botella, excesivo uso de almacenamiento con datos que no van a usarse en un futuro cercano o necesidad de recomputar grandes estructuras RDD.
+
+\subsection{Correcta gestión de los recursos}
+
+Como se ha mencionado anteriormente en esta memoria (ver \ref{sec:DefSpark}), una de las ventajas de Spark frente a otras alternativas es, no solo la posibilidad de usar diferentes niveles de almacenamiento, sino también la posibilidad de definir nosotros qué almacenar y dónde hacerlo.
+
+Aunque parezca un aspecto con importancia menor, solo útil cuando se busca optimizar al máximo una operación, lo cierto es que es un aspecto sumamente importante que tiene una altísima influencia en el tiempo de ejecución. Tener en mente qué estructuras RDD almacenar, dónde hacerlo o si realmente merece la pena ocupar espacio ante una operación que podría recomputarse es algo que se ha visto completamente necesario desarrollando el proyecto.
+
+Tomemos como ejemplo el algoritmo DemoIS, donde se decidió persistir una estructura RDD generada tras la fase de votaciones. Podemos ver como el tiempo de ejecución de algunas de las operaciones ha sido reducido del orden de segundos (en la imagen \ref{fig:img/memoria/DemoISWithoutPersist}) al tiempo de milisegundos (en la imagen \ref{fig:img/memoria/DemoISWithPersist}).
+
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/memoria/DemoISWithoutPersist}
+		\caption{Ejecución de operaciones en el algoritmo DemoIS sin persistir ninguna RDD.}\label{fig:img/memoria/DemoISWithoutPersist}
+	\end{figure}
+	\FloatBarrier
+	
+		\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/memoria/DemoISWithPersist}
+		\caption{Ejecución de operaciones en el algoritmo DemoIS persistiendo el conjunto de datos tras las votaciones.}\label{fig:img/memoria/DemoISWithPersist}
+	\end{figure}
+	\FloatBarrier
+
+
+Así mismo, también es necesario tener en cuenta la manera en la que se realizan las operaciones. Un punto importante de Spark es que necesita escribir los datos a disco cuando quiere redistribuirlos por la red de nodos, por si necesitase recuperarse de algún fallo. Escribir a disco es una operación muy costosa, por lo que ha de intentarse minimizarse al máximo. El orden de las operaciones o el uso de diferentes operaciones para llegar a un mismo resultado, han sido considerados para aumentar el rendimiento de nuestro programa.
+
+Un ejemplo lo encontramos entre el uso de dos funciones que las RDD proporcionan: \textit{reduceByKey} y \textit{groupByKey}. Aunque a menudo los resultados alcanzados por una de las funciones puede ser conseguido mediante la otra, \textit{groupByKey} obliga a escribir a disco la estructura RDD completa, mientras que \textit{reduceByKey} reduce considerablemente esta operación \cite{ShuffleSpark}. Problemas similares ocurren con funciones como los \textit{join} o \textit{subtractByKey}, utilizada también en este proyecto.
 
 \subsection{Implementación de resursos necesarios}\label{sec:ImplRecursosAdicionales}
 
@@ -131,6 +175,7 @@ Como ya se ha comentado anteriormente, la librería MLlib de Spark con la que he
 \item \textbf{Algoritmo Condensed Nearest Neighbour (CNN):} Un algoritmo de selección de instancias simple y cuya ejecución es secuencial. Ha sido incluido de manera obligatoria para poder ejecutar correctamente nuestro algoritmo Democratic instance selection (ver algoritmo \ref{sec:defDemoIS}). Además, es obligatorio que éste posea la capacidad de serialización, pues es necesario distribuirlo a cada uno de nuestros nodos trabajadores por exigencias del algoritmo que deseamos implementar.
 \item  \textbf{Algoritmo K-Nearest Neighbours (KNN):} Un clasificador simple necesario tanto para la implementación de Democratic instance selection como para comparar la correcta salida de nuestros selectores de instancias. Está programado de manera secuencial, de manera que requiere que todos los datos sean recogidos en una sola máquina para poder aplicar el algoritmo. En un primer momento se creyó que podríamos contar con una implementación en Spark del KNN gracias al material presentado en la Conferencia de la Asociación Española para la Inteligencia Artificial 2015 (CAEPIA 2015) \cite{KNNConferencia}, pero finalmente tuvo que implementarse una versión menos ambiciosa del clasificador.
 \end{itemize}
+
 
 \subsection{Implementación concreta de LSHIS}
 
@@ -152,36 +197,30 @@ Cabe destacar que en estas operaciones realizadas cuando hay dos o más construc
 $ S = \varnothing $
 
 \ForEach {familia de funciones hash en $\mathcal{G}$} {
-	$g\leftarrow$ Nuevo conjunto de funciones hash
-	
-  \ForEach {instancia} {
-		$\{u,c\}\leftarrow$ cubeta asignada por las funciones hash de $g$ a la instancia $\mathbf{x}$ y clase de $\mathbf{x}$ 
 
-		Asociar $\mathbf{x}$ a su tupla $\{u,c\}$
-	}
-	
-	$instAgrupadas\leftarrow$ Agrupar las instancias según su tupla $\{u,c\}$
-	
-	$sel\leftarrow$ Seleccionar una instancia aleatoria por cada par llave $\{u,c\}$
-	
-	\If {es la primera iteración}{
-	$ S = sel $
-	}
-	\Else{
+  \ForEach {instancia $\mathbf{x}$ en $X$} {
+        $\{u,c\}\leftarrow$ tupla formada por la cubeta asignada a $\mathbf{x}$ y su clase
 
-	\ForEach {instancia en S} {
-			$\{u,c\}\leftarrow$ cubeta asignada por las funciones hash de $g$ a la instancia $\mathbf{x}$ y clase de $\mathbf{x}$
+        Asociar $\mathbf{x}$ a su tupla $\{u,c\}$
+    }
 
-	Asociar $\mathbf{x}$ a su tupla $\{u,c\}$
-	
-	}
+    $sel\leftarrow$ Seleccionar una instancia aleatoria por cada par llave $\{u,c\}$
 
-	$sel' = sel - S$	 /* Teniendo en cuenta la tupla $\{u,c\}$ asignada a cada instancia
-		
-		
-	Añadir $sel'$ a $S$
-	}
-		
+    \If {es la primera iteración}{
+    $ S = sel $
+    }
+    \Else{
+
+    \ForEach {instancia $\mathbf{x}$ en S} {
+            $\{u,c\}\leftarrow$ tupla formada por la cubeta asignada a $\mathbf{x}$ y su clase
+
+    Asociar $\mathbf{x}$ a su tupla $\{u,c\}$
+
+    }
+
+    Añadir a $S$aquellas instancias de $sel$ que no seleccionadas en $S$
+    }
+
 }
 
 \Return {$S$}
@@ -234,10 +273,35 @@ Como otro de los objetivos principales del proyecto, se procedió a realizar una
 
 De nuevo, la finalidad de esta comparación tenía varios objetivos: evaluar el rendimiento entre ambas aproximaciones, comprobar el correcto funcionamiento de los algoritmos y evaluar como los cambios de implementación podían haber afectado a su funcionalidad.
 
-Existe una sección más detallada donde se profundizará sobre todos los aspectos relacionados con la comparativa en la sección...
+Aunque se proporciona más información en los documentos anexos, podemos observar en las gráficas \ref{fig:img/compartido/timeTendencyLSH4} y \ref{fig:img/compartido/timeTendencyLSH4} una evolución del tiempo de ejecución según el algoritmo y la cantidad de datos analizados. Para ello se proporcionan varios tipos de ejecuciones, pudiendose diferenciar uno para Weka y otros para Spark con diferente número de ejecutores.
 
-\todo{Incluir pequeña conclusión del resultado, con gráfica si es posible}
+Puede verse claramente que, pese a su ejecución en paralelo, el algoritmo LSHIS continúa siendo más rapido en su ejecución secuencial. Esto es debido en parte a que es un algoritmo muy rápido incluso cuando se aplica sobre un número de instancias grande. Por otro lado, DemoIS proporciona, desde un primer momento y con un conjunto de datos relativamente pequeño, mejores tiempos que la implementación anterior.
 
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/compartido/timeTendencyLSH4}
+		\caption{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando LSHIS.}\label{fig:img/compartido/timeTendencyLSH4}
+	\end{figure}
+	
+		\begin{figure}[!h]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/compartido/timeTendencyDIS4}
+		\caption{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando DemoIS.}\label{fig:img/compartido/timeTendencyDIS4}
+	\end{figure}
+	\FloatBarrier
+
+
+\section{Ejecución en la nube}
+
+Una vez se comprobó el buen funcionamiento del proyecto, se prodedió a desplegar el trabajo en el entorno en el que está destinado a ser ejecutado: un clúster real.
+
+Este despliegue se ha realizado en dos plataformas diferentes:
+\begin{itemize}
+	\item Google Cloud Dataproc \cite{dataprocSoft}: Servicio, actualmente en estado beta, que Google ofrece para lanzar tareas de minería de datos en un clúster propiedad de la compañia. Utilizando una versión de prueba, los recursos han sido limitados (máximo de 8 procesadores por cluster), pero eso no ha impedido realizar lanzamientos correctamente.  
+	\item Servidor Clúster Dell: Un servicio con el que contaba la Universidad de Burgos y al cual se ha permitido acceso para lanzar algunas ejecuciones. Este clúster está configurado con un sistema de colas de trabajo PBS (\textit{Portable Batch System}), por lo que se ha necesitado de un script propuesto por la Universidad de Ohio \cite{baer2015integrating} para lanzar nuestras pruebas. Aunque se han tomado algunas mediciones sobre el comportamiento de nuestra aplicación en este entorno, se han encontrado dificultades al lanzar Spark sobre este tipo de sistema de gestión, donde algunos nodos quedaban bloqueados durante la ejecución presumiblemente por la falta de recursos.
+\end{itemize}
+
+Por las características de los servicios en los que se ha desplegado el programa, se necesitó realizar pequeños cambios en la implementación y definir una versión anterior de Scala a la hora de compilar el código.
 
 \section{Implementación de un entorno gráfico}
 
@@ -256,235 +320,3 @@ Despues de la creación y revisión de algunos prototipos no funcionales, la apa
 
 \imagen{img/memoria/full_interface}{Apariencia final de la interfaz gráfica del proyecto.}
 
-
-\begin{comment}
-\section{Comparativa entre las ejecución de clasificadores en Weka y Spark}
-
-
-Para realizar las mediciones utilizaremos conjuntos de datos de diferentes tamaños (detallados en la sección \ref{Datasets}), pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico y relativamente simple que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido. En un principio hemos supuesto que no habría grandes diferencias en cuanto a tiempo de ejecución o recursos entre ambas implementaciones.
-
-La ejecución del algoritmo se analizará tanto en Weka como en Spark, siendo en este último ejecutado con diferente número de hilos: 1, 2 y 4.
-
-El programa utilizado para medir el rendimiento ha sido JConsole (ver \ref{DefJConsole}) en ambos casos, con el fin de utilizar la misma herramienta de monitorización en todos los experimientos.
-Para observar el comportamiento de los hilos hemos utilizado la herramienta JvisualVM. (ver \ref{DefJvisualVM})
-
-\subsection{Criterios comparados}
-
-Los aspectos que hemos tenido en cuenta a la hora de recoger datos han sido:
-
-\begin{itemize}
-	\item \textbf{Tiempo de ejecución:} El periodo analizado es aquel que incluye la lectura de datos, la preparación, entrenamiento y prueba de los diferentes clasificadores que genere la validación cruzada y el cálculo del resultado final. Esta manera de medir es algo que afecta esencialmente a Spark, que lanza un gran número de procesos al iniciarse y pierde algo de tiempo con respecto a Weka.
-	\item \textbf{Memoria:} Media del espacio de memoria RAM que consume la ejecución del algoritmo.
-	\item \textbf{Porcentaje de CPU:} Media del porcentaje de CPU utilizado con respecto a la potencia total de la CPU. Estas pruebas han sido realizadas sobre una máquina con capacidad para soportar 4 hilos al mismo tiempo, por lo que el uso completo de uno de los hilos supondría un porcentaje de carga de la CPU del 25\% con respecto al total, el uso exclusivo de dos hilos sería un 50\% y así sucesivamente.
-	\item \textbf{Comportamiento de los hilos:} Como actúan los hilos del programa cuando se ejecuta el clasificador. Al ser un elemento que no puede medirse directamente, se recurrirá a hablar de él en la sección \ref{ConclusionesWekaSpark} para sustentar otros argumentos, incluyendo imágenes que muestren el comportamiento en el caso de necesitarlas.
-\end{itemize}
-
-\subsection{Entorno de las pruebas}
-
-Las mediciones se han llevado a cabo bajo las siguientes circunstancias:
-
-\begin{itemize}
-	\item Las ejecuciones se realizaron desde la terminal, tanto en el caso de Weka como en el de Spark.
-	\item En todas las ejecuciones hemos contado con memoria suficiente como para poder incluir en ella todo el conjunto de datos. Es necesario destacar que, pese a todo, este supuesto no es común dentro de la minería de datos..
-	\item Se necesita un tiempo para indicar a la herramienta de monitorización qué proceso ha de medir. Por ello, con la intención de tener tiempo para asociar la herramienta de monitorización al proceso concreto, la ejecución hilo principal es suspendida durante un pequeño periodo de tiempo antes de iniciar siquiera la lectura de datos del fichero.
-	\item Aunque no estamos interesados en la salida final del algoritmo, queremos simular que se realizan las fases de validación y test. No se ha utilizado un archivo diferente como conjunto de test, sino que hemos utilizado una validación cruzada de 10 iteraciones.
-	\item El formato utilizado en los ficheros que contienen datos ha sido .arff para Weka y .csv para Spark. La razón por la que no se han utilizado ficheros .csv en Weka ha sido por la posibilidad de que esto produzca errores a la hora de leer el archivo~\cite{CSVWeka}.
-	\item El formato de los datos de los conjuntos de datos también ha sufrido variaciones. Mientras que los archivos .arff utilizados por Weka contienen los datos tal y como los proporciona el data set original, algunos conjuntos de datos han tenido que ser normalizados al transformarlos a .csv para poder ser utilizados en Spark. La razón es que el algoritmo NaiveBayes implementado en Spark no admite atributos negativos. Ha afectado a los conjuntos de datos ``Human Activity Recognition'', ``Covertype'' y ``HIGGS''(ver \ref{Datasets}) 
-	\item En lo que se refiere a Spark, se ha creado objeto en Scala que es capaz de leer el conjunto de datos, crear diferentes \textit{folds} de dicho conjunto, entrenar y probar el clasificador y mostrar un resultado final. Weka ya proporciona herramientas de este tipo y por lo tanto no ha sido necesario generar ninguna otra clase.
-	
-\end{itemize}
-
-\todo{Si se puede, se debería indicar el periodo que pasa entre las mediciones de RAM y de CPU}
-
-\subsection{Conjuntos de datos}\label{Datasets}
-
-Los conjuntos de datos, ordenados de menor a mayor según los recursos utilizados para correr el programa, han sido los siguientes:
-
-\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{m{5.55cm} >{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
-{\centering Nombre del conjunto & \centering Instancias & \centering Atributos  & \multicolumn{1}{c}{Clases} \\}{
-
-\centering Iris & 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
-\centering Human Activity Recognition \cite{HumanActivityDataset} & 165.632 & \centering 17 & \multicolumn{1}{c}{5}   \\ [0.2cm]
-\centering Poker \cite{Lichman:2013} & 1.025.010 & \centering 10 & \multicolumn{1}{c}{10}  \\ [0.2cm]
-\centering Covertype \cite{Lichman:2013} & 581.012 & \centering 54 & \multicolumn{1}{c}{6}  \\ [0.2cm]
-\centering HIGGS \cite{Lichman:2013} \cite{HIGGSDataSet} & 1.469.873 y 2.939.746\tablefootnote{El conjunto original consta de 11.000.000 instancias, pero he reducido su tamaño original para acercarlo más al tamaño de los otros conjuntos.} & \centering 28 & \multicolumn{1}{c}{2} \\ [0.2cm]
-
-} 
-\todo{Revisar el código de la tabla}
-
-Indicar que, a la hora de seleccionar los conjuntos, se han elegido aquellos que compartan algunas características comunes:
-
-\begin{itemize}
-	\item No existen campos de tipo texto. La única excepción la encontramos en los atributos de clase en los ficheros .arff, pero estos atributos serán tratados como nominales a la hora de la clasificación en Weka.
-	\item No existen campos vacíos en ninguna de las instancias de los atributos.
-\end{itemize}
-
-\subsection{Resultados}
-
-Los resultados obtenidos han sido agrupados según el conjunto de datos utilizado.
-
-Las pruebas han sido ejecutadas bajo una validación cruzada de 10 x 2, de manera que podamos comprobar si el resultado obtenido se encuentra dentro de lo esperado o su buen/mal funcionamiento se debe a una circunstancia puntual. 
-
-\todo{Replantear tablas de resultados. Crear una sola tabla}
-
-\tablaSmall{Rendimiento sobre el conjunto de datos Iris.}{l c c c c}{RendimientoIris}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
-
- Tiempo (s) & 0,1 & 1,97 & 2,13 & 2,15 \\ [0.2cm]
- Memoria (MB)\tablefootnote{\label{noteIris}Los datos de las mediciones sobre el uso de memoria y CPU en el conjunto Iris no son concluyentes debido al corto periodo de tiempo que tardan en ejecutarse.} & - & - & - & - \\ [0.2cm]
- CPU (\%)\footref{noteIris} & - & - & - & - \\ [0.2cm]
-
-}
-
-\tablaSmall{Rendimiento sobre el conjunto de datos Human Activity Recognition.}{l c c c c}{RendimientoHAR}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
-
- Tiempo (s) & 12,37 & 16,13 & 11,75 & 11,71 \\ [0.2cm]
- Memoria (MB) & 242,01 & 173,80 & 219,75 & 219,17 \\ [0.2cm]
- CPU (\%) & 25,5 & 36,02 & 54,03 & 59,43\\ [0.2cm]
-
-}
-
-\tablaSmall{Rendimiento sobre el conjunto de datos Poker.}{l c c c c}{RendimientoPoker}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
-
- Tiempo (s) & 73,90 & 47,44 & 31,84 & 30,77  \\ [0.2cm]
- Memoria (MB) & 424,65 & 162,93 & 243,76 & 255,11\\ [0.2cm]
- CPU (\%) & 30,05 & 29,41 & 51,22 & 55,68 \\ [0.2cm]
-
-}
-
-\tablaSmall{Rendimiento sobre el conjunto de datos Covertype.}{l c c c c}{RendimientoCovertype}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
-
- Tiempo (s) & 183,95 & 101,91 & 73,23 & 53,78 \\ [0.2cm]
- Memoria (MB) & 576,78 & 177,37 & 213,7 & 211,7\\ [0.2cm]
- CPU (\%) & 28,17 & 28,26 & 43,10 & 71,94 \\ [0.2cm]
-
-}
-
-\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (1.469.873 instancias).}{l c c c c}{RendimientoHIGGS1}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
-
- Tiempo (s) & 246,97 & 191,9 & 130,37 & 99,2 \\ [0.2cm]
- Memoria (MB) & 832,88 & 872,56 & 864,92 & 921,49 \\ [0.2cm]
- CPU (\%) & 28,60 & 26,64 & 49,91 & 89,24\\ [0.2cm]
-
-}
-
-\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (2.939.746 instancias).}{l c c c c}{RendimientoHIGGS2}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
-
- Tiempo (s) & 503,929 & 368,721 & 264,023 & 215,214\\ [0.2cm]
- Memoria (MB) & 1747,22  & 883,28 & 911,77 & 853,58 \\ [0.2cm]
- CPU (\%) & 29 & 26,37 & 50,74 & 91,58 \\ [0.2cm]
-
-}
-
-\subsection{Conclusiones}\label{ConclusionesWekaSpark}
-\todo{¿Mover esta sección al final de la memoria?}
-\todo{Revisar las referencias ante un cambio de tabla de resultados.}
-\begin{itemize}
-	\item Puede observarse claramente que Weka es considerablemente superior a Spark cuando utilizamos conjuntos de datos pequeños, como observamos en la tabla \ref{tabla:RendimientoIris} o incluso en la tabla \ref{tabla:RendimientoHAR}, pero su rendimiento se ve superado con notable diferencia cuando el conjunto de datos empieza a sobrepasar las 100.000 instancias de Human Activity Recognition (ver \ref{Datasets}).
-	\item Salvo cuando tratamos con conjuntos de datos pequeños, vease por ejemplo la tabla \ref{tabla:RendimientoIris}, el rendimiento del algoritmos Naive Bayes de Weka es menor si lo comparamos con las ejecuciones sobre un solo hilo de Naive Bayes en Spark. Es posible que una de las causas sea la diferente implementación del algoritmo en Weka y en Spark.
-	\item Como era de esperar, doblar el número de hilos no implica reducir a la mitad el tiempo de procesamiento, sino que genera un beneficio menor que, en algún momento y dependiendo del tamaño del conjunto de datos analizado, dejará de ser significativo aunque sigamos añadiendo hilos.
-	\missingfigure{Probablemente incluya una gráfica sobre el rendimiento de Spark sobre HIGGS}
-	\item Generalmente Spark necesita menos memoria que Weka para ejecutar el programa.
-	\item Parece que el porcentaje de RAM requerido por Spark aumenta ligeramente cuantos más hilos tengamos en ejecución, algo que se aprecia bien en los conjuntos de datos pequeños.
-	\item El porcentaje de uso de la CPU en Weka se situa siempre entorno a los valores 25-30\%. Esto es así porque la ejecución de todas las tareas es lineal, consumiendo únicamente un hilo de los 4 que posee la máquina en la que se están realizando las prueba.
-	\item Vemos que el porcentaje de uso de la CPU en las diferentes pruebas con Spark suele corresponder al número de hilos con los que se lanza la aplicación: 25\% para un hilo, 50\% para dos y, teóricamente, 90-100\% para 4. Sin embargo, y como podemos apreciar en las tablas \ref{tabla:RendimientoPoker} o \ref{tabla:RendimientoCovertype}, la ejecución con cuatro hilos no aprovecha al máximo las capacidades del procesador cuando el conjunto de datos es pequeño. Observando más de cerca el evento, vemos que, independientemente del número de hilos que decimos a Spark que maneje, en estos conjuntos de datos únicamente se lanzan dos hilos como máximo. Atribuimos esto a un comportamiento propio de Spark, que evalua que no existe necesidad de manejar tantos hilos de ejecución. 
-	\missingfigure{Incluir comportamiento de los hilos de jvisualvm}
-\end{itemize}
-
-
-\section{Comparativa entre la ejecución del algoritmo LSHIS en Spark y Weka}
-
-\subsection{Criterios comparados}
-
-Se ha realizado la comparación teniendo en mente la medición de los siguientes parámetros:
-
-\begin{itemize}
-	\item \textbf{Reducción del conjunto de datos:} Relación entre el tamaño del conjunto de datos original y el obtenido tras la aplicación del algoritmo.
-	\item \textbf{Tiempo de ejecución:} Tiempo real que ha requerido la ejecución del algoritmo LSHIS.
-	\item \textbf{Precisión de un clasificador con el nuevo conjunto:} Porcentaje de acierto en test al aplicar el algoritmo KNN (K-Nearest neighbors) sobre el nuevo conjunto de datos.
-\end{itemize}
-\subsection{Entorno de las pruebas}
-\begin{itemize}
-	\item Las pruebas han sido ejecutadas bajo una validación cruzada de 10 x 2. \todo{ En la comparación de arriba esto está en otro sitio.}
-		\item Todos los conjuntos de datos han sido normalizados
-\end{itemize}
-
-\subsection{Conjuntos de datos}
-
-\todo{Esto ya esta arriba}
-
-\subsection{Resultados}
-
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos Iris.}{l c c c c}{CompIrisLSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 Ejecutor & Spark 2 Ejecutores  & Spark 4 Ejecutores \\}{
-
- Instancias & 22 & 26 & 23 & 22 \\ [0.2cm]
- Tiempo(s) & 12 & 3340 & 2670 & 10574 \\ [0.2cm]
- Acierto(\%) & 92 & - & - & - \\ [0.2cm]
-
-}
-
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos Human Activity.}{l c c c c}{CompHALSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 Ejecutor & Spark 2 Ejecutores  & Spark 4 Ejecutores \\}{
-
- Instancias & 147 & 350 & 340 & 367 \\ [0.2cm]
- Tiempo(s) & 167 & 9919 & 12327 & 22525 \\ [0.2cm]
- Acierto(\%) & 57,1 & 71,95 & 69,21 & 69,4 \\ [0.2cm]
-
-}
-
-
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos Poker.}{l c c c c}{CompPokerLSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 Ejecutor & Spark 2 Ejecutores  & Spark 4 Ejecutores \\}{
-
- Instancias & 3806 & 7545 & 7613 & 7625 \\ [0.2cm]
- Tiempo(s) & 823 & 24057 & 19448 & 26464 \\ [0.2cm]
- Acierto(\%) & 26,13 & 27,14 & 31,26 & 30,62 \\ [0.2cm]
-
-}
-
-
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos Covertype.}{l c c c c}{CompCovLSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 Ejecutor & Spark 2 Ejecutores  & Spark 4 Ejecutores \\}{
-
- Instancias & 2317 & 3987 & 3969 & 3982 \\ [0.2cm]
- Tiempo(s) & 570 & 24527 & 22157 & 27262 \\ [0.2cm]
- Acierto(\%) &  &  &  &  \\ [0.2cm]
-
-}
-
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos HIGGS. (1.469.873 instancias)}{l c c c c}{CompHIGGS1LSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 Ejecutor & Spark 2 Ejecutores  & Spark 4 Ejecutores \\}{
-
- Instancias &  &  &  &  \\ [0.2cm]
- Tiempo(s) &  &  &  &  \\ [0.2cm]
- Acierto(\%) &  &  &  &  \\ [0.2cm]
-
-}
-
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos HIGGS. (2.939.746 instancias)}{l c c c c}{CompHIGGS2LSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 Ejecutor & Spark 2 Ejecutores  & Spark 4 Ejecutores \\}{
-
- Instancias &  &  &  &  \\ [0.2cm]
- Tiempo(s) &  &  &  &  \\ [0.2cm]
- Acierto(\%) &  &  &  &  \\ [0.2cm]
-
-}
-
-
-
-\subsection{Conclusiones}
-
-\begin{itemize}
-	\item No se puede predecir la salida de Spark por ser la ejecución en paralelo.
-	\item Con tan poca carga de trabajo, Weka es mucho mejor. A partir de Poker podemos ver que Spark empieza a funcionar un poco como debería, donde 2 ejecutores funcionan mejor que 1, pero nunca llegamos a necesitar los 4 cores.
-	\item
-\end{itemize}
-
-
-\end{comment}

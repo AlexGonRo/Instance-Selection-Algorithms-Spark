@@ -10,32 +10,19 @@ Se trata de un término que podría generar confusión con el de KDD (\textit{Kn
 
 A lo largo de esta memoria trataremos a la minería de datos como sinónimo de KDD, esto es, el conjunto de procesos que comprenden desde el pre procesamiento de los datos hasta la obtención y presentación de información la información útil que contienen.
 
+\section{Big Data}\label{sec:defBigData}
+
+Big Data, pese a ser un término cuya definición no ha sido nunca estandarizada, podría definirse como un conjunto de datos tan grande y complejo con el que resulta imposible trabajar utilizando metodologías tradicionales \cite{bigDataDef}.
+
+Fue utilizado por primera vez en 1997, en referencia a un problema donde un conjunto de datos tenía dificultad para ser almacenado en memoria o incluso en disco \cite{forbesBigData}\cite{cox1997application}. Este aspecto es vital para la comprensión y el trabajo en el área del Big Data: hemos de considerar, desde un primer momento, que no todo nuestros datos van a poder ser guardados en memoria al mismo tiempo.
+
+En lo que se refiere a este proyecto, este término tiene una importancia fundamental: nuestro objetivo final es el de implementar nuevas soluciones que permitan trabajar sobre una gran cantidad de datos, haciendo frente a todos los problemas que esto pudiese suponer.
 
 \section{Algoritmos de selección de instancias}\label{sec:DefAlgSel}
 
 El objetivo de estos algoritmos es solucionar dos problemas que afectan a la minería de datos: la cantidad cada vez mayor de datos, y su calidad. Podremos, por lo tanto,  definirlos como una herramienta para extraer, de un conjunto de instancias, aquellas que conocemos, o sospechamos, son superfluas o perjudiciales~\cite{IntroInstanceSelect}.
 
 Eliminando una porción del conjunto de instancias durante la fase de pre procesamiento de los datos conseguimos que el tiempo de ejecución algoritmos posteriores se reduzca, dado que hay menos instancias a examinar, mientras que es posible mejorar los resultados obtenidos al finalizar el proceso de minería~\cite{IntroInstanceSelect}.
-
-\begin{comment}
-Podemos clasificar estos algoritmos de acuerdo al tipo de instancias que eliminemos ~\cite{Garcia2012}. Así pues, podemos distinguir entre:
-
-\begin{itemize}
-	\item \textbf{Algoritmos de condensación:} Se concentra en mantener las instancias cercanas a las fronteras de decisión entre las clases.
-	\item \textbf{Algoritmos de edición:} Eliminan instancias ruidosas así como aquellas que se encuentran muy cerca de la frontera de decisión, intentando mejorar la calidad del conjunto y produciendo una frontera entre clases mucho más suave.
-	\item \textbf{Algoritmos híbridos:} Intentan encontrar el subconjunto de instancias más pequeño posible que mantenga o incluso mejore el resultado que más tarde conseguirá el algoritmo de minería de datos que apliquemos. Para ello permite eliminar cualquier tipo de instancias. 
-\end{itemize}
-
-De la misma manera, según la forma en la que se construya el nuevo conjunto de datos podemos diferenciar entre las siguientes clases de algoritmos~\cite{Garcia2011}:
-
-\begin{itemize}
-	\item \textbf{De incremento:} Partimos de un conjunto vacío o con unas pocas instancias significativas y añadimos nuevas instancias con cada iteración del algoritmo.
-	\item \textbf{De decremento:} Comenzamos con todas las instancias y mediante operaciones de eliminación conseguimos un nuevo conjunto de tamaño menor.
-	\item \textbf{Fijos:} Desde el principio el usuario indica el número final de instancias al que queremos reducir un conjunto. Son algoritmos muy dependientes del conjunto de datos utilizado. 
-	\item \textbf{Mixto:} Comenzamos con un subconjunto de instancias, obtenidas de manera aleatoria o tras aplicar otro algoritmo de selección, y realizamos operaciones para añadir o eliminar instancias de ese dicho conjunto.
-\end{itemize}
-
-\end{comment}
 
 \subsection{Locality sensitive hashing instance selection (LSHIS)}\label{sec:defLSHIS}
 
@@ -113,8 +100,6 @@ Eliminamos de S todas las instancias cuyo número de votos sea $\geq v$
 \end{algorithm*}
 
 
-
-
 \section{Computación paralela}\label{sec:CompParalela}
 
 La computación paralela es un tipo de computación en la que múltiples operaciones son llevadas a cabo simultáneamente \cite{Almasi:1989}. Parte del principio de que algunos problemas pueden subdividirse en problemas independientes más pequeños que pueden resolverse al mismo tiempo.
@@ -127,10 +112,14 @@ En lo que se refiere al uso de la memoria por parte de un sistema paralelo, exis
 
 Escalabilidad es la capacidad de un sistema para adaptarse y soportar una carga de trabajo cada vez mayor~\cite{Bondi:2000}.
 
-En función de la manera de adaptarse a la nueva carga de trabajo, podemos diferenciar entre la escalabilidad horizontal, cuando añadimos más nodos a nuestro sistema, y vertical, cuando mejoramos las prestaciones de los elementos ya existentes~\cite{EscalabilidadWiki}. Durante el desarrollo de la memoria siempre usaremos el término de escalabilidad para referirnos a la escalabilidad horizontal, pues estaremos hablando de sistemas distribuidos.
+Durante el desarrollo de la memoria siempre usaremos el término de escalabilidad para referirnos a la escalabilidad horizontal, aquella que consigue su objetivo añadiendo más nodos a un sistema.
 
 También es una característica que puede aplicarse a los algoritmos, para los cuales definimos escalabilidad como la capacidad de funcionar eficientemente cuando se aplican sobre situaciones que requieran una gran carga de trabajo. En lo referente al proyecto, esa situación será, por lo general, tratar con grandes conjuntos de datos.
 
+\section{Rendimiento}\label{sec:Rendimiento}
 
+Aunque el término puede dar lugar a numerosas definiciones, en lo que se refiere a nuestro proyecto, nos referiremos al rendimiento como la velocidad a la que un algoritmo puede ofrecer el resultado esperado.
+
+Entiéndase que, en el contexto del trabajo, el objetivo ha sido siempre el de intentar mejorar los tiempos de ejecución de nuestras implementaciones con respecto a soluciones anteriores que seguían otro tipo de paradigmas. Nunca se ha planteado la posibilidad de mejorar otros aspectos, dejando este término con la definición indicada anteriormente.
 
 

@@ -10,6 +10,8 @@ Será un proyecto con dos objetivos principales: por un lado la implementación 
 
 Como objetivo adicional, surgido durante la realización del trabajo, tendremos en consideración la creación de un entorno visual y más intuitivo donde el usuario pueda ejecutar nuestro código de una manera más sencilla.
 
+Igualmente, tendremos en consideración la posibilidad de ejecutar el resultado de este proyecto en una red de nodos real, al ser este el entorno final donde este programa está pensado para ser ejecutado.
+
 \section{Implementación de algoritmos de selección de instancias}
 
 Se programarán un conjunto de algoritmos que puedan aplicarse sobre grandes conjuntos de instancias con el fin de reducir su tamaño sin perjudicar en exceso la información que transmiten. Para una definición más precisa de lo que es un algoritmo de selección de instancias ver la sección \ref{sec:DefAlgSel}.
@@ -22,15 +24,19 @@ Se ha realizado la implementación de los siguientes algoritmos:
 \end{itemize}
 
 
-\section{Estudio del rendimiento de la minería de datos en un modelo de ejecución en paralelo}
+\section{Estudio del rendimiento de la minería de datos en un modelo de ejecución en paralelo}\label{sec:estudio}
 
 El principal objetivo de este estudio será comprobar los tiempos de ejecución según qué paradigma (secuencial o paralelo) y según que conjunto de datos.
 
 Utilizaremos dos herramientas diferentes: Weka (ver definición en \ref{sec:DefWeka}) para la ejecución lineal y Spark (ver definición \ref{sec:DefSpark}) para la ejecución en paralelo.
 
-%En lo referente a Spark, se ha procedido a tomar los datos de funcionamiento en una sola máquina...
+Las pruebas serán realizadas en una única máquina local, con la posibilidad de extenderlas a un clúster si cumpliésemos con el objetivo definido en \ref{sec:ejecucionNube}.
 
-\todo{Completar cuando sepamos qué pasa con google y las ejecuciones.}
+\section{Ejecución del proyecto en un clúster en la nube}\label{sec:ejecucionNube}
+
+A fin de asegurar que el trabajo podría funcionar sin ningún tipo de complicación en un entorno real, se ha propuesto como objetivo el despliegue de la aplicación en algún servicio que ofrezca computación en la nube.
+
+Se ha elegido para ello el servicio Google Cloud Dataproc \cite{dataprocSoft}, que ofrece la posibilidad de realizar trabajos de Spark. Igualmente, se ha considerado la posibilidad de ejecutar lanzamientos en un servidor clúster ya contratado por la Universidad de Burgos donde ,además, podríamos llevar a cabo un estudio sobre la eficiencia de nuestra aplicación, tal y como se define en \ref{sec:estudio}.
 
 
 \section{Implementación de una interfaz gráfica de usuario}
