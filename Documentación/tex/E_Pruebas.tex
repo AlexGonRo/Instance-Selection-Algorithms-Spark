@@ -1,0 +1,348 @@
+\apendice{Pruebas del sistema}
+
+\section{Introducción}
+
+A lo largo de este proyecto, se han realizado una serie de mediciones cuyo objetivo principal consistió en comparar el comportamiento entre ejecuciones secuenciales y paralelas en tareas de minería. A lo largo de esta sección, vamos a mostrar todos los experimentos realizados junto con una descripción de los elementos involucrados y las conclusiones extraídas.
+
+Podemos diferenciar entre tres grandes comparaciones:
+
+\begin{itemize}
+	\item \textbf{Comparativa entre las herramientas utilizadas:} Utilizando material ya incluido en las bibliotecas de Weka y Spark, se ha realizado una comparación entre ambas tecnologías. Tendremos en cuenta, no solo el tiempo de ejecución, sino otros factores tales como el uso de memoria o el funcionamiento de los hilos de ejecución (con especial interés en su comportamiento con Spark)
+	\item \textbf{Comparativa entre las ejecuciones, en una sola máquina, de los algoritmos LSHIS y DemoIS según sea su implementación secuencial o paralela:} En este caso, nuestro objetivo principal será comparar tiempos de ejecución del algoritmo de filtrado, aunque también tendremos en cuenta parámetros otros parámetros que puedan demostrar el buen funcionamiento de nuestra implementación.
+	\item \textbf{Comparativa entre las ejecuciones en un clúster de los algoritmos LSHIS y DemoIS según su implementación secuencial o paralela:} Al igual que en el caso anterior, el objetivo principal en este caso es medir el tiempo de ejecución de la operación de selección de instancias.
+
+\end{itemize} 
+
+\section{Conjuntos de datos}\label{sec:ConjuntosDeDatos}
+
+Los conjuntos de datos (\textit{datasets}), ordenados de menor a mayor según el número total de instancias de cada uno, pueden encontrarse en la tabla \ref{tabla:ConjuntosWekaSpark}. No todos los conjuntos han sido utilizados en todas las comparaciones, puesto que  algunas ejecuciones podrían no acabar en un tiempo prudencial, por lo que, en cada prueba, vendrá especificado qué datasets han sido usados.
+
+Indicar que, a la hora de seleccionar los conjuntos, se han elegido aquellos que compartan algunas características comunes:
+
+\begin{itemize}
+	\item No existen campos de tipo texto.
+	\item No existen campos vacíos en ninguna de las instancias de los atributos.
+\end{itemize}
+
+Además, es importante indicar que todos los atributos han sido normalizados antes de realizar las mediciones.
+
+
+\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{m{5.55cm} >{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
+{\centering Nombre del conjunto & \centering Instancias & \centering Atributos  & \multicolumn{1}{c}{Clases} \\}{
+
+\centering Iris & 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
+\centering Image Segmentation \cite{Lichman:2013} & 2310 & \centering 19 & \multicolumn{1}{c}{7}  \\ [0.2cm]
+\centering Banana shaped \cite{BananaDataset} & 5300 & \centering 2 & \multicolumn{1}{c}{2}  \\ [0.2cm]
+\centering Pen-Based Recognition of Handwritten Digits \cite{Lichman:2013} & 10992 & \centering 16 & \multicolumn{1}{c}{10}  \\ [0.2cm]
+\centering Letter Recognition \cite{Lichman:2013} & 20000 & \centering 16 & \multicolumn{1}{c}{26}  \\ [0.2cm]
+\centering Human Activity Recognition \cite{HumanActivityDataset} & 165.632 & \centering 17 & \multicolumn{1}{c}{5}   \\ [0.2cm]
+\centering Covertype \cite{Lichman:2013} & 581.012 & \centering 54 & \multicolumn{1}{c}{6}  \\ [0.2cm]
+\centering Poker \cite{Lichman:2013} & 1.025.010 & \centering 10 & \multicolumn{1}{c}{10}  \\ [0.2cm]
+\centering HIGGS \cite{Lichman:2013} \cite{HIGGSDataSet} & 11.000.000\tablefootnote{El conjunto original consta de 11.000.000 instancias, pero por lo general se he reducido su tamaño original para acercarlo más al tamaño de los otros conjuntos. Cualquier cambio será especificado en la medición a la que afecte.} & \centering 28 & \multicolumn{1}{c}{2} \\ [0.2cm]
+
+}
+
+\section{Entorno de las pruebas}
+
+Aunque cada medición tiene una serie características únicas que vendrán definidas en la subsección correspondiente, existen algunas circunstancias que son comunes a todas ellas:
+
+\begin{itemize}
+	\item El formato utilizado en los ficheros que contienen datos ha sido .arff para Weka y .csv para Spark. La razón por la que no se han utilizado ficheros .csv en Weka ha sido por la posibilidad de que esto produzca errores a la hora de leer el archivo~\cite{CSVWeka}.
+	\item Para todas las pruebas hemos usado una validación cruzada 10x2.
+	\item Como ya ha sido mencionado anteriormente, todos los atributos de los conjuntos de datos utilizados han sido normalizados previamente.
+	\item En ejecuciones locales (ver experimento \ref{sec:wekaSparkComp} y \ref{sec:pruebasLSHISyDemoIS}) las pruebas se han realizado en un ordenador con capacidad para soportar hasta cuatro hilos simultáneamente y una memoria RAM de 8GB.
+	\item En todas las ejecuciones hemos contado con memoria suficiente como para poder incluir en ella todo el conjunto de datos. Es necesario destacar que, pese a todo, este supuesto no es común dentro del \textit{big data}.
+	
+\end{itemize}
+
+
+
+\section{Comparativa entre las ejecución de clasificadores en Weka y Spark}\label{sec:wekaSparkComp}
+
+El objetivo final de esta comparación es observar el diferente funcionamiento de las librerías, centrando nuestro interés en cómo Spark puede mejorar el tiempo de respuesta a medida que añadimos nuevas unidades de ejecución.
+
+Para realizar las mediciones hemos seleccionado una serie de conjuntos de datos y aplicado sobre ellos un algoritmo de clasificación: Naive Bayes.
+
+Naive Bayes es un algoritmo de clasificación probabilístico y relativamente simple que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido. En un principio hemos supuesto que no habría grandes diferencias en cuanto a tiempo de ejecución o recursos entre ambas implementaciones.
+
+La ejecución del algoritmo se analizará tanto en Weka como en Spark, siendo en este último ejecutado con diferente número de hilos: 1, 2 y 4.
+
+\subsection{Criterios comparados}
+
+Los aspectos que hemos tenido en cuenta a la hora de recoger datos han sido:
+
+\begin{itemize}
+	\item \textbf{Tiempo de ejecución:} El periodo analizado es aquel que incluye la lectura de datos, la preparación, la ejecución de la validación cruzada y el cálculo del resultado final.
+	\item \textbf{Memoria:} Espacio medio de memoria RAM que consume la ejecución del algoritmo.
+	\item \textbf{Porcentaje de CPU:} Media del porcentaje de CPU utilizado con respecto a la potencia total. Estas pruebas han sido realizadas sobre una máquina con capacidad para soportar 4 hilos al mismo tiempo, por lo que el uso completo de uno de los hilos supondría un porcentaje de carga de la CPU del 25\% con respecto al total, el uso exclusivo de dos hilos sería un 50\% y así sucesivamente.
+
+\end{itemize}
+
+\subsection{Otros aspectos relevantes}
+
+\begin{itemize}
+	\item En lo que se refiere a Spark, se ha creado objeto en Scala que es capaz de leer el conjunto de datos, crear diferentes \textit{folds} de dicho conjunto, entrenar y probar el clasificador y mostrar un resultado final. Weka ya proporciona herramientas de este tipo y por lo tanto no ha sido necesario generar ninguna otra clase.
+	\item Para las ejecuciones en Spark, se ha ejecutado en modo ``local'', lo que genera en Spark una única unidad (\textit{driver}) a la que se la asignarán todos los recursos que le proporcionemos y que será la encargada de realizar la clasificación.
+	\item Los conjuntos de datos utilizados para esta comparación han sido, ordenados de menor a mayor: ``Iris'',  ``Human activity Recognition'', ``Covertype'', ``Poker'' y ``HIGGS''. Más información sobre los mismos en la sección \ref{sec:ConjuntosDeDatos}.
+\end{itemize}
+
+\subsection{Resultados}
+
+A continuación se muestran los resultados ordenados de menor a mayor según el tamaño del conjunto de datos:
+
+\FloatBarrier
+
+\tablaSmall{Rendimiento sobre el conjunto de datos Iris.}{l c c c c}{RendimientoIris}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+
+ Tiempo (s) & 0.1 & 1.97 & 2.13 & 2.15 \\ [0.2cm]
+ Memoria (MB)\tablefootnote{\label{noteIris}Los datos de las mediciones sobre el uso de memoria y CPU en el conjunto Iris no son concluyentes debido al corto periodo de tiempo que tardan en ejecutarse.} & - & - & - & - \\ [0.2cm]
+ CPU (\%)\footref{noteIris} & - & - & - & - \\ [0.2cm]
+}
+\todo{Controlar el posicionamiento del pie de página.}
+
+\tablaSmall{Rendimiento sobre el conjunto de datos Human Activity Recognition.}{l c c c c}{RendimientoHAR}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+
+ Tiempo (s) & 12.37 & 16.13 & 11.75 & 11.71 \\ [0.2cm]
+ Memoria (MB) & 242.01 & 173.80 & 219.75 & 219.17 \\ [0.2cm]
+ CPU (\%) & 25.5 & 36.02 & 54.03 & 59.43\\ [0.2cm]
+
+}
+
+
+\tablaSmall{Rendimiento sobre el conjunto de datos Covertype.}{l c c c c}{RendimientoCovertype}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+
+ Tiempo (s) & 183.95 & 101.91 & 73.23 & 53.78 \\ [0.2cm]
+ Memoria (MB) & 576.78 & 177.37 & 213.7 & 211.7\\ [0.2cm]
+ CPU (\%) & 28.17 & 28.26 & 43.10 & 71.94 \\ [0.2cm]
+
+}
+
+
+\tablaSmall{Rendimiento sobre el conjunto de datos Poker.}{l c c c c}{RendimientoPoker}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+
+ Tiempo (s) & 73.90 & 47.44 & 31.84 & 30.77  \\ [0.2cm]
+ Memoria (MB) & 424.65 & 162.93 & 243.76 & 255.11\\ [0.2cm]
+ CPU (\%) & 30.05 & 29.41 & 51.22 & 55.68 \\ [0.2cm]
+
+}
+
+\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (1.469.873 instancias).}{l c c c c}{RendimientoHIGGS1}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+
+ Tiempo (s) & 246.97 & 191.9 & 130.37 & 99.2 \\ [0.2cm]
+ Memoria (MB) & 832.88 & 872.56 & 864.92 & 921.49 \\ [0.2cm]
+ CPU (\%) & 28.60 & 26.64 & 49.91 & 89.24\\ [0.2cm]
+
+}
+
+\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (2.939.746 instancias).}{l c c c c}{RendimientoHIGGS2}
+{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+
+ Tiempo (s) & 503.93 & 368.72 & 264.02 & 215.21\\ [0.2cm]
+ Memoria (MB) & 1747.22  & 883.28 & 911.77 & 853.58 \\ [0.2cm]
+ CPU (\%) & 29 & 26.37 & 50.74 & 91.58 \\ [0.2cm]
+
+}
+
+\FloatBarrier
+
+\subsection{Conclusiones}\label{ConclusionesWekaSpark}
+\begin{itemize}
+	\item Puede observarse claramente que Weka es considerablemente superior a Spark cuando utilizamos conjuntos de datos pequeños, como observamos en la tabla \ref{tabla:RendimientoIris} o incluso en la tabla \ref{tabla:RendimientoHAR}, pero su tiempo de ejecución se ve superada por Spark cuando el conjunto de datos empieza a sobrepasar las 100.000. Una evolución de los tiempos de ejecución puede verse en la gráfica \ref{fig:img/compartido/timeTendencyBayes}
+
+	\item Nótese en la tabla \ref{tabla:RendimientoCovertype} que el hecho de que su ejecución sea mayor que la de otros conjuntos de datos más grandes no tiene nada que ver con el comportamiento anómalo de las librerías, sino que tiene un número de atributos mucho mayor que otros datasets mayores y, en el caso de este algoritmo, eso tiene un gran peso sobre la ejecución final. Para más información sobre los conjuntos de datos ver \ref{sec:ConjuntosDeDatos}.
+	
+	\item Por lo general, y a la vista de la gráfica \ref{fig:img/compartido/timeTendencyBayes}, podemos decir que el tiempo de ejecución del algoritmo Naive Bayes de Weka es mayor si lo comparamos con las ejecuciones sobre un solo hilo de Naive Bayes en Spark. Es posible que una de las causas sea la diferente implementación del algoritmo en Weka y en Spark.
+	\item Como era de esperar, doblar el número de hilos no implica reducir a la mitad el tiempo de procesamiento, sino que genera un beneficio menor que, en algún momento y dependiendo del tamaño del conjunto de datos analizado, dejará de ser significativo aunque sigamos añadiendo hilos.
+	\item Generalmente Spark utiliza menos memoria que Weka para ejecutar el programa. Es probable que esto se deba dos factores importantes de Spark: que las estructuras de datos solo son calculadas cuando se necesitan y que Spark da una gran importancia al correcto uso de los recursos, evitando almacenar nada a no ser que sea especificado en el código.
+	\item Parece que el porcentaje de RAM requerido por Spark aumenta ligeramente cuantos más hilos tengamos en ejecución, algo que se aprecia bien en los conjuntos de datos pequeños y medianos. Ver, por ejemplo, la tabla \ref{tabla:RendimientoPoker}
+	\item El porcentaje de uso de la CPU en Weka se sitúa siempre entorno a los valores 25-30\%. Esto es así porque la ejecución de todas las tareas es secuencial, consumiendo únicamente un hilo de los 4 que posee la máquina en la que se están realizando las pruebas.
+	\item Vemos que el porcentaje de uso de la CPU en las diferentes pruebas con Spark suele corresponder al número de hilos con los que se lanza la aplicación: 25\% para un hilo, 50\% para dos y, teóricamente, 90-100\% para cuatro. Sin embargo, y como podemos apreciar en las tablas \ref{tabla:RendimientoPoker} o \ref{tabla:RendimientoCovertype}, la ejecución con cuatro hilos no aprovecha al máximo las capacidades del procesador cuando el conjunto de datos es pequeño. Observando más de cerca el evento, vemos que, independientemente del número de hilos asignados a Spark, en estos conjuntos de datos únicamente se lanzan dos hilos como máximo. Atribuimos esto a un comportamiento propio de Spark cuando actúa en modo local, que evalúa que no existe necesidad de manejar tantos hilos de ejecución.
+	
+	Un ejemplo más ilustrativo de lo anteriormente citado lo encontramos en la imagen \ref{fig:img/anexo/hilos_Poker_Bayes}, donde se muestran algunos de los hilos de ejecución del lanzamiento de Spark con el algoritmo Naive Bayes sobre el conjunto de datos ``Poker''  con 4 procesadores asignados. Aunque deberían existir 4 hilos bajo el nombre de \textit{Executor}, solamente se generan dos.
+	
+\end{itemize}
+
+\imagen{img/compartido/timeTendencyBayes}{Evolución del tiempo de clasificación según el número de instancias clasificadas.}
+
+	\imagen{img/anexo/hilos_Poker_Bayes}{Hilos de ejecución de Spark en el uso del algoritmo Naive Bayes sobre ``Poker'' con 4 procesadores asignados.}
+
+\section{Comparativa entre la ejecución secuencial y paralela, en una sola máquina, de LSHIS y DemoIS}\label{sec:pruebasLSHISyDemoIS}
+
+Se procederá a medir diferentes aspectos de la ejecución secuencial y paralela de los algoritmos mencioanados. Para esta comparación, se ha vuelto a utilizar Weka y Spark. En el caso de Weka, ya contábamos con la implementación de los algoritmos \cite{arnaiz2012herramienta}. En el caso de Spark, el código utilizado ha sido el resultado de este proyecto.
+
+Mediante estas nuevas pruebas, pretendemos conseguir dos objetivos: Por un lado, queremos evaluar que los algoritmos implementados funcionen como se espera de ellos, es decir, que proporcionen resultados similares a los que proporcionaban los algoritmos ya implementados en Weka. Por otro, queremos realizar un estudio de que índice de mejora hemos conseguido en lo que a tiempo de ejecución del algoritmo se refiere.
+
+Para todo esto, vamos a realizar lanzamientos de ejecuciones que consten de un algoritmo de selección de instancias (LSHIS o DemoIS) y un clasificador \textit{k}NN que realice una clasificación con los datos obtenidos del filtrado actuando como conjunto de entrenamiento.
+
+De nuevo, la ejecución del algoritmo se analizará tanto en Weka como en Spark, siendo en este último ejecutado con diferente número de ejecutores: 1, 2 y 4. Avanzamos, por lo que se dirá en la sección \ref{subsec:otrosLSHISyDemoIS}, que cada ejecutor lleva asignado un hilo de ejecución.
+
+\subsection{Criterios comparados}
+
+Se ha realizado la comparación teniendo en mente la medición de los siguientes parámetros:
+
+\begin{itemize}
+	\item \textbf{Reducción del conjunto de datos:} Relación entre el tamaño del conjunto de datos original y el obtenido tras aplicar el algoritmo. Este valor resulta de la ecuación $1-(nInstanciasFinales/nInstanciasIniciales)$.
+
+	\item \textbf{Tiempo:} Tiempo real que ha requerido la ejecución del algoritmo de selección de instancias.
+	\item \textbf{Precisión de un clasificador con el nuevo conjunto:} Porcentaje de acierto en test al aplicar el algoritmo del vecino más cercano (\textit{k}-Nearest neighbor) sobre el nuevo conjunto de datos.
+\end{itemize}
+
+\subsection{Otros aspectos relevantes}\label{subsec:otrosLSHISyDemoIS}
+ \begin{itemize}
+	\item En lo que se refiere únicamente a Spark, se ha corrido en modo \textit{Standalone} \cite{StandaloneSpark}. Dentro de este modo, destacar lo siguiente:
+	\begin{itemize}
+		\item Solo existe un nodo trabajador (\textit{worker node}) con un solo trabajador (\textit{worker}).
+		\item Cada ejecutor (\textit{executor}) tendrá asignado un hilo de ejecución.
+	\end{itemize}
+	\item Las semillas utilizadas en Spark para generar números aleatorios han sido las mismas en todas sus configuraciones (1,2 y 4 ejecutores.)
+	\item Para las pruebas realizadas con el algoritmo LSHIS se han utilizado los conjuntos de datos, ordenados de menor a mayor: ``Letter recognition'', ``Human activity recognition'', ``Covertype'', ``Poker'' y ``HIGGS''.
+	\item Para las pruebas realizadas con el algoritmo DemoIS se han utilizado los conjuntos de datos, ordenados de menor a mayor:  ``Image segmentation'', ``Banana shaped'', ``Pen-Based recognition of handwritten digits'' y ``Letter Recognition''.
+	\item Para más información sobre los conjuntos de datos ver la sección \ref{sec:ConjuntosDeDatos}
+ \end{itemize}
+
+\subsection{Configuración del algoritmo LSHIS}
+
+Durante las mediciones, se ha utilizado la siguiente configuración del algoritmo:
+
+\begin{itemize}
+		\item \textbf{Funciones AND:} 10
+	\item \textbf{Funciones OR:} 1
+	\item \textbf{Anchura de los bucket:} 1 
+\end{itemize}
+
+\subsection{Configuración del algoritmo DemoIS}
+
+Durante las mediciones, se ha utilizado la siguiente configuración del algoritmo:
+
+\begin{itemize}
+		\item \textbf{Número de votaciones:} 10 
+	\item \textbf{Alpha:} 0.75
+	\item \textbf{Número de instancias por subconjunto de votación:} Aprox. 1000 instancias.
+	\item \textbf{Porcentaje de datos para calcular el límite de votos:} 10\%
+	\item \textbf{Vecinos cercanos para calcular el límite de votos:} 1
+\end{itemize}
+
+
+\subsection{Resultados de las mediciones}
+
+\FloatBarrier
+
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Letter Recognition''.}{l c c c c c}{CompLetterLSHIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
+Reducción (\%) & 65.86 & 67.03 & 67.2 & 67.27 & - \\ [0.2cm]
+ Tiempo (s) & 0.04 & 0.34 & 0.38 & 0.52 & - \\ [0.2cm]
+ Precisión (\%) & 92.7 & 92.8 & 93.04 & 92.84 &  95.97 \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Human Activity Recognition''.}{l c c c c c}{CompHumanLSHIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
+ Reducción (\%) & 99.47 & 99.46 & 99.46 & 99.45 & - \\ [0.2cm]
+ Tiempo (s) & 0.06 & 0.44 & 0.38 & 0.52 & - \\ [0.2cm]
+ Precisión (\%) & 85.61 & 84.39 & 84.94 & 84.68 & 99,57 \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Covertype''.}{l c c c c}{CompCovtypeLSHIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} \\}{
+ Reducción (\%) & 95.8 & 95.61 & 95.6 & 95.6 \\ [0.2cm]
+ Tiempo (s) & 0.59 & 3.9 & 2.15 & 2.44 \\ [0.2cm]
+ Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & - & - & - \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Poker''.}{l c c c c}{CompPokerLSHIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} \\}{
+ Reducción (\%) & 63.73 & 61.27 & 61.25 & 61.45 \\ [0.2cm]
+Tiempo (s) & 3.35 & 5.62 & 3.67 & 4.25 \\ [0.2cm]
+ Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & &  &  \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``HIGGS'' (1.469.873 instancias).}{l c c c c}{CompH1GLSHIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} \\}{
+ Reducción (\%) & 60.91 & 54.46 & 54.47 & - \\ [0.2cm]
+ Tiempo (s) & 5.34 & 13.9 & 9.75 & - \\ [0.2cm]
+ Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & &  & - \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Image Segmentation''.}{l c c c c c}{CompSegmentationDemoIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
+ Reducción (\%) & 71.22 & 77.9 & 78.01 & 78.19 & - \\ [0.2cm]
+ Tiempo (s) & 5.43 & 4.59 & 3.97 & 4.7 & - \\ [0.2cm]
+ Precisión (\%) & 96.32 & 95.9 & 95.46 & 95.51 & 96.76 \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Banana shape''.}{l c c c c c}{CompBananaDemoIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
+ Reducción (\%) & 63.63 & 63.97 & 64.1 & 63.35 & - \\ [0.2cm]
+ Tiempo (s) & 18.24 & 15.61 & 10.82 & 10.2 & - \\ [0.2cm]
+ Precisión (\%) & 85.75 & 85.93 & 85.98 & 86.1 & 87.2 \\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Pen-Based Recognition of Handwritten Digits''.}{l c c c c c}{CompPenbasedDemoIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
+ Reducción (\%) & 77.12 & 82.58 & 82.05 & 81.3 & -\\ [0.2cm]
+ Tiempo (s) & 20.6 & 15.48 & 10.43 & 10.18 & -\\ [0.2cm]
+ Precisión (\%) & 98.18 &98.1 & 97.85 & 98.18 & 99.39\\ [0.2cm]
+}
+
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Letter Recognition''.}{l c c c c c}{CompLetterDemoIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
+ Reducción (\%) & 56.9 & 56.99 & 56.15 & 58.28 & - \\ [0.2cm]
+ Tiempo (s) & 326.98 & 365.9 & 183.3 & 176.26 & -\\ [0.2cm]
+ Precisión (\%) & 92.61 & 92.48 & 92.7 & 92.4 & 95.97\\ [0.2cm]
+}
+
+\FloatBarrier
+
+
+\subsection{Aclaraciones}\label{subsec:Aclaraciones}
+
+* : El cálculo de la precisión no ha sido medido por la imposibilidad de hacerlo en un tiempo razonable.
+
+
+\subsection{Conclusiones}
+
+\begin{itemize}
+	\item En general, puede apreciarse que los valores de reducción y precisión son similares en Weka que en cualquier otra ejecución de Spark. Podemos deducir, por lo tanto, que el comportamiento de estas nuevas implementaciones es bueno, dado que se comportan de la manera que se espera.
+	
+	\item En lo que se refiere al tiempo empleado, podemos apreciar dos comportamientos diferentes dependiendo del algoritmo medido.
+	
+	Por su rapidez, incluso en su ejecución secuencial, la ejecución en paralelo del algoritmo LSHIS no aporta ninguna ventaja con respecto a su ejecución secuencial.
+	
+	La implementación paralela del algoritmo DemoIS, sin embargo, muestra un mejor rendimiento desde conjuntos de datos muy pequeños, con 2.000 instancias en la tabla \ref{tabla:CompSegmentationDemoIS}. Durante el resto de mediciones hemos conseguido ejecuciones hasta un 50\% más rápidas con Spark (ver \ref{tabla:CompLetterDemoIS})
+	
+	Puede observarse la evolución de los tiempos de ejecución de acuerdo al número de instancias analizadas en las gráficas \ref{fig:img/compartido/timeTendencyLSH4} y \ref{fig:img/compartido/timeTendencyLSH4}.
+	
+	\imagen{img/compartido/timeTendencyLSH4}{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando LSHIS.}
+	
+	\imagen{img/compartido/timeTendencyLSH4}{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando DemoIS.}
+	
+	\item Aunque los resultados de ejecución del algoritmo LSHIS no son mejores que los de su implementación secuencial, dado el supuesto de \textit{Big Data} de que los conjuntos de datos no suelen caber en memoria, la implementación en Spark permite la ejecución del algoritmo cuando la anterior implementación de Weka no lo podría conseguir.
+	
+	\item Puede observarse en cualquiera de las mediciones que, pese a utilizar las mismas semillas para generar números aleatorios, los resultados del algoritmo son ligeramente diferentes según qué configuración de Spark usemos. Esto se debe a la ejecución paralela no garantiza un orden en el que los datos pueden ser computados o distribuidos, por lo que la ejecución se ve ligeramente afectada.
+	
+		\item Con los conjuntos de datos utilizados, la ejecución con cuatro ejecutores no parece que aporte una gran ventaja. En el caso del algoritmo LSHIS, probablemente debido al exceso de comunicación entre ejecutores, añadir más de dos ejecutores resulta incluso perjudicial. 
+		
+	\item Aunque no puede apreciarse fácilmente en los resultados mostrados, cuando solo existe una función OR, el porcentaje de reducción del algoritmo LSHIS depende fuertemente de la semilla utilizada para generar las funciones hash. De hecho, en conjuntos de datos como HIGGS (ver \ref{sec:ConjuntosDeDatos}) han llegado a apreciarse ejecuciones cuyo resultado variaba en hasta 200.000 instancias con tan solo modificar la semilla. Es por ello que en algunas mediciones, como en tabla \ref{tabla:CompLetterLSHIS} y tabla \ref{tabla:CompH1GLSHIS}, pueden apreciarse porcentajes de reducción diferentes entre las mediciones realizadas con Weka y con Spark. 
+	
+	\item Puede observarse como en algunas mediciones del algoritmo DemoIS (tabla \ref{tabla:CompSegmentationDemoIS} y tabla \ref{tabla:CompPenbasedDemoIS}) el porcentaje de reducción es mayor con Spark que con Weka, sin afectar esto a la precisión. Esto se debe a una ligera variación en el cálculo del \textit{fitness} de la nueva implementaciones, donde utilizamos un subconjunto de test más parecido al original. Un ligero cambio en los parámetros de lanzamiento de Weka (parámetro \textit{alpha}) conduciría al mismo resultado obtenido con Spark.
+	
+\end{itemize}
+
+
+\section{Medición del tiempo de filtrado, en un clúster, de LSHIS y DemoIS}
+
+En un intento de aumentar los recursos disponibles y de probar el funcionamiento en un sistema distribuido, se han lanzado pruebas sobre un servicio clúster. Se intenta, no solo realizar ejecuciones  que necesiten de más recursos, sino también ver el funcionamiento de nuestro programa en un entorno donde encontramos problemas adicionales, como puede ser un aumento del tiempo de comunicación entre los diferentes nodos (hasta ahora, en la medición anterior \ref{sec:pruebasLSHISyDemoIS}, solo existía un único nodo)
+
+El servicio utilizado, contratado por la Universidad de Burgos, es un servidor Cluster Dell con 63 nodos 4xQuadCore Xeon @ 2 GHz y un total de 252 núcleos. Está configurado con un sistema de gestión de colas de trabajo PBS (\textit{Portable Batch System}), por lo que para la ejecución de Spark se ha necesitado de un script de lanzamiento proporcionado por la Universidad de Ohio \cite{baer2015integrating}.
+
+En esta ocasión, se han lanzado ejecuciones con Weka y en Spark con hasta 16 procesadores.
+
+Sin embargo, las ejecuciones tuvieron que ser suspendidas por problemas entre el script mencionado y el sistema de gestión de colas, que generaban que ciertos núcleos dejaran trabajar y paralizasen la ejecución hasta que volvían a ser iniciados. Es por ello que no contamos con todas las mediciones que se plantearon en un primer momento y que no podemos asegurar que los tiempos medidos sean completamente veraces, por lo que no han sido incluidos en la memoria ni realizaremos un análisis sobre ellos.
+
+Si puede decirse, sin embargo, que nuestros algoritmos han sido ejecutados en otro servicio (Google Cloud Dataproc) con conjuntos de datos mayores que los que ocasionaban problemas en el servidor Clúster Dell y no se han detectado problemas en la ejecución, por lo que se descarta que pueda haber un error en el código de la aplicación.
+
+

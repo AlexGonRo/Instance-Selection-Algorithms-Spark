@@ -14,7 +14,9 @@ A lo largo de esta memoria trataremos a la minería de datos como sinónimo de K
 
 Big Data, pese a ser un término cuya definición no ha sido nunca estandarizada, podría definirse como un conjunto de datos tan grande y complejo con el que resulta imposible trabajar utilizando metodologías tradicionales \cite{bigDataDef}.
 
-Fue utilizado por primera vez en 1997, en referencia a un problema donde un conjunto de datos tenía dificultad para ser almacenado en memoria o incluso en disco \cite{forbesBigData}\cite{cox1997application}. Este aspecto es vital para la comprensión y el trabajo en el área del Big Data: hemos de considerar, desde un primer momento, que no todo nuestros datos van a poder ser guardados en memoria al mismo tiempo.
+Fue utilizado por primera vez en 1997, en referencia a un problema donde un conjunto de datos tenía dificultad para ser almacenado en memoria o incluso en disco \cite{forbesBigData,cox1997application}. Este aspecto es vital para la comprensión y el trabajo en el área del Big Data: hemos de considerar, desde un primer momento, que no todo nuestros datos van a poder ser guardados en memoria al mismo tiempo.
+
+Sin embargo, el volumen de información no es el único aspecto importante a considerar cuando tratamos con el Big Data. Existe una expresión denominada ``Las cuatro uves del Big Data'' (\textit{The Four V's of Big Data}) que pretende definir las cuatro características básicas de este término: volumen, variedad, velocidad y veracidad \cite{IBMBigData4Vs}. Cualquier trabajo relacionado con el Big Data deberá tener en cuenta la influencia, en mayor o menor medida, de cada uno de estos términos dentro del proyecto y actuar en consecuencia.
 
 En lo que se refiere a este proyecto, este término tiene una importancia fundamental: nuestro objetivo final es el de implementar nuevas soluciones que permitan trabajar sobre una gran cantidad de datos, haciendo frente a todos los problemas que esto pudiese suponer.
 
@@ -104,9 +106,9 @@ Eliminamos de S todas las instancias cuyo número de votos sea $\geq v$
 
 La computación paralela es un tipo de computación en la que múltiples operaciones son llevadas a cabo simultáneamente \cite{Almasi:1989}. Parte del principio de que algunos problemas pueden subdividirse en problemas independientes más pequeños que pueden resolverse al mismo tiempo.
 
-Es un paradigma que desde el principio se usó para operaciones que requiriesen una gran carga computacional, pero que ha despertado mucho interés en los últimos años gracias a la fácil escalabilidad (ver \ref{sec:DefEscalabilidad}) que puede ofrecer frente a otras alternativas, como el aumento de la frecuencia de los procesadores, que han alcanzado un punto donde resulta más difícil avanzar \cite{CompParalelaWiki}.
+Es un paradigma que desde el principio se usó para operaciones que requiriesen una gran carga computacional, pero que ha despertado mucho interés en los últimos años gracias a la fácil escalabilidad (ver sección \ref{sec:DefEscalabilidad}) que puede ofrecer frente a otras alternativas, como el aumento de la frecuencia de los procesadores, que han alcanzado un punto donde resulta más difícil avanzar \cite{CompParalelaWiki}.
 
-En lo que se refiere al uso de la memoria por parte de un sistema paralelo, existe la posibilidad de que la memoria sea compartida o distribuida dependiendo de si las unidades de procesamiento poseen un espacio de memoria común o cada unidad posee su propio espacio. En lo que se refiere a la tecnología que vamos a usar durante la realización del proyecto (ver \ref{sec:DefSpark}), la memoria siempre será distribuida \cite{SparkPaper}.
+En lo que se refiere al uso de la memoria por parte de un sistema paralelo, existe la posibilidad de que la memoria sea compartida o distribuida dependiendo de si las unidades de procesamiento poseen un espacio de memoria común o cada unidad posee su propio espacio. En lo que se refiere a la tecnología que vamos a usar durante la realización del proyecto (ver sección \ref{sec:DefSpark}), la memoria siempre será distribuida \cite{SparkPaper}.
 
 \section{Escalabilidad}\label{sec:DefEscalabilidad}
 
@@ -120,6 +122,6 @@ También es una característica que puede aplicarse a los algoritmos, para los c
 
 Aunque el término puede dar lugar a numerosas definiciones, en lo que se refiere a nuestro proyecto, nos referiremos al rendimiento como la velocidad a la que un algoritmo puede ofrecer el resultado esperado.
 
-Entiéndase que, en el contexto del trabajo, el objetivo ha sido siempre el de intentar mejorar los tiempos de ejecución de nuestras implementaciones con respecto a soluciones anteriores que seguían otro tipo de paradigmas. Nunca se ha planteado la posibilidad de mejorar otros aspectos, dejando este término con la definición indicada anteriormente.
+Entiéndase que, en el contexto del trabajo, el objetivo ha sido siempre el de intentar mejorar los tiempos de ejecución de nuestras implementaciones con respecto a soluciones anteriores que seguían otro tipo de paradigmas (secuencial). Nunca se ha planteado la posibilidad de mejorar otros aspectos, dejando este término con la definición indicada anteriormente.
 
 

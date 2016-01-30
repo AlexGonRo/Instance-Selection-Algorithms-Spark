@@ -33,7 +33,7 @@ Nótese que la tabla \ref{tabla:ComparativaJavaScalaPython} es una comparativa e
 \centering Eficiencia de ejecución & \multicolumn{2}{m{11.05cm}}{Compila los ficheros generando archivos .class y los ejecuta sobre una máquina virtual de Java (JVM). Esto conlleva que la ejecución sea considerablemente más rápida que la del intérprete de Python.} & Es un lenguaje interpretado, lo que afecta negativamente a su rendimiento. Sin embargo, su rendimiento en comparación con Scala mejora considerablemente si contamos con muchos procesadores~\cite{PythonVsScala}.  \\ [0.2cm]
 
 
-\centering Facilidad de mantenimiento & Código más extenso, aunque la aparición Java 8, con elementos como las funciones lambda (ver \ref{subsec:ExplLambdaJava}), han mejorado este aspecto. & \multicolumn{2}{m{11.05cm}}{Menos líneas de código y una sintaxis más fácilmente legible.} \\ [0.2cm]
+\centering Facilidad de mantenimiento & Código más extenso, aunque la aparición Java 8, con elementos como las funciones lambda (ver sección \ref{subsec:ExplLambdaJava}), han mejorado este aspecto. & \multicolumn{2}{m{11.05cm}}{Menos líneas de código y una sintaxis más fácilmente legible.} \\ [0.2cm]
 
 \centering Adecuación & Trabajar sobre Java nos obliga, a la hora de programar, a transformar estructuras y clases de Spark solo soportadas al trabajar en Scala o Python. Además, no cuenta con un intérprete interactivo. & \multicolumn{2}{m{11.05cm}}{Spark está pensado para trabajar sobre Scala o Python. De hecho, Spark ha sido creado en Scala, por lo que su conocimiento puede ayudar a lo largo del proyecto. Ambos lenguajes cuentan con un intérprete interactivo. } \\ [0.2cm]
 
@@ -54,7 +54,7 @@ La elección final del lenguaje a utilizar será Scala, argumentando lo siguient
 \newpage
 \subsection{Funciones lambda en Java 8 } \label{subsec:ExplLambdaJava}
 
-En Spark, es habitual usar funciones como parámetros de muchas transformaciones y acciones que aplicamos sobre las RDD (ver \ref{sec:DefRDD}). Estas funciones, por lo general, son requeridas solamente para la operación concreta, por lo que se suelen definir directamente en el código.
+En Spark, es habitual usar funciones como parámetros de muchas transformaciones y acciones que aplicamos sobre las RDD (ver sección \ref{sec:DefRDD}). Estas funciones, por lo general, son requeridas solamente para la operación concreta, por lo que se suelen definir directamente en el código.
 
 Esto, antes de la llegada de Java 8, generaba un código semejante al siguiente:
 
@@ -87,7 +87,7 @@ Como primer aspecto a evaluar durante la realización del proyecto, se llevó a 
 
 La intención de esta prueba era doble: por un lado, suponía un primer acercamiento a la librería Spark y al modelo de funcionamiento en este tipo de entornos. Por otro, se pretendía probar el tiempo de ejecución de Spark frente a alternativas anteriores que, como principal diferencia, no están pensadas para ser ejecutadas en paralelo.
 
-Para realizar las mediciones utilizamos conjuntos de datos de diferentes tamaños, pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico que ya se encontraba implementado tanto en la librería de Weka como en la de Spark, razón por la cual ha sido elegido.
+Para realizar las mediciones utilizamos conjuntos de datos de diferentes tamaños, pero siempre un mismo algoritmo: el Naive Bayes. Naive Bayes es un algoritmo de clasificación probabilístico que ya se encontraba implementado tanto en la librería de Weka \cite{John1995} como en la de Spark, razón por la cual ha sido elegido.
 
 Los resultados, así como una explicación más detallada del experimento, pueden encontrarse en el material adjunto a la memoria. Sin embargo, como pequeña aproximación, se muestra en la gráfica \ref{fig:img/compartido/timeTendencyBayes} la evolución del tiempo de ejecución según el número de instancias en diferentes configuraciones de lanzamiento (Weka y Spark con diferente número de ejecutores). Sin entrar a detalle, puede apreciarse claramente una reducción del tiempo de ejecución en Spark a medida que añadimos nuevos ejecutores, lo que se traduce en añadir más unidades de procesamiento a la ejecución. 
 
@@ -102,7 +102,7 @@ Los resultados, así como una explicación más detallada del experimento, puede
 Marcado como el objetivo fundamental de este proyecto, la realización de dos algoritmos de selección de instancias ha ocupado la mayor parte de tiempo dentro del mismo. A continuación se expondrán algunos de los aspectos que más influencia han tenido durante esta fase de implementación y una pequeña explicación más concreta de la propia implementación de los algoritmos.
 
 
-\subsection{Indeterminismo, comunicación limitada y grandes conjuntos de datos}
+\subsection{Indeterminismo, comunicación limitada, grandes conjuntos de datos}
 
 Por la propia naturaleza de la librería, la programación en Spark se ha diferenciado en muchos aspectos del tipo de programación secuencial que se ha aplicado hasta ahora. El hecho de que nuestros algoritmos estén pensados para ejecutarse en paralelo y distribuidos en una gran red de nodos nos proporciona numerosas ventajas, a las que ya nos referimos en las secciones \ref{sec:CompParalela} y \ref{sec:DefEscalabilidad}, pero también plantea problemas que es necesario tener muy en cuenta para la correcta ejecución del programa.
 
@@ -116,11 +116,11 @@ Por lo mencionado en este último punto, durante la realización del proyecto se
 
 \subsection{Lazy evaluation}
 
-Un aspecto importante de la implementación es el hecho de que Spark utiliza una estrategia de evaluación perezosa (\textit{Lazy Evaluation}) como ya ha sido definido en \ref{sec:DefSpark}.
+Un aspecto importante de la implementación es el hecho de que Spark utiliza una estrategia de evaluación perezosa (\textit{Lazy Evaluation}) como ya ha sido definido en la sección \ref{sec:DefSpark}.
 
 Esto, si bien se hace en un intento de conseguir optimizar las operaciones, ha de tenerse en cuenta si no se quiere obtener la situación contraria. Hay que comprender que las RDD solo se crean cuando se necesitan y que, por ello, no todas las operaciones se realizan estrictamente en el orden en el que se definen en el código.
 
-En el siguiente ejemplo (\ref{lst:cvScala}), mostramos un fragmento con el código que genera un conjunto de pares entrenamient-test y realiza sobre cada uno de ellos una operación cualquiera:
+En el siguiente ejemplo (\ref{lst:cvScala}), mostramos un fragmento con el código que genera un conjunto de pares entrenamiento-test y realiza sobre cada uno de ellos una operación cualquiera:
 
 \begin{lstlisting}[language=Java,tabsize=4,frame = single,caption=Código de ejecución de una validación cruzada en Scala,captionpos=b,label=lst:cvScala,]
 
@@ -136,15 +136,15 @@ En el siguiente ejemplo (\ref{lst:cvScala}), mostramos un fragmento con el códi
       }
 \end{lstlisting}
 
-Una primera impresión del código \ref{lst:cvScala} puede hacernos suponer que primero se generan todossubconjuntos y, posteriormente, sobre cada uno de ellos se realiza la operación que se le pide. Sin embargo, el comportamiento real es muy distinto y es que, hasta que no necesitamos los conjuntos ``train'' y ``test'' dentro del bucle, no calculamos creamos dichos conjuntos. De esta manera, cada vez que realicemos una iteración sobre el bucle calcularemos solo los conjuntos que vayamos a necesitar.
+Una primera impresión del código \ref{lst:cvScala} puede hacernos suponer que primero se generan todos los subconjuntos y, posteriormente, sobre cada uno de ellos se realiza la operación que se le pide. Sin embargo, el comportamiento real es muy distinto y es que, hasta que no necesitamos los conjuntos ``train'' y ``test'' dentro del bucle, no calculamos dichos conjuntos. De esta manera, cada vez que realicemos una iteración sobre el bucle calcularemos solo los conjuntos que vayamos a necesitar.
 
-Tener esto en cuenta es importante a la hora de programar, pues puede provocar,entre otros aspectos negativos, cuellos de botella, excesivo uso de almacenamiento con datos que no van a usarse en un futuro cercano o necesidad de recomputar grandes estructuras RDD.
+Tener esto en cuenta es importante a la hora de programar, pues puede provocar,entre otros aspectos negativos, cuellos de botella, excesivo uso de almacenamiento con datos que no van a usarse en un futuro cercano o necesidad de recalcular grandes estructuras RDD.
 
 \subsection{Correcta gestión de los recursos}
 
-Como se ha mencionado anteriormente en esta memoria (ver \ref{sec:DefSpark}), una de las ventajas de Spark frente a otras alternativas es, no solo la posibilidad de usar diferentes niveles de almacenamiento, sino también la posibilidad de definir nosotros qué almacenar y dónde hacerlo.
+Como se ha mencionado anteriormente en esta memoria (ver sección \ref{sec:DefSpark}), una de las ventajas de Spark frente a otras alternativas es, no solo la posibilidad de usar diferentes niveles de almacenamiento, sino también la posibilidad de definir nosotros qué almacenar y dónde hacerlo.
 
-Aunque parezca un aspecto con importancia menor, solo útil cuando se busca optimizar al máximo una operación, lo cierto es que es un aspecto sumamente importante que tiene una altísima influencia en el tiempo de ejecución. Tener en mente qué estructuras RDD almacenar, dónde hacerlo o si realmente merece la pena ocupar espacio ante una operación que podría recomputarse es algo que se ha visto completamente necesario desarrollando el proyecto.
+Aunque parezca un aspecto con importancia menor, solo útil cuando se busca optimizar al máximo una operación, lo cierto es que es un aspecto sumamente importante que tiene una altísima influencia en el tiempo de ejecución. Tener en mente qué estructuras RDD almacenar, dónde hacerlo o si realmente merece la pena ocupar espacio ante una operación que podría recalcularse es algo que se ha visto completamente necesario desarrollando el proyecto.
 
 Tomemos como ejemplo el algoritmo DemoIS, donde se decidió persistir una estructura RDD generada tras la fase de votaciones. Podemos ver como el tiempo de ejecución de algunas de las operaciones ha sido reducido del orden de segundos (en la imagen \ref{fig:img/memoria/DemoISWithoutPersist}) al tiempo de milisegundos (en la imagen \ref{fig:img/memoria/DemoISWithPersist}).
 
@@ -173,7 +173,7 @@ Como ya se ha comentado anteriormente, la librería MLlib de Spark con la que he
 
 \begin{itemize}
 \item \textbf{Algoritmo Condensed Nearest Neighbour (CNN):} Un algoritmo de selección de instancias simple y cuya ejecución es secuencial. Ha sido incluido de manera obligatoria para poder ejecutar correctamente nuestro algoritmo Democratic instance selection (ver algoritmo \ref{sec:defDemoIS}). Además, es obligatorio que éste posea la capacidad de serialización, pues es necesario distribuirlo a cada uno de nuestros nodos trabajadores por exigencias del algoritmo que deseamos implementar.
-\item  \textbf{Algoritmo K-Nearest Neighbours (KNN):} Un clasificador simple necesario tanto para la implementación de Democratic instance selection como para comparar la correcta salida de nuestros selectores de instancias. Está programado de manera secuencial, de manera que requiere que todos los datos sean recogidos en una sola máquina para poder aplicar el algoritmo. En un primer momento se creyó que podríamos contar con una implementación en Spark del KNN gracias al material presentado en la Conferencia de la Asociación Española para la Inteligencia Artificial 2015 (CAEPIA 2015) \cite{KNNConferencia}, pero finalmente tuvo que implementarse una versión menos ambiciosa del clasificador.
+\item  \textbf{Algoritmo k-Nearest Neighbours (\textit{k}NN):} Un clasificador simple necesario tanto para la implementación de Democratic instance selection como para comparar el funcionamiento de nuestros selectores de instancias. Está programado de manera secuencial, de manera que requiere que todos los datos sean recogidos en una sola máquina para poder aplicar el algoritmo. En un primer momento se creyó que podríamos contar con una implementación en Spark del \textit{k}NN gracias al material presentado en la Conferencia de la Asociación Española para la Inteligencia Artificial 2015 (CAEPIA 2015) \cite{KNNConferencia}, pero finalmente tuvo que implementarse una versión menos ambiciosa del clasificador.
 \end{itemize}
 
 
@@ -218,7 +218,7 @@ $ S = \varnothing $
 
     }
 
-    Añadir a $S$aquellas instancias de $sel$ que no seleccionadas en $S$
+    Añadir a $S$ aquellas instancias de $sel$ que no seleccionadas en $S$
     }
 
 }
@@ -228,7 +228,7 @@ $ S = \varnothing $
 \label{alg:LSHISSPARK}
 \end{algorithm*}
 
-Como del pseudocódigo anterior no puede deducirse con claridad cómo están estructuradas las operaciones dentro del entorno paralelo, se incluyen los siguientes diagramas (ver \ref{fig:img/memoria/diagram_LSHIS1} y \ref{fig:img/memoria/diagram_LSHIS2}) que permiten identificar como se realizan las operaciones dentro de un grupo de nodos. Compruébese que todas las operaciones se ejecutan en paralelo, en ningún momento ha sido necesario hacer ninguna operación secuencial. Los bloques de ``Conjunto de datos inicial'' y ``Solución'' simplemente han sido añadidos para aclarar el diagrama, pero tanto los datos iniciales como el resultado podrían perfectamente ser datos que ya se encontrasen distribuidos.
+Como del pseudocódigo anterior no puede deducirse con claridad cómo están estructuradas las operaciones dentro del entorno paralelo, se incluyen los siguientes diagramas (ver imágenes \ref{fig:img/memoria/diagram_LSHIS1} y \ref{fig:img/memoria/diagram_LSHIS2}) que permiten identificar como se realizan las operaciones dentro de un grupo de nodos. Compruébese que todas las operaciones se ejecutan en paralelo, en ningún momento ha sido necesario hacer ninguna operación secuencial. Los bloques de ``Conjunto de datos inicial'' y ``Solución'' simplemente han sido añadidos para aclarar el diagrama, pero tanto los datos iniciales como el resultado podrían perfectamente ser datos que ya se encontrasen distribuidos.
 
 	\begin{figure}[!h]
 		\centering
@@ -252,7 +252,7 @@ Como del pseudocódigo anterior no puede deducirse con claridad cómo están est
 
 La implementación de este algoritmo no ha requerido modificar el pseudocódigo del mismo (ver algoritmo \ref{sec:defDemoIS}) pero sí existen varios detalles que conviene destacar sobre la actual implementación.
 
-En primer lugar, como puede apreciarse en la figura \ref{fig:img/memoria/diagram_DemoIS}, no todo el algoritmo se ejecuta en paralelo. A la hora de calcular el \textit{fitness} óptimo lo hacemos de manera secuencial. Esto es así porque no contamos con una implementación paralela del algoritmo KNN, necesario para este proceso (ver \ref{sec:ImplRecursosAdicionales}). Aún con esto, durante esa etapa del proceso solo seleccionamos un pequeño grupo de instancias en comparación con el conjunto inicial, por lo que operar con tal número de datos no supone un problema de rendimiento tan grande.
+En primer lugar, como puede apreciarse en la figura \ref{fig:img/memoria/diagram_DemoIS}, no todo el algoritmo se ejecuta en paralelo. A la hora de calcular el \textit{fitness} óptimo lo hacemos de manera secuencial. Esto es así porque no contamos con una implementación paralela del algoritmo \textit{k}NN, necesario para este proceso (ver sección \ref{sec:ImplRecursosAdicionales}). Aún con esto, durante esa etapa del proceso solo seleccionamos un pequeño grupo de instancias en comparación con el conjunto inicial, por lo que operar con tal número de datos no supone un problema de rendimiento tan grande.
 
 Existen otras consideraciones de cara a la implementación, como el uso de un particionador aleatorio que no genera particiones del mismo tamaño o la creación de una clase individual que evite la serialización completa del algoritmo al realizar la primera operación \textit{map}. Sin embargo, estos temas serán tratados con más detenimiento en el anexo incluido junto con la memoria.
 
@@ -291,7 +291,7 @@ Puede verse claramente que, pese a su ejecución en paralelo, el algoritmo LSHIS
 	\FloatBarrier
 
 
-\section{Ejecución en la nube}
+\section{Ejecución en la nube}\label{sec: ejecucionNube}
 
 Una vez se comprobó el buen funcionamiento del proyecto, se prodedió a desplegar el trabajo en el entorno en el que está destinado a ser ejecutado: un clúster real.
 
@@ -302,6 +302,8 @@ Este despliegue se ha realizado en dos plataformas diferentes:
 \end{itemize}
 
 Por las características de los servicios en los que se ha desplegado el programa, se necesitó realizar pequeños cambios en la implementación y definir una versión anterior de Scala a la hora de compilar el código.
+
+Puede encontrarse información más concreta sobre como realizar experimentos sobre Google Cloud Dataproc en el manual del usuario anexo a esta memoria. Igualmente, resultados sobre las pruebas realizadas en estos servicios o pequeñas consideraciones a tener en cuenta en la etapa de implementación pueden encontrarse en los documentos ``Pruebas del sistema'' y ``Manual del programador'' respectivamente. 
 
 \section{Implementación de un entorno gráfico}
 

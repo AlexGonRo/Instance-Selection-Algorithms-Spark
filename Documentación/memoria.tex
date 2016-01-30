@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt,oneside]{memoir}
+\documentclass[a4paper,11pt,twoside,openright]{memoir}
 
 % Castellano
 \usepackage[spanish]{babel}
@@ -390,7 +390,9 @@
   }%
   \end{center}%
   \null
-  \cleardoublepage
+  \newpage
+  \thispagestyle{empty}
+  \newpage
   }
 \makeatother
 
@@ -412,12 +414,12 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pagestyle{empty}
+\thispagestyle{empty}
 
 
 \noindent\includegraphics[width=\textwidth]{cabecera}\vspace{1cm}
 
-\noindent D. nombre tutor, profesor del departamento de nombre departamento, área de nombre área.
+\noindent D. Álvar Arnaiz González, profesor del departamento de nombre departamento, área de nombre área.
 
 \noindent Expone:
 
@@ -455,11 +457,8 @@ D. nombre co-tutor
 %D. nombre tutor
 
 
-\null\cleardoublepage
-\null\cleardoublepage
-
-
-
+\newpage\thispagestyle{empty}
+\null
 
 \frontmatter
 
@@ -483,7 +482,7 @@ Minería de datos, big data, computación paralela, selección de instancias, Ap
 \begin{abstract}
 The huge amount of data which we have access to, has led to new problems when we try to analyze the information contained in that data. Because of that, new techniques have come out trying to solve the problem. Through this paper I will discuss about some of these new solutions: parallelization and instance selection algorithms.
 
-Using Apache Spark engine, the main goal of this project will be the comparison between sequential and parallel data mining techniques and the implementation and evaluation of two concrete instance selection algorithms: Locality sensitive hashing instance selection and democratic instance selection.
+Using Apache Spark engine, the main goal of this project will be the comparison between sequential and parallel data mining techniques and the implementation and evaluation of two concrete instance selection algorithms: Locality sensitive hashing instance selection and Democratic instance selection.
 
 \end{abstract}
 

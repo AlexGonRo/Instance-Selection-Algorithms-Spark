@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt,oneside]{memoir}
+\documentclass[a4paper,11pt,twoside,openright]{memoir}
 
 % Castellano
 \usepackage[spanish]{babel}
@@ -32,6 +32,8 @@
 %Color
 \usepackage{color}
 
+%Para las notas a pie de página dentro de tablas
+\usepackage{tablefootnote}
 
 % Rutas de fichero / paquete
 \newcommand{\ruta}[1]{{\sffamily #1}}
@@ -60,6 +62,9 @@
 	\end{figure}
 }
 
+%Celda con varias lineas
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 
 
 % El comando \figura nos permite insertar figuras comodamente, y utilizando
@@ -311,7 +316,8 @@
 % Formato de portada
 \makeatletter
 \usepackage{xcolor}
-\newcommand{\tutor}[1]{\def\@tutor{#1}}
+\newcommand{\tutorA}[1]{\def\@tutorA{#1}}
+\newcommand{\tutorB}[1]{\def\@tutorB{#1}}
 \newcommand{\course}[1]{\def\@course{#1}}
 \definecolor{cpardoBox}{HTML}{E6E6FF}
 \def\maketitle{
@@ -342,7 +348,8 @@
     \noindent\LARGE
     Presentado por \@author{}\\ 
     en Universidad de Burgos --- \@date{}\\
-    Tutor: \@tutor{}\\
+    Tutor: \@tutorA{}\\
+    \@tutorB{}
   }%
   \end{center}%
   \null
@@ -352,9 +359,10 @@
 
 
 % Datos de portada
-\title{título del TFG \\Documentación Técnica}
-\author{nombre alumno}
-\tutor{nombre tutor}
+\title{Paralelización de algoritmos de selección de instancias con la arquitectura Spark \\Documentación Técnica}
+\author{Alejandro González Rogel}
+\tutorA{Álvar Arnaiz González}
+\tutorB{Carlos López Nozal}
 \date{\today}
 
 \begin{document}
@@ -401,10 +409,11 @@
 \appendix
 
 \include{./tex/A_Plan_proyecto}
-\include{./tex/B_Requisitos}
-\include{./tex/C_Diseno}
-\include{./tex/D_Manual_programador}
-\include{./tex/E_Manual_usuario}
+%\include{./tex/B_Requisitos}
+%\include{./tex/C_Diseno}
+%\include{./tex/D_Manual_programador}
+\include{./tex/E_Pruebas}
+%\include{./tex/F_Manual_usuario}
 
 
 \bibliographystyle{plain}

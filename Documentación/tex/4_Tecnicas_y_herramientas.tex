@@ -4,6 +4,7 @@
 %No se pretende que este apartado se convierta en un capítulo de un libro dedicado a cada una de las alternativas, sino comentar los aspectos más destacados de cada opción, con un repaso somero a los fundamentos esenciales y referencias bibliográficas para que el lector pueda ampliar su conocimiento sobre el tema.
 
 \section{Técnicas}
+En esta sección detallaremos brevemente la metodología utilizada durante el desarrollo del proyecto, junto como una pequeña explicación, más concreta, de cómo se ha aplicado en este caso concreto.
 \subsection{Scrum}
 
 Scrum es una metodología ágil de desarrollo iterativo e incremental para la gestión del desarrollo de un producto~\cite{wikiScrum}. 
@@ -12,29 +13,31 @@ Como parte de la metodología, el trabajo se ha dividido en sprints, intervalos 
 
 En lo que se refiere a su aplicación práctica dentro del proyecto, los sprints han tenido una duración aproximada de dos semanas, periodo tras el cual había una reunión entre alumno y tutores para hablar sobre el avance y problemas ocurridos a lo largo del sprint, así como para definir el avance del proyecto durante el próximo periodo de tiempo.
 
-Para la gestión de los sprints, hitos y tareas nos hemos apoyado en el gestor de incidencias que la plataforma Bitbucket (ver \ref{DefBitbucket}) proporciona en el repositorio del proyecto. De esta manera, cada incidencia marcada con la etiqueta \textit{task} corresponde con un hito a realizar, mientras que todos ellos están agrupados en sprints, llamados \textit{milestones} en la plataforma.
+Para la gestión de los sprints, hitos y tareas nos hemos apoyado en el gestor de incidencias que la plataforma Bitbucket (ver sección \ref{DefBitbucket}) proporciona en el repositorio del proyecto. De esta manera, cada incidencia marcada con la etiqueta \textit{task} corresponde con un hito a realizar, mientras que todos ellos están agrupados en sprints, llamados \textit{milestones} en la plataforma.
 
 Hemos utilizado este método para realizar el seguimiento del proyecto porque, pese a no ser una herramienta especialmente dedicada a esta labor, evita el uso de nuevo software y puede ofrecer un buen resultado si existe atención por parte de los coordinadores del proyecto, en este caso los tutores~\cite{WhyIssues}.
 
 
 \section{Herramientas}
 
+La realización de este trabajo ha dado lugar al uso de multitud de herramientas. A continuación, se van a detallar dichas herramientas, el uso que se les ha dado y la razón por la cual fueron elegidas.
+
 \subsection{Apache Spark}\label{sec:DefSpark}
 
 Apache Spark (\url{http://spark.apache.org/}) es un motor de interés general destinado al procesamiento distribuido de grandes conjuntos de datos. Está implementado en Scala, pero también proporciona APIs para otros lenguajes de programación (Java, Python y R) y otro tipo de herramientas para áreas como el aprendizaje automático (ver la sección \ref{MLib})~\cite{SparkDoc}.
 
-La idea nació como proyecto en 2010, en la Universidad de California, Berkeley, y su primera versión estable apareció el 30 de mayo de 2014. La motivación inicial era la de proporcionar un nuevo modelo de computación paralela que permitiera la ejecución eficiente de modelos que debían utilizar durante múltiples iteraciones grandes conjuntos de datos. Aproximaciones anteriores basadas en el modelo de MapReduce \cite{MapReducePaper}(como Hadoop), requerían cargar de nuevo todos los datos en memoria, haciendo la tarea demasiado costosa. Como beneficio adicional, Spark ha demostrado que requiere de muchas menos líneas de código a la hora de programar algoritmos destinados al manejo de \textit{Big Data}~\cite{SparkPaper}.
+La idea nació como proyecto en 2010, en la Universidad de California, Berkeley, y su primera versión estable apareció el 30 de mayo de 2014. La motivación inicial era la de proporcionar un nuevo modelo de computación paralela que permitiera la ejecución eficiente de modelos que debían utilizar durante múltiples iteraciones grandes conjuntos de datos. Aproximaciones anteriores basadas en el modelo de MapReduce \cite{MapReducePaper} (como Hadoop), requerían cargar de nuevo todos los datos en memoria, haciendo la tarea demasiado costosa. Como beneficio adicional, Spark ha demostrado que requiere de muchas menos líneas de código a la hora de programar algoritmos destinados al manejo de \textit{Big Data}~\cite{SparkPaper}.
 
 Actualmente Spark es un proyecto de código abierto cedido a Apache, siendo uno de los más activos en cuanto a contribuciones de la comunidad~\cite{ApacheContributions}. 
 
-Para la realización del proyecto utilizaremos la versión de Spark 1.5.1.
+Para la realización del proyecto hemos utilizado diferentes versiones de Spark. Por lo general hemos trabajado con la versión 1.5.1, pero al utilizar servicios de computación en la nube (ver sección \ref{sec: ejecucionNube}) hemos utilizado la versión 1.5.2 en Google Cloud Dataproc y 1.6.0 en el servicio Clúster Dell.
 
 \subsubsection{Machine Learning Library (MLlib)}\label{MLib}
 
 Se trata de una de las librerías incluidas en Spark. Contiene un conjunto de clases relacionadas con el campo del aprendizaje automático, como tipos de datos o funcionalidades estadísticas.  
 
 \subsubsection{Resilient Distributed Datasets (RDD)}\label{sec:DefRDD}
-Es una de las características esenciales de Spark. Consiste en una colección de objetos, accesible en modo solo lectura y distribuida a lo largo de un conjunto de máquinas que pueden reconstruir una de sus particiones si esta llegase a perderse~\cite{SparkPaper}. 
+Es una de las características esenciales de Spark. Consiste en una colección de objetos, accesible en modo solo lectura y distribuida a lo largo de un conjunto de máquinas que pueden reconstruir una de sus particiones si esta llegase a perderse~\cite{SparkPaper}. En el caso concreto de nuestro proyecto, los onjetos que formen las RDD serán, en la mayoría de los casos, las instancias utilizadas durante las labores de minería.
 
 Estas estructuras soportan dos tipos de operaciones:
 
@@ -43,7 +46,7 @@ Estas estructuras soportan dos tipos de operaciones:
 	\item \textbf{Acciones:} Operaciones sobre las RDD que devuelven un resultado que depende del tipo de acción aplicada.
 \end{itemize}
 
-Otra de las grandes diferencias que caracterizan a las RDD de otro tipo de estructuras es la posibilidad de definir fácilmente el nivel de memoria en el que queremos alojar los datos, algo de lo que muchos frameworks anteriores carecían~\cite{RDDPaper}. En un principio todas las RDD son efímeras, esto es, serán eliminadas de memoria si no se indica lo contrario, pero pueden mantenerse para obtener mejores resultados de rendimiento si los datos van a usarse repetidamente con relativa frecuencia. A esta acción de mantener en memoria una RDD se le llama cachear (\textit{caching}).
+Otra de las grandes diferencias que caracterizan a las RDD de otro tipo de estructuras es la posibilidad de definir fácilmente el nivel de memoria en el que queremos alojar los datos, algo de lo que muchos \textit{frameworks} anteriores carecían~\cite{RDDPaper}. En un principio todas las RDD son efímeras, esto es, serán eliminadas de memoria si no se indica lo contrario, pero pueden mantenerse para obtener mejores resultados de rendimiento si los datos van a usarse repetidamente con relativa frecuencia. A esta acción de mantener en memoria una RDD se le llama cachear (\textit{caching}).
 
 \subsection{Weka}\label{sec:DefWeka}
 Weka \cite{WekaSoft} es un software desarrollado para llevar a cabo labores de minería de datos. Se trata de un proyecto de software libre, realizado en Java y desarrollado por la Universidad de Waikato, Nueva Zelanda.
@@ -62,7 +65,7 @@ Es un lenguaje compilado, produciendo como salida ficheros .class que han de ser
 
 Los motivos de su elección como lenguaje de programación han sido mencionados en la sección \ref{EleccionLenguaje}
 
-Se ha usado Scala en su versión 2.11.7.
+Se han utilizado dos versiones de Scala diferentes. Para la ejecución de Spark en nuestra máquina local se ha usado Scala en su versión 2.11.7, mientras que, cuando hemos necesitado desplegar el proyecto en otro servicio, hemos necesitado compilar nuestro trabajo usando Scala 2.10.6.
 
 \subsection{Java}
 
@@ -114,9 +117,9 @@ Apache Maven (\url{https://maven.apache.org/}) es una herramienta para la gesti�
 
 Se basa en el concepto de \textit{Project Object Model} (\textit{POM}), un archivo en formato XML que describe el proyecto a construir, la manera de construirlo y  las dependencias con otros componentes.
 
-El lenguaje utilizado para la elaboración del proyecto ha sido Scala (ver \ref{EleccionLenguaje}) y, como se ha mencionado, Maven fue pensado para trabajar sobre proyectos Java. Es por ello que necesitaremos de añadir un plugin adicional (Scala-Maven-Plugin) a nuestro fichero POM, aspecto que será tratado en el anexo entregado junto con la memoria.
+El lenguaje utilizado para la elaboración del proyecto ha sido Scala (ver sección \ref{EleccionLenguaje}) y, como se ha mencionado, Maven fue pensado para trabajar sobre proyectos Java. Es por ello que necesitaremos de añadir un plugin adicional (\textit{Scala-Maven-Plugin}) a nuestro fichero POM, aspecto que será tratado en el manual de programador entregado junto con la memoria.
 
-Hemos utilizado esta herramienta para empaquetar los algoritmos preparados para Spark, además de para construir el propio Spark a partir del código fuente. Se ha seleccionado esta herramienta frente a otras opciones propias para Scala por conocerse con anterioridad su funcionamiento y por no requerir demasiado esfuerzo para ser utilizada en el lenguaje de programación que deseamos.
+Hemos utilizado esta herramienta para empaquetar los algoritmos programados para Spark, además de para construir el propio Spark a partir del código fuente. Se ha seleccionado esta herramienta frente a otras opciones propias para Scala por conocerse con anterioridad su funcionamiento y por no requerir demasiado esfuerzo para ser utilizada en el lenguaje de programación que deseamos.
 
 \subsection{ScalaStyle}
 

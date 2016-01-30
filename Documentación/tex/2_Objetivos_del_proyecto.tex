@@ -19,8 +19,8 @@ Se programarán un conjunto de algoritmos que puedan aplicarse sobre grandes con
 Se ha realizado la implementación de los siguientes algoritmos:
 
 \begin{itemize}
-	\item \textit{Localy sensitive hashing instance selection} (LSHIS) (ver \ref{sec:defLSHIS}) \cite{LSHISPaper}
-	\item \textit{Democratic instance selection} (DemoIS) (ver \ref{sec:defDemoIS}) \cite{DemoISPaper}
+	\item \textit{Localy sensitive hashing instance selection} (LSHIS) (ver sección \ref{sec:defLSHIS}) \cite{LSHISPaper}.
+	\item \textit{Democratic instance selection} (DemoIS) (ver sección \ref{sec:defDemoIS}) \cite{DemoISPaper}.
 \end{itemize}
 
 
@@ -36,12 +36,12 @@ Las pruebas serán realizadas en una única máquina local, con la posibilidad d
 
 A fin de asegurar que el trabajo podría funcionar sin ningún tipo de complicación en un entorno real, se ha propuesto como objetivo el despliegue de la aplicación en algún servicio que ofrezca computación en la nube.
 
-Se ha elegido para ello el servicio Google Cloud Dataproc \cite{dataprocSoft}, que ofrece la posibilidad de realizar trabajos de Spark. Igualmente, se ha considerado la posibilidad de ejecutar lanzamientos en un servidor clúster ya contratado por la Universidad de Burgos donde ,además, podríamos llevar a cabo un estudio sobre la eficiencia de nuestra aplicación, tal y como se define en \ref{sec:estudio}.
+Se ha elegido para ello el servicio Google Cloud Dataproc \cite{dataprocSoft}, que ofrece la posibilidad de realizar trabajos de Spark. Igualmente, se ha considerado la posibilidad de ejecutar lanzamientos en un servidor clúster ya contratado por la Universidad de Burgos donde, además, podríamos llevar a cabo un estudio sobre la eficiencia de nuestra aplicación, tal y como se define en la sección \ref{sec:estudio}.
 
 
 \section{Implementación de una interfaz gráfica de usuario}
 
-Con el objetivo de facilitar el uso de la aplicación y sus algoritmos, se ha incluido el desarrollo de una interfaz gráfica que permita plantear experimentos sin la necesidad de que el usuario tenga que acceder a su consola de comandos.
+Con el objetivo de facilitar el uso de la aplicación y sus algoritmos, se ha incluido el desarrollo de una interfaz gráfica que permita diseñar experimentos sin la necesidad de que el usuario tenga que acceder a su consola de comandos.
 
 Dicha implementación no solo permitirá configurar de manera simple los algoritmos, sino que también será un entorno donde poder seleccionar algunas de las opciones de lanzamiento de Spark o incluso seleccionar los conjuntos de datos a utilizar.
 
