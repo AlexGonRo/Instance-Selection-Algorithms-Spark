@@ -2,10 +2,82 @@
 
 \section{Introducción}
 
+En este documento se especificarán todas aquellas cuestiones que tengan relación con la manera en la que han organizado los componentes que forman el proyecto, así como la debida justificación de dicha organización.
+
 \section{Diseño de datos}
+
+A lo largo de esta sección vamos a tratar diferentes aspectos relevantes a los datos que nuestro programa necesita para poder funcionar sin problemas.
+
+\subsection{Estructura de los conjuntos de datos}
+
+Cuando hablamos de datos en este proyecto, es obligatorio referirse a los conjuntos de datos que vamos a analizar. Es por ello que se ve necesario definir cuáles han de ser las características necesarias para que los mencionados datos sean analizados correctamente.
+
+En primer lugar, hemos de hablar del almacenamiento. En \textit{Big Data} es habitual contar con grandes conjuntos de datos distribuidos por una gran red de nodos en un sistema de ficheros distribuido. Sin embargo, en el caso de nuestra aplicación se considerará que los datos están persisitidos en un fichero de texto en el espacio de almacenamiento del nodo maestro, el cual irá distribuyendo los datos a los respectivos trabajadores a medida que va leyendo el fichero.
+
+En segundo lugar, hemos de hablar del formato del fichero para ser leido por el programa. El fichero que contenga los datos podrá contener una cabecera, que podrá ser eliminada por el programa, y un conjunto de instancias a razón de una intancia por linea. Los atributos de cada instancia estarán separados por comas, pudiendo estar el atributo de clase en primera o última posición.
+
+\subsection{Normalización y pre procesamiento de los datos}
+
+Spark, y en particular MLlib, es una librería relativamente moderna que todavía no proporciona soporte para muchos tipos de operaciones. En lo que a este proyecto se refiere, se ha notado la falta de posibilidades para pre procesar los conjuntos de entrada que utilizamos para nuestros algoritmos.
+
+Dado que esto podría suponer una carga de trabajo aún mayor y ya han tenido que implementarse clases adicionales para el funcionamiento del objetivo principal del proyecto, los conjuntos de datos utilizados necesitan cumplir dos requisitos para ser correctamente tratados:
+
+\begin{itemize}
+\item El conjunto de datos ha de contener solamente atributos numéricos, y esto incluye el atributo de clase.
+\item El conjunto de datos debe haber sido normalizado con anterioridad para una correcta ejecución.
+\item No han de existir atributos nulos.
+\end{itemize}
 
 \section{Diseño procedimental}
 
+
+\todo{¿Añadir algo más a esta sección?}
+
+
+Esta sección estará dedicada a definir y detallar el flujo general de nuestro programa.
+
+No se va a dedicar especial atención al funcionamiento de los algoritmos de selección de instancias implementados (LSIHS y DemoIS). La razón a esto es que su pseudocódigo, así como un esquema de su funcionamiento en paralelo, ya fué mostrado en la memoria principal del trabajo.
+
+\todo{¿Hablar de la interfaz gráfica?}
+
+\subsection{Diagrama de flujo de una ejecución}
+
+En la imagen \ref{fig:img/anexo/diagrama_flujo} podemos ver el diagrama de flujo que define las operaciones realizadas al crear una tarea de minería de datos. Independientemente del método seguido para definir un lanzamiento, el diagrama de flujo de la ejecución va a ser siempre el mismo, simplemente hay diferentes maneras de llegar al mismo primer punto de inicio.
+
+\imagen{img/anexo/diagrama_flujo}{Diagrama del flujo principal del programa.}
+
+\todo{¿Qué diagrama de flujo incluir?}
+
+Merece la pena recordar dos aspectos de lo que se habló en los aspectos relevantes de la memoria de la que este documento es anexo:
+\begin{itemize}
+\item Spark utiliza el paradigma de la ``llamada por necesidad'' o \textit{lazy evaluation}. Esto, y más en el ambiente complejo en el que se mueve el proyecto, significa que no todas las operaciones se realizarán tal y como el código especifica, sino que algunas operaciones no serán realizadas hasta que sea extrictamente necesario hacerlo.
+\item Spark no almacena ninguna estructura RDD en ningún nivel de memoria si no se indica esplícitamente en el código, lo que puede dar lugar a que algunos datos deban recalcularse si hemos perdido los valores anteriores. 
+\end{itemize}
+
+De la misma manera, es necesario indicar que existen actualmente dos modos de lanzamiento, ambos realizando la misma función. Su única diferencia es que uno de los dos modos realiza la medición del tiempo del filtrado, lo que le obliga a realizar una serie de operaciones añadidas o enfocadas de manera diferente.
+
 \section{Diseño arquitectónico}
+A lo largo de esta sección describiremos la estructura interna de nuestro programa, así como la comunicación o dependencia entre diferentes elementos.
 
+\subsection{Paquetes}
 
+\imagen{img/anexo/diagrama_flujo}{Diagrama del flujo principal del programa.}
+
+\begin{itemize}
+\item \textbf{gui:} Contiene todas aquellas clases relacionadas con la interfaz gráfica. Por necesidad a la hora de conocer los atributos de configuración, está relacionada con los algoritmos de selección de instancias y clasificación.
+\item \textbf{launcher:} Clase lanzadora de las ejecuciones. Por su propia finalidad, requiere estar relacionada con el paquete \textit{utils}, \textit{instanceSelection} y \textit{classification}.
+\item \textbf{instanceSelection:} Contiene las implementaciones de algoritmos de selección de instancias. Uno de sus subpaquetes proporciona un espacio donde alojar las implementaciones que funcionen de manera secuencial.
+\item \textbf{classification:} Contiene las implementaciones de clasificación. Uno de sus subpaquetes proporciona un lugar donde alojar las implementaciones que funcionen de manera secuencial.
+\end{itemize}
+
+\subsection{Patrones de diseño}
+
+Patrón de diseño Estrategia
+
+\todo{revisar patrones de diseño.} %¿¿¿Son todas nuestras implementaciones de algorimos patrones de estrategia???
+
+\subsection{Serializar únicamente lo necesario}
+
+Un aspecto a tener en cuenta 
+
+\section{Otras consideraciones del diseño}

@@ -35,6 +35,7 @@
 %Para las notas a pie de página dentro de tablas
 \usepackage{tablefootnote}
 
+
 % Rutas de fichero / paquete
 \newcommand{\ruta}[1]{{\sffamily #1}}
 
@@ -107,6 +108,13 @@
 }
 % Para las tablas
 \newcommand{\otoprule}{\midrule [\heavyrulewidth]}
+
+%Tipos especiales de columnas
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
 %
 % Nuevo comando para tablas pequeñas (menos de una página).
 \newcommand{\tablaSmall}[5]{%
@@ -409,11 +417,11 @@
 \appendix
 
 \include{./tex/A_Plan_proyecto}
-%\include{./tex/B_Requisitos}
+\include{./tex/B_Requisitos}
 %\include{./tex/C_Diseno}
 %\include{./tex/D_Manual_programador}
 \include{./tex/E_Pruebas}
-%\include{./tex/F_Manual_usuario}
+\include{./tex/F_Manual_usuario}
 
 
 \bibliographystyle{plain}

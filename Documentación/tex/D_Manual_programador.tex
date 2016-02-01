@@ -2,10 +2,88 @@
 
 \section{Introducción}
 
+En este apéndice se van a describir todos aquellos aspectos que se consideren de interés para una persona que desee continuar y comprender el trabajo final que se ha conseguido tras este proyecto.
+
 \section{Estructura de directorios}
+
+A continuación se va a hacer mención a la funcionalidad de los elementos que conforman el árbol de directorios de nuestro proyecto:
+
+\begin{itemize}
+	\item src: Carpeta destinada a almacenar el código fuente la aplicación.
+	\begin{itemize}
+		\item main/scala: Esta carpeta contendrá todos los ficheros fuente cuya ejecución forme parte del proyecto final y estén escritos en Scala. Al no haberse usado ningún otro lenguaje ni contar con clases para realizar pruebas, este es el único directorio de la carpeta src.
+	\end{itemize}
+	\item resources: Carpeta destinada a contener todos aquellos elementos que, sin ser código, son necesarios para la ejecución de algunos de los elementos del programa.
+	\begin{itemize}
+		\item gui: Contiene todos los recursos utilizados por la interfaz gráfica.
+		\item loggerStrings: Almacena ficheros de texto con sentencias que pueden ser utilizadas por los diferentes \textit{logger} en diferentes clases de nuestro programa.
+	\end{itemize}
+	\item target: Contiene los archivos resultantes de aplicar alguna operación de Maven sobre el proyecto (compilación, empaquetado o generación de documentación).
+	\begin{itemize}
+		item site/scaladocs: Ruta que contiene la documentación de la API generada por Scaladoc. Más información en la sección \ref{subsec:documentacion}.
+	\end{itemize}
+\end{itemize}
 
 \section{Manual del programador}
 
+A lo largo de esta sección vamos a describir diferentes tareas que, pese a no tener 
+relación directa con la ejecución del programa, pueden conducir a un manejo más experto del mismo o a poder acceder a valores de la ejecución en los que un usuario normal no está interesado.
+
+Antes de proceder, es necesario comprender y haber realizado el proceso de instalación de todos los componentes mencionados en la sección \ref{sec:Instalacion}, independientemente de si estos componentes han sido marcados como opcionales o no para el usuario normal.
+
+\subsection{Configurando Spark para guardar información sobre ejecuciones}\label{subsec:configurandoSpark}
+
+Spark proporciona multitud de parámetros configurables, no es el objetivo hablar de todos ellos muchos en esta sección y se deja en manos del lector visitar la página oficial de Spark en busca de información concreta. Sin embargo, existen una serie de parámetros que se cree necesario mencionar aquí, por su importancia dentro de la temática del proyecto.
+
+Con la configuración por defecto, Spark apenas almacena información sobre las ejecuciones que ha realizado. Sin embargo, es posible modificar este comportamiento.
+
+
+
+\subsection{Monitorización}
+
 \section{Compilación, instalación y ejecución del proyecto}
 
-\section{Pruebas del sistema}
+\subsection{Compilación}
+
+\begin{lstlisting}[language=bash]
+$ mvn clean package
+\end{lstlisting}
+
+Hablar de POM y del plugin de Scala
+
+\subsection{Generando documentación}\label{subsec:documentacion}
+
+\subsection{Instalación}
+
+\subsection{Scala 2.11.7}
+Aunque podemos descargar la última versión de Scala desde la página oficial (\url{http://www.scala-lang.org/}), la descarga que se nos ofrece por defecto es un archivo .tar.gz que nos obligaría a realizar toda la instalación manualmente (suponiendo que estamos en un sistema Ubuntu como el utilizado durante el proyecto).
+
+Por ello, vamos a realizar la instalación mediante un archivo .deb (paquete Debian) que también puede ser utilizado por nuestro sistema y que nos ahorrará realizar la instalación manualmente. Podemos acceder al repositorio que guarda este paquete desde un navegador (\url{http://www.scala-lang.org/files/archive/}) o descargarlo mediante el siguiente comando:
+
+\begin{lstlisting}[language=bash]
+$ wget www.scala-lang.org/files/archive/scala-2.11.7.deb
+\end{lstlisting}
+
+Independientemente del método seguido, una vez tengamos el archivo en nuestro ordenador ejecutamos el siguiente comando desde la carpeta que contenga el paquete .deb:
+
+\begin{lstlisting}[language=bash]
+$ sudo dpkg -i scala-2.11.7.deb
+\end{lstlisting}
+
+Si todo ha salido correctamente, una vez termine de ejecutarse la orden anterior podemos ejecutar el comando \colorbox{lightgray}{\lstinline|scala -version|} y esperar una salida similar a esta:
+
+\begin{lstlisting}[language=bash]
+$ scala -version
+Scala code runner version 2.11.7 -- Copyright 2002-2013
+\end{lstlisting}
+
+Recordar que, en el caso de utilizar cualquier otra versión de Scala, esta tiene que ser compatible con la versión Java que se encuentre instalada. Por ejemplo, Java 8 solo puede ser utilizado a partir de versiones 2.11 y será obligatorio a partir de la versión de Scala 2.12. \cite{Scala2.12Roadmap}
+
+
+\subsection{Monitorización}
+
+Aunque es posible que veamos aparecer en nuestra consola algún mensaje informativo, si realmente queremos acceder a una información detallada de nuestra aplicación podemos haciendo consultando la dirección \textit{http://localhost:4040/} en nuestro navegador. Esto nos llevará a  Es importante conocer que el puerto que estamos consultando se cerrará una vez termine el trabajo y no hay manera de evitarlo. Si queremos continuar accediendo al ar
+
+
+
+Hablar de POM y del plugin de Scala
