@@ -6,21 +6,21 @@ En este documento se especificarán todas aquellas cuestiones que tengan relaci�
 
 \section{Diseño de datos}
 
-A lo largo de esta sección vamos a tratar diferentes aspectos relevantes a los datos que nuestro programa necesita para poder funcionar sin problemas.
+A lo largo de esta sección vamos a tratar diferentes aspectos referentes al formato que han de cumplir los datos para que nuestro proyecto funcione sin problemas.
 
 \subsection{Estructura de los conjuntos de datos}
 
-Cuando hablamos de datos en este proyecto, es obligatorio referirse a los conjuntos de datos que vamos a analizar. Es por ello que se ve necesario definir cuáles han de ser las características necesarias para que los mencionados datos sean analizados correctamente.
+Cuando en este proyecto hablamos de datos, es obligatorio referirse a los conjuntos de datos que estamos indicados a analizar. Es por ello que se ve necesario definir cuáles han de ser las características necesarias para que los mencionados conjuntos sean analizados correctamente.
 
-En primer lugar, hemos de hablar del almacenamiento. En \textit{Big Data} es habitual contar con grandes conjuntos de datos distribuidos por una gran red de nodos en un sistema de ficheros distribuido. Sin embargo, en el caso de nuestra aplicación se considerará que los datos están persisitidos en un fichero de texto en el espacio de almacenamiento del nodo maestro, el cual irá distribuyendo los datos a los respectivos trabajadores a medida que va leyendo el fichero.
+En primer lugar, hemos de hablar del almacenamiento. En \textit{Big Data} es habitual contar con grandes conjuntos de datos distribuidos por una gran red de nodos en un sistema de ficheros distribuido. Sin embargo, en el caso de nuestra aplicación se considerará que los datos están almacenados en un fichero en el espacio de almacenamiento del nodo maestro. Más adelante, cuando el programa comience a leer el fichero, será el nodo maestro el que irá distribuyendo los datos a los diferentes trabajadores.
 
-En segundo lugar, hemos de hablar del formato del fichero para ser leido por el programa. El fichero que contenga los datos podrá contener una cabecera, que podrá ser eliminada por el programa, y un conjunto de instancias a razón de una intancia por linea. Los atributos de cada instancia estarán separados por comas, pudiendo estar el atributo de clase en primera o última posición.
+En segundo lugar, es necesario mencionar el formato del fichero destinado a ser leído por el programa. Dicho fichero podrá contener una cabecera, que podrá ser eliminada por el programa, y un conjunto de instancias a razón de una instancia por línea. Los atributos de cada instancia estarán separados por comas, pudiendo estar el atributo de clase en primera o última posición.
 
 \subsection{Normalización y pre procesamiento de los datos}
 
-Spark, y en particular MLlib, es una librería relativamente moderna que todavía no proporciona soporte para muchos tipos de operaciones. En lo que a este proyecto se refiere, se ha notado la falta de posibilidades para pre procesar los conjuntos de entrada que utilizamos para nuestros algoritmos.
+Spark, y en particular MLlib, es una librería relativamente moderna que todavía no proporciona soporte para muchos tipos de operaciones. En lo que a este proyecto se refiere, se ha notado la falta de posibilidades para pre procesar los datos de entrada que utilizamos para nuestros algoritmos.
 
-Dado que esto podría suponer una carga de trabajo aún mayor y ya han tenido que implementarse clases adicionales para el funcionamiento del objetivo principal del proyecto, los conjuntos de datos utilizados necesitan cumplir dos requisitos para ser correctamente tratados:
+Dado que implementar este tipo de funcionalidades podría suponer una carga de trabajo aún mayor, los conjuntos de datos utilizados necesitan cumplir algunos requisitos para ser correctamente tratados:
 
 \begin{itemize}
 \item El conjunto de datos ha de contener solamente atributos numéricos, y esto incluye el atributo de clase.
@@ -30,54 +30,86 @@ Dado que esto podría suponer una carga de trabajo aún mayor y ya han tenido qu
 
 \section{Diseño procedimental}
 
-
-\todo{¿Añadir algo más a esta sección?}
-
-
 Esta sección estará dedicada a definir y detallar el flujo general de nuestro programa.
 
-No se va a dedicar especial atención al funcionamiento de los algoritmos de selección de instancias implementados (LSIHS y DemoIS). La razón a esto es que su pseudocódigo, así como un esquema de su funcionamiento en paralelo, ya fué mostrado en la memoria principal del trabajo.
-
-\todo{¿Hablar de la interfaz gráfica?}
+No se va a dedicar especial atención al funcionamiento de los algoritmos de selección de instancias implementados (LSIHS y DemoIS). La razón a esto es que su pseudocódigo, así como un esquema de su funcionamiento en paralelo, ya fue mostrado en la memoria principal del trabajo.
 
 \subsection{Diagrama de flujo de una ejecución}
 
-En la imagen \ref{fig:img/anexo/diagrama_flujo} podemos ver el diagrama de flujo que define las operaciones realizadas al crear una tarea de minería de datos. Independientemente del método seguido para definir un lanzamiento, el diagrama de flujo de la ejecución va a ser siempre el mismo, simplemente hay diferentes maneras de llegar al mismo primer punto de inicio.
+En la imagen \ref{fig:img/anexo/diagrama_flujo} podemos ver el diagrama de flujo que define cómo se gestiona el lanzamiento de una tarea de minería. Independientemente del método seguido para definir un lanzamiento, el diagrama va a ser siempre el mismo, simplemente hay diferentes maneras de llegar al mismo primer punto de inicio.
 
 \imagen{img/anexo/diagrama_flujo}{Diagrama del flujo principal del programa.}
 
-\todo{¿Qué diagrama de flujo incluir?}
-
 Merece la pena recordar dos aspectos de lo que se habló en los aspectos relevantes de la memoria de la que este documento es anexo:
 \begin{itemize}
-\item Spark utiliza el paradigma de la ``llamada por necesidad'' o \textit{lazy evaluation}. Esto, y más en el ambiente complejo en el que se mueve el proyecto, significa que no todas las operaciones se realizarán tal y como el código especifica, sino que algunas operaciones no serán realizadas hasta que sea extrictamente necesario hacerlo.
-\item Spark no almacena ninguna estructura RDD en ningún nivel de memoria si no se indica esplícitamente en el código, lo que puede dar lugar a que algunos datos deban recalcularse si hemos perdido los valores anteriores. 
+\item Spark utiliza el paradigma de la ``llamada por necesidad'' o \textit{lazy evaluation}. Esto, y más en el ambiente complejo en el que se mueve el proyecto, significa que no todas las operaciones se realizarán tal y como el código especifica, sino que algunas operaciones no serán realizadas hasta que sea estrictamente necesario hacerlo.
+\item Spark no almacena ninguna estructura RDD, en ningún nivel de memoria, si no se indica esplícitamente en el código. Esto puede dar lugar a que algunos datos deban recalcularse si no se persistieron en su momento o si, pese a ser persistidos, fueron parcial o totalmente borrados por falta de espacio. Igualmente, aunque indiquemos que deseamos persistir los datos hay múltiples maneras de hacerlo y múltiples escenarios posibles según qué opción. Como este aspecto depende fuertemente del tipo de persistencia seleccionado, del conjunto de datos o hasta del algoritmo usado, no se menciona explícitamente en el diagrama \ref{fig:img/anexo/diagrama_flujo}.
+\item Igual que en el punto anterior, es necesario indicar que existen actualmente dos modos de lanzamiento, ambos realizando la misma función. Su única diferencia es que uno de los dos modos realiza la medición del tiempo del filtrado, lo que le obliga a realizar una serie de operaciones enfocadas de manera ligeramente diferente y algunas otras operaciones ``vacías'' (con una carga de trabajo ínfima y sin propósito ninguno más que el de forzar la ejecución del programa hasta cierto punto). Este aspecto tampoco se recoge en el diagrama de flujo, pero puede ser consultado en la sección \ref{subsec:ISClassExecTest} si se desea obtener más información.
 \end{itemize}
-
-De la misma manera, es necesario indicar que existen actualmente dos modos de lanzamiento, ambos realizando la misma función. Su única diferencia es que uno de los dos modos realiza la medición del tiempo del filtrado, lo que le obliga a realizar una serie de operaciones añadidas o enfocadas de manera diferente.
 
 \section{Diseño arquitectónico}
 A lo largo de esta sección describiremos la estructura interna de nuestro programa, así como la comunicación o dependencia entre diferentes elementos.
 
 \subsection{Paquetes}
 
-\imagen{img/anexo/diagrama_flujo}{Diagrama del flujo principal del programa.}
+\imagen{img/anexo/diagrama_de_paquetes}{Diagrama de paquetes.}
 
 \begin{itemize}
 \item \textbf{gui:} Contiene todas aquellas clases relacionadas con la interfaz gráfica. Por necesidad a la hora de conocer los atributos de configuración, está relacionada con los algoritmos de selección de instancias y clasificación.
-\item \textbf{launcher:} Clase lanzadora de las ejecuciones. Por su propia finalidad, requiere estar relacionada con el paquete \textit{utils}, \textit{instanceSelection} y \textit{classification}.
+\item \textbf{launcher:} Paquete que almacena todas las clases relacionadas con el lanzamiento de las ejecuciones. Por su propia finalidad, requiere estar relacionada con el paquete \textit{utils}, \textit{instanceSelection} y \textit{classification}.
 \item \textbf{instanceSelection:} Contiene las implementaciones de algoritmos de selección de instancias. Uno de sus subpaquetes proporciona un espacio donde alojar las implementaciones que funcionen de manera secuencial.
-\item \textbf{classification:} Contiene las implementaciones de clasificación. Uno de sus subpaquetes proporciona un lugar donde alojar las implementaciones que funcionen de manera secuencial.
+\item \textbf{classification:} Contiene las implementaciones de clasificación. De nuevo, contiene un paquete donde poder almacenar implementaciones secuenciales.
 \end{itemize}
+
+\subsection{Diagrama de clases}
+
+En la imagen \ref{fig:img/anexo/clases_diagrama} podemos observar cómo se relacionan todas las clases que intervienen en la ejecución de las tareas de minería. Esto implica que aquellas clases relacionadas con la interfaz gráfica han sido omitidas.
+
+\figuraApaisadaSinMarco{0.8}{img/anexo/clases_diagrama}{Diagrama de clases de la aplicación.}{fig:img/anexo/clases_diagrama}{}
+
 
 \subsection{Patrones de diseño}
 
-Patrón de diseño Estrategia
+\textbf{Patrón de diseño Singleton}
 
-\todo{revisar patrones de diseño.} %¿¿¿Son todas nuestras implementaciones de algorimos patrones de estrategia???
+En el lenguaje de programación Scala existen dos tipos de clases, aquellas definidas mediante la palabra reservada ``class'', que funcionan como, por ejemplo, en el lenguaje Java, y aquellas definidas mediante la palabra reservada ``object''.
 
-\subsection{Serializar únicamente lo necesario}
+Estas clases ``object'' de Scala corresponden a un tipo especial de clase con una serie de restricciones que la hacen actuar como un \textit{singleton}: No puede haber más de una instancia por clase, su constructor no puede tomar parámetros y la clase es accesible para cualquier otro elemento del programa del programa.
 
-Un aspecto a tener en cuenta 
+No existe intención de definir el funcionamiento del lenguaje de programación Scala, pero es necesario saber que cualquier clase que contenga una método \textit{main} o extienda de \textit{Scala.App}, deberá ser una clase de tipo ``object''.
 
-\section{Otras consideraciones del diseño}
+Por lo dicho, encontramos este patrón de diseño en las clases dedicadas a iniciar la ejecución: launcher.ExperimentLauncher y gui.SparkISGUI.
+
+
+\textbf{Patrón de diseño Estrategia}
+
+La intención de aplicar este patrón es poder seleccionar, en tiempo de ejecución, una determinada manera de realizar una acción (estrategia).
+
+Se puede apreciar este patrón de diseño en las clases relacionadas con el lanzamiento de una ejecución, donde el usuario puede haber indicado por parámetro qué estrategia desea utilizar (ver diagrama en \ref{fig:img/anexo/estrategia_lanzador}). Como puede deducirse del diagrama, actualmente existen dos posibles estrategias sobre las que elegir. 
+
+\imagen{img/anexo/estrategia_lanzador}{Diagrama de clases mostrando el patrón de diseño Estrategia.}
+
+Del mismo modo, y con la misma finalidad que lo mencionado anteriormente, podremos encontrar un patrón de diseño estrategia entre las clases que realizan las labores de minería de datos y los algoritmos de selección de instancias y clasificador, tal y como muestra la imagen \ref{fig:img/anexo/estrategia_IS_y_Class}. Esto nos posibilita, de nuevo, poder seleccionar un tipo de algoritmo en tiempo de ejecución. En este caso, el diagrama solo muestra aquellos métodos que tienen relación con el patrón concreto, por considerarse este diagrama con más elementos que el anterior.
+
+\figuraApaisadaSinMarco{1}{img/anexo/estrategia_IS_y_Class}{Diagrama de clases mostrando dos patrón de diseño Estrategia.}{fig:img/anexo/estrategia_IS_y_Class}{}
+
+
+\todo{Patrones de diseño de la interfaz}
+%¿Patrón de diseño adaptador en algún sitio de la interfaz?
+%Patrón de diseño ``composite''(compuesto) en la interfaz gráfica
+%Patrón de diseño ``Fachada'' al lanzar las ejecuciones? Un poco forzado lo veo yo
+%Patrón ``comando'' cuando convertimos aciones en objetos (interfaz con los action)
+%Patrón de diseño estado en la interfaz gráfica, cuando no se hace nada si hay algo ejecutandose(con un if else)
+
+
+\subsection{Serialización únicamente lo necesario}
+
+Uno de los problemas de diseño a los que nos hemos enfrentado durante la fase de implementación es el hecho de distribuir algunas clases por nuestra red de nodos.
+
+Por norma general, hemos intentado serializar la menor cantidad de objetos posibles, algo que ha tenido una influencia en el diseño de los dos algoritmos de selección implementados: LSHIS y DemoIS. Podemos ver el diagrama de clases de los paquetes \textit{instanceSelection.lshis} y \textit{instanceSelection.demoIS} en las figuras \ref{fig:img/anexo/clases_LSHIS} y \ref{fig:img/anexo/clases_DemoIS} respectivamente.
+
+\figuraApaisadaSinMarco{0.8}{img/anexo/clases_LSHIS}{Diagrama de clases del paquete \textit{instanceSelection.lshis}.}{fig:img/anexo/clases_LSHIS}{}
+
+\imagen{img/anexo/clases_DemoIS}{Diagrama de clases del paquete \textit{instanceSelection.demoIS}.}
+
+Puede apreciarse, en los diagramas \ref{fig:img/anexo/clases_LSHIS} y \ref{fig:img/anexo/clases_DemoIS}, que existe una clase principal no serializable que contiene el algoritmo, y una serie de clases anexas que heredan de la interfaz \textit{scala.Serializable}. Estas últimas clases serán las que contendrán información que verdaderamente queremos distribuir. De esta manera, conseguimos dividir aquellos elementos que deseamos mantener en una única máquina de todos aquellos que son necesarios en el resto de nodos para realizar las operaciones pertinentes.

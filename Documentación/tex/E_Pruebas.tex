@@ -1,4 +1,4 @@
-\apendice{Pruebas del sistema}
+\apendice{Pruebas del sistema}\label{anexo:Pruebas}
 
 \section{Introducción}
 
@@ -27,18 +27,18 @@ Indicar que, a la hora de seleccionar los conjuntos, se han elegido aquellos que
 Además, es importante indicar que todos los atributos han sido normalizados antes de realizar las mediciones.
 
 
-\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{m{5.55cm} >{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
+\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{L{5.55cm} >{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
 {\centering Nombre del conjunto & \centering Instancias & \centering Atributos  & \multicolumn{1}{c}{Clases} \\}{
 
-\centering Iris & 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
-\centering Image Segmentation \cite{Lichman:2013} & 2310 & \centering 19 & \multicolumn{1}{c}{7}  \\ [0.2cm]
-\centering Banana shaped \cite{BananaDataset} & 5300 & \centering 2 & \multicolumn{1}{c}{2}  \\ [0.2cm]
-\centering Pen-Based Recognition of Handwritten Digits \cite{Lichman:2013} & 10992 & \centering 16 & \multicolumn{1}{c}{10}  \\ [0.2cm]
-\centering Letter Recognition \cite{Lichman:2013} & 20000 & \centering 16 & \multicolumn{1}{c}{26}  \\ [0.2cm]
-\centering Human Activity Recognition \cite{HumanActivityDataset} & 165.632 & \centering 17 & \multicolumn{1}{c}{5}   \\ [0.2cm]
-\centering Covertype \cite{Lichman:2013} & 581.012 & \centering 54 & \multicolumn{1}{c}{6}  \\ [0.2cm]
-\centering Poker \cite{Lichman:2013} & 1.025.010 & \centering 10 & \multicolumn{1}{c}{10}  \\ [0.2cm]
-\centering HIGGS \cite{Lichman:2013} \cite{HIGGSDataSet} & 11.000.000\tablefootnote{El conjunto original consta de 11.000.000 instancias, pero por lo general se he reducido su tamaño original para acercarlo más al tamaño de los otros conjuntos. Cualquier cambio será especificado en la medición a la que afecte.} & \centering 28 & \multicolumn{1}{c}{2} \\ [0.2cm]
+Iris & 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
+Image Segmentation \cite{Lichman:2013} & 2,310 & \centering 19 & \multicolumn{1}{c}{7}  \\ [0.2cm]
+Banana shaped \cite{BananaDataset} & 5,300 & \centering 2 & \multicolumn{1}{c}{2}  \\ [0.2cm]
+Pen-Based Recognition of Handwritten Digits \cite{Lichman:2013} & 10,992 & \centering 16 & \multicolumn{1}{c}{10}  \\ [0.2cm]
+Letter Recognition \cite{Lichman:2013} & 20,000 & \centering 16 & \multicolumn{1}{c}{26}  \\ [0.2cm]
+Human Activity Recognition \cite{HumanActivityDataset} & 165,632 & \centering 17 & \multicolumn{1}{c}{5}   \\ [0.2cm]
+Covertype \cite{Lichman:2013} & 581,012 & \centering 54 & \multicolumn{1}{c}{6}  \\ [0.2cm]
+Poker \cite{Lichman:2013} & 1,025,010 & \centering 10 & \multicolumn{1}{c}{10}  \\ [0.2cm]
+HIGGS \cite{Lichman:2013} \cite{HIGGSDataSet} & 11,000,000\tablefootnote{El conjunto original consta de 11,000,000 instancias, pero por lo general se he reducido su tamaño original para acercarlo más al tamaño de los otros conjuntos. Cualquier cambio será especificado en la medición a la que afecte.} & \centering 28 & \multicolumn{1}{c}{2} \\ [0.2cm]
 
 }
 
@@ -152,7 +152,7 @@ A continuación se muestran los resultados ordenados de menor a mayor según el 
 
 \subsection{Conclusiones}\label{ConclusionesWekaSpark}
 \begin{itemize}
-	\item Puede observarse claramente que Weka es considerablemente superior a Spark cuando utilizamos conjuntos de datos pequeños, como observamos en la tabla \ref{tabla:RendimientoIris} o incluso en la tabla \ref{tabla:RendimientoHAR}, pero su tiempo de ejecución se ve superada por Spark cuando el conjunto de datos empieza a sobrepasar las 100.000. Una evolución de los tiempos de ejecución puede verse en la gráfica \ref{fig:img/compartido/timeTendencyBayes}
+	\item Puede observarse claramente que Weka es considerablemente más rápido que Spark cuando utilizamos conjuntos de datos pequeños, como observamos en la tabla \ref{tabla:RendimientoIris} o incluso en la tabla \ref{tabla:RendimientoHAR}, pero su tiempo de ejecución se ve superada por Spark cuando el conjunto de datos empieza a sobrepasar las 100.000. Una evolución de los tiempos de ejecución puede verse en la gráfica \ref{fig:img/compartido/timeTendencyBayes}
 
 	\item Nótese en la tabla \ref{tabla:RendimientoCovertype} que el hecho de que su ejecución sea mayor que la de otros conjuntos de datos más grandes no tiene nada que ver con el comportamiento anómalo de las librerías, sino que tiene un número de atributos mucho mayor que otros datasets mayores y, en el caso de este algoritmo, eso tiene un gran peso sobre la ejecución final. Para más información sobre los conjuntos de datos ver \ref{sec:ConjuntosDeDatos}.
 	
@@ -186,7 +186,8 @@ De nuevo, la ejecución del algoritmo se analizará tanto en Weka como en Spark,
 Se ha realizado la comparación teniendo en mente la medición de los siguientes parámetros:
 
 \begin{itemize}
-	\item \textbf{Reducción del conjunto de datos:} Relación entre el tamaño del conjunto de datos original y el obtenido tras aplicar el algoritmo. Este valor resulta de la ecuación $1-(nInstanciasFinales/nInstanciasIniciales)$.
+	\item \textbf{Reducción del conjunto de datos:} Relación entre el tamaño del conjunto de datos original y el obtenido tras aplicar el algoritmo. Este valor resulta de la siguiente ecuación: \[1-(\frac{nInstanciasFinales}{nInstanciasIniciales})\]
+
 
 	\item \textbf{Tiempo:} Tiempo real que ha requerido la ejecución del algoritmo de selección de instancias.
 	\item \textbf{Precisión de un clasificador con el nuevo conjunto:} Porcentaje de acierto en test al aplicar el algoritmo del vecino más cercano (\textit{k}-Nearest neighbor) sobre el nuevo conjunto de datos.
@@ -199,7 +200,7 @@ Se ha realizado la comparación teniendo en mente la medición de los siguientes
 		\item Solo existe un nodo trabajador (\textit{worker node}) con un solo trabajador (\textit{worker}).
 		\item Cada ejecutor (\textit{executor}) tendrá asignado un hilo de ejecución.
 	\end{itemize}
-	\item Las semillas utilizadas en Spark para generar números aleatorios han sido las mismas en todas sus configuraciones (1,2 y 4 ejecutores.)
+	\item Las semillas utilizadas en Spark para generar números aleatorios han sido las mismas en todas sus configuraciones (1, 2 y 4 ejecutores.)
 	\item Para las pruebas realizadas con el algoritmo LSHIS se han utilizado los conjuntos de datos, ordenados de menor a mayor: ``Letter recognition'', ``Human activity recognition'', ``Covertype'', ``Poker'' y ``HIGGS''.
 	\item Para las pruebas realizadas con el algoritmo DemoIS se han utilizado los conjuntos de datos, ordenados de menor a mayor:  ``Image segmentation'', ``Banana shaped'', ``Pen-Based recognition of handwritten digits'' y ``Letter Recognition''.
 	\item Para más información sobre los conjuntos de datos ver la sección \ref{sec:ConjuntosDeDatos}
@@ -314,11 +315,11 @@ Tiempo (s) & 3.35 & 5.62 & 3.67 & 4.25 \\ [0.2cm]
 	
 	La implementación paralela del algoritmo DemoIS, sin embargo, muestra un mejor rendimiento desde conjuntos de datos muy pequeños, con 2.000 instancias en la tabla \ref{tabla:CompSegmentationDemoIS}. Durante el resto de mediciones hemos conseguido ejecuciones hasta un 50\% más rápidas con Spark (ver \ref{tabla:CompLetterDemoIS})
 	
-	Puede observarse la evolución de los tiempos de ejecución de acuerdo al número de instancias analizadas en las gráficas \ref{fig:img/compartido/timeTendencyLSH4} y \ref{fig:img/compartido/timeTendencyLSH4}.
+	Puede observarse la evolución de los tiempos de ejecución de acuerdo al número de instancias analizadas en las gráficas \ref{fig:img/compartido/timeTendencyLSH4} y \ref{fig:img/compartido/timeTendencyDIS4}.
 	
 	\imagen{img/compartido/timeTendencyLSH4}{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando LSHIS.}
 	
-	\imagen{img/compartido/timeTendencyLSH4}{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando DemoIS.}
+	\imagen{img/compartido/timeTendencyDIS4}{Evolución del tiempo de ejecución según el tamaño del conjunto de datos usando DemoIS.}
 	
 	\item Aunque los resultados de ejecución del algoritmo LSHIS no son mejores que los de su implementación secuencial, dado el supuesto de \textit{Big Data} de que los conjuntos de datos no suelen caber en memoria, la implementación en Spark permite la ejecución del algoritmo cuando la anterior implementación de Weka no lo podría conseguir.
 	
@@ -335,9 +336,9 @@ Tiempo (s) & 3.35 & 5.62 & 3.67 & 4.25 \\ [0.2cm]
 
 \section{Medición del tiempo de filtrado, en un clúster, de LSHIS y DemoIS}
 
-En un intento de aumentar los recursos disponibles y de probar el funcionamiento en un sistema distribuido, se han lanzado pruebas sobre un servicio clúster. Se intenta, no solo realizar ejecuciones  que necesiten de más recursos, sino también ver el funcionamiento de nuestro programa en un entorno donde encontramos problemas adicionales, como puede ser un aumento del tiempo de comunicación entre los diferentes nodos (hasta ahora, en la medición anterior \ref{sec:pruebasLSHISyDemoIS}, solo existía un único nodo)
+En un intento de aumentar los recursos disponibles y de probar el funcionamiento del proyecto en un sistema distribuido, se han lanzado pruebas sobre un servicio clúster. Se intenta, no solo realizar ejecuciones  que necesiten de más recursos, sino también ver el funcionamiento de nuestro programa en un entorno donde encontramos problemas adicionales, como puede ser un aumento del tiempo de comunicación entre los diferentes nodos (hasta ahora, en la medición anterior \ref{sec:pruebasLSHISyDemoIS}, solo existía un único nodo)
 
-El servicio utilizado, contratado por la Universidad de Burgos, es un servidor Cluster Dell con 63 nodos 4xQuadCore Xeon @ 2 GHz y un total de 252 núcleos. Está configurado con un sistema de gestión de colas de trabajo PBS (\textit{Portable Batch System}), por lo que para la ejecución de Spark se ha necesitado de un script de lanzamiento proporcionado por la Universidad de Ohio \cite{baer2015integrating}.
+El servicio utilizado, perteneciente a la Universidad de Córdoba y lanzado desde la Universidad de Burgos, es un servidor Cluster Dell con 63 nodos 4xQuadCore Xeon @ 2 GHz y un total de 252 núcleos. Está configurado con un sistema de gestión de colas de trabajo PBS (\textit{Portable Batch System}), por lo que para la ejecución de Spark se ha necesitado de un script de lanzamiento proporcionado por la Universidad de Ohio \cite{baer2015integrating}.
 
 En esta ocasión, se han lanzado ejecuciones con Weka y en Spark con hasta 16 procesadores.
 

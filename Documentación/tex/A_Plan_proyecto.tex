@@ -20,7 +20,7 @@ Igualmente, se realiza el despliegue de todos los materiales necesarios para el 
 
 Finalmente, se presentan dos pequeños programas (uno en Java y otro en Scala) para comprobar el funcionamiento de Spark y poder decidir el lenguaje a usar durante la etapa de desarrollo.
 
-\subsection{Sprint 1 [13/10/15-29/10/15]}
+\subsection{Sprint 2 [13/10/15-29/10/15]}
 
 Se selecciona Scala como lenguaje de programación y comenzamos a aprender las bases de dicho programa.
 
@@ -34,7 +34,7 @@ Además, el comienzo de la documentación forzó al aprendizaje de \LaTeX.
 
 Finalmente, se terminó el sprint con la entrega del algoritmo en Scala utilizado para las mediciones y un informe con la explicación, resultados y conclusiones de la comparación Weka-Spark.
 
-\subsection{Sprint 1 [29/10/15-19/11/15]}
+\subsection{Sprint 3 [29/10/15-19/11/15]}
 
 A partir de este momento comenzamos a centrarnos en otro de los objetivos principales del proyecto: la implementación de algoritmos de selección de instancias.
  
@@ -42,23 +42,23 @@ Se implementa una primera versión del LSHIS y se generan diferentes métodos pa
 
 Al final del sprint contamos con una implementación de una primera versión funcional del algoritmo LSHIS.
 
-\subsection{Sprint 1 [19/11/15-10/12/15]}
+\subsection{Sprint 4 [19/11/15-10/12/15]}
 
 Se reestructura todo el código de la iteración anterior, creando nuevos paquetes, clases y relaciones de herencia. Además, se empieza a utilizar herramientas para el control estático de la calidad del código, lo que fuerza algunos cambios para adaptarnos a los estándares fijados.
 
 El propio algoritmo LSHIS sufre una mejora, permitiendo ahora ejecutarlo con uno o varios componentes OR.
 
-Se comienza la implementación del algoritmo DemoIS, pero queda suspendida a la espera de contar con una implementación paralela del algoritmo $k$-Nearest Neighbors ($k$NN).
+Se comienza la implementación del algoritmo DemoIS, pero queda suspendida a la espera de contar con una implementación paralela del algoritmo \textit{k}-Nearest Neighbors (\textit{k}NN).
 
-Igualmente frenada por esta espera del algoritmo KNN, se plantea una comparación entre nuestra implementación LSHIS y la ya realizada en Weka, aunque nunca llega a producirse dentro de este sprint.
+Igualmente frenada por esta espera del algoritmo \textit{k}NN, se plantea una comparación entre nuestra implementación LSHIS y la ya realizada en Weka, aunque nunca llega a producirse dentro de este sprint.
 
 Se crea una máquina virtual con todos los materiales necesarios para el despliegue y distribución sencilla de nuestra aplicación.
 
 Al finalizar este sprint contamos con una versión mejorada del algoritmo LSHIS, una mejor estructuración de nuestro código y un entorno para la fácil distribución de nuestro trabajo.
 
-\subsection{Sprint 1 [10/12/15-22/12/15]}
+\subsection{Sprint 5 [10/12/15-22/12/15]}
 
-Se implementa de manera completa el algoritmo DemoIS. Esto obliga a la creación de algunos otros componentes como el algoritmo KNN, cuya implementación paralela no pudimos conseguir.
+Se implementa de manera completa el algoritmo DemoIS. Esto obliga a la creación de algunos otros componentes como el algoritmo \textit{k}NN, cuya implementación paralela no pudimos conseguir.
 
 Se realizan pruebas sobre nuestro algoritmo LSHIS. Dichas pruebas generan un número considerable de problemas y, finalmente, cuando conseguimos realizar las mediciones, éstas arrojan malos resultados.
 
@@ -66,7 +66,7 @@ La máquina virtual sufre modificaciones para facilitar la ejecución del proyec
 
 Tras el sprint, podemos mostrar un nuevo algoritmo de selección de instancias y una máquina virtual mejor preparada para permitir la ejecución del proyecto.
 
-\subsection{Sprint 1 [22/12/15-08/01/16]}
+\subsection{Sprint 6 [22/12/15-08/01/16]}
 
 Se realiza una primera implementación de la interfaz gráfica, que acaba por afectar a prácticamente la totalidad de la biblioteca, aunque nunca de manera sustancial.
 
@@ -76,9 +76,9 @@ Finalmente, comenzamos a estudiar como lanzar nuestra ejecución en algún servi
 
 Por lo tanto, al terminar esta etapa contamos con una nueva manera de ejecutar nuestra aplicación (mediante la interfaz gráfica) y una serie de errores importantes corregidos, tanto en nuestra aplicación como en la librería de Weka facilitada.
 
-\subsection{Sprint 1 [08/01/16-25/01/16]}
+\subsection{Sprint 7 [08/01/16-25/01/16]}
 
-Se realiza una nueva iteración sobre nuestra implementación de los algoritmos, esta vez centrada en mejorar el tiempo de ejecución de los mismos, que continua siendo muy elevado con respecto a Weka. Es algo que se resolverá en este periodo.
+Se realiza una nueva iteración sobre nuestra implementación de los algoritmos, esta vez centrada en mejorar el tiempo de ejecución de los mismos, que continua siendo muy elevado con respecto a Weka. Es algo que se resolverá en este sprint.
 
 Habiendo solventado todos los problemas, comenzamos, de nuevo, a realizar pruebas sobre el rendimiento de nuestro trabajo.
 
@@ -88,7 +88,7 @@ Durante este periodo también se trabaja en una gran refactorización del códig
 
 Al finalizar esta iteración contamos con unos algoritmos que han demostrado funcionar correctamente y los resultados de una serie de comparativas que hemos realizado sobre nuestras implementaciones.
 
-\subsection{Sprint 1 [25/01/16-05/02/16]}
+\subsection{Sprint 8 [25/01/16-05/02/16]}
 
 Entre este periodo y el anterior, se mantienen una serie de ejecuciones de nuestros algoritmos en el servicio clúster con el que cuenta la universidad, pero acaban cancelándose por problemas con los nodos.
 
@@ -101,15 +101,15 @@ Para terminar, se prepara la versión final de todos los materiales necesarios p
 
 El trabajo presentado a lo largo de este proyecto podría enfocarse de dos maneras distintas en esta sección: por un lado, podemos hablar de la viabilidad de los algoritmos implementados. Por otro, de las bases que este proyecto podría sentar para construir una librería con algoritmos de selección de instancias que corran en paralelo.
 
-Sobre el primer punto, la viabilidad de los algoritmos, podemos basarnos en su rendimiento (estudiado en \ref{sec:pruebasLSHISyDemoIS}) para concluir que, aunque una de nuestras implementaciones (LSHIS) no aporta una gran mejoría en cuanto a tiempo de ejecución se refiere, la otra (DemoIS) puede llegar fácilmente a mejorar los tiempos de respuesta de su predecesora. Además, ambos algoritmos están pensados para su ejecución sobre grandes conjuntos de datos, algo que no pueden soportar las versiones anteriores de estos algoritmos y que nos proporciona una ventaja fundamental en un ambiente donde cada vez existen un mayor número de datos que analizar.
+Sobre el primer punto, la viabilidad de los algoritmos, podemos basarnos en su rendimiento (estudiado en el anexo \ref{anexo:Pruebas}) para concluir que, aunque una de nuestras implementaciones (LSHIS) no aporta una gran mejoría en cuanto a tiempo de ejecución se refiere, la otra (DemoIS) puede llegar fácilmente a mejorar los tiempos de respuesta de su predecesora. Además, ambos algoritmos están pensados para su ejecución sobre grandes conjuntos de datos, algo que no pueden soportar las versiones anteriores de estos algoritmos y que nos proporciona una ventaja fundamental en un ambiente donde cada vez existen un mayor número de datos que analizar.
 
 Sobre el proyecto como una base para formar una librería, supondría, no solo trabajar en un área en continua expansión, sino comenzar en un momento en el que no existen otras grandes librerías que trabajen con Spark, lo que nos proporciona una gran flexibilidad para orientar el proyecto a donde se estime conveniente.
 
 En lo que se refiere a aspectos de viabilidad es interesante referirse también al posible futuro de la tecnología en la que se basa el proyecto: Spark.
 
-Aunque Apache Spark es una librería cuya versión inicial se presentó a mediados de 2014, a gozado de buena acogida desde entonces, siendo actualmente uno de los proyectos mejor valorados de la fundación Apache Software Foundation y uno de los más activos \cite{ApacheContributions}. Igualmente, podemos observar en la gráfica \ref{fig:img/anexo/spark_StackOverflow} como el interés por esta tecnología ha crecido en un corto periodo de tiempo para equipararse en interés a muchas de las soluciones ya existentes en el mercado. Nos encontramos, por lo tanto, operando con una tecnología que promete seguir desarrollándose gracias a la aceptación con la que ha sido recibida.
+Aunque Apache Spark es una librería cuya versión inicial se presentó a mediados de 2014, ha gozado de buena acogida desde entonces, siendo actualmente uno de los proyectos mejor valorados de la fundación Apache Software Foundation y uno de los más activos \cite{ApacheContributions}. Igualmente, podemos observar en la gráfica \ref{fig:img/anexo/spark_StackOverflow} como el interés por esta tecnología ha crecido en un corto periodo de tiempo para equipararse en interés a muchas de las soluciones ya existentes en el mercado. Nos encontramos, por lo tanto, operando con una tecnología que promete seguir desarrollándose gracias a la aceptación con la que ha sido recibida.
 
-\imagen{img/anexo/spark_StackOverflow}{Evolución del interés por Apache Spark en la plataforma Stack Overflow\cite{SparkAnalysisRedMonk}}
+\imagen{img/anexo/spark_StackOverflow}{Evolución del interés por Apache Spark en la plataforma Stack Overflow \cite{SparkAnalysisRedMonk}.}
 
 
 \subsection{Viabilidad económica}
@@ -118,7 +118,7 @@ Aunque este proyecto nunca ha sido enfocado a un aspecto de comercialización in
 
 La minería de datos es un ámbito del que se espera rápida y fuerte expansión. Podemos observar en la gráfica \ref{fig:img/anexo/Forbes_big_data} como la intención de muchas de las empresas es la de continuar apostando por la inversión en minería de datos, que ha llegado a convertirse en una prioridad para una gran cantidad de empresas de sectores muy diversos \cite{forbesBigData}.
 
-\imagen{img/anexo/Forbes_big_data}{Interés de las empresas por apostar por el Big Data (2014) \cite{forbesBigData}}
+\imagen{img/anexo/Forbes_big_data}{Interés de las empresas por apostar por el Big Data (2014) \cite{forbesBigData}.}
 
 Un campo en expansión puede proporcionarnos un buen terreno para obtener la rentabilidad económica, pero para ello necesitamos contar con alguna ventaja competitiva que nos permita diferenciarnos del competidor. Podemos destacar la modernidad de la tecnología utilizada, que, al estar enfocada al llamado \textit{big data}, consigue realizar tareas que soluciones anteriores no podían resolver en un tiempo prudencial. Además, dentro del tipo de aplicacaciones que ofertan esta posibilidad, podemos destacar de Spark la capacidad de utilizar memoria para agilizar las operaciones.
 

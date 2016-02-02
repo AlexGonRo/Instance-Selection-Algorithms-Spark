@@ -14,7 +14,7 @@ Podemos advertir diferentes distribuciones (ver sección \ref{subsec:distribucio
 
 \begin{itemize}
 \item Java 8
-\item Apache Maven (Solo necesario si requerimos Apache Spark)
+\item Apache Maven (Solo necesario si necesitamos Apache Spark)
 \item Apache Spark (Solo necesario si deseamos lanzar las ejecuciones en nuestra máquina)
 \end{itemize}
 
@@ -25,7 +25,7 @@ Dado que existen diferentes modos de uso del proyecto, es necesario indicar aqu�
 \begin{itemize}
 \item Únicamente deseamos generar un archivo .zip para nuestro proyecto:
 	\begin{itemize}
-	\item \textbf{Procesador:} Pentium 2 266 MHz \cite{minRequerimentsJava}
+	\item \textbf{Procesador:} Pentium 2 @ 266 MHz \cite{minRequerimentsJava}
 	\item \textbf{Memoria RAM:} 128MB \cite{minRequerimentsJava}
 	\item \textbf{Espacio libre en disco:} aprox. 180 MB + Espacio adicional para los conjuntos de datos.
 	\end{itemize}
@@ -91,7 +91,7 @@ Aunque para algunas acciones no será necesario que el paquete se encuentre en u
 
 Existen una serie de componentes que no van a ser necesarios en todas las distribuciones del producto (ver \ref{subsec:distribuciones}). Los componentes definidos a continuación son necesarios para permitir la ejecución de tareas de minería en la máquina local.
 
-\subsection{Apache Maven}
+\subsection{Apache Maven}\label{subsec:instalaMaven}
 
 Este elemento, si bien no es necesario para la ejecución del proyecto, es necesario para la construcción de Apache Spark (ver \ref{subsec:sparkInstalacion}), por lo que es incluido en este listado.
 
@@ -154,7 +154,7 @@ $ sudo mvn -Dscala-2.11 -Pnetlib-lgpl \
   -DskipTests clean package
 \end{lstlisting}
 
-Es importante incluir la opción \colorbox{lightgray}{\lstinline|-Pnetlib-lgpl|} para que Spark incluya una serie de clases utilizadas por su librería MLlib\cite{SparkDependencies}. Igualmene, destacar que esta invocación de Spark no vincula la librería con Hadoop o cualquier administrador de clústeres posible, por lo que si se requiere alguno de estos servicios deberán añadirse nuevos parámetros al comando, algo que no se discutirá aquí.
+Destacar que esta invocación no vincula a Spark con ninguna versión de Hadoop o un administrador de clústeres concreto, por lo que si se requiere alguno de estos servicios deberán añadirse nuevos parámetros al comando, algo que no se discutirá aquí.
 
 Esta última operación llevará un tiempo. 
 
@@ -341,7 +341,7 @@ De cualquiera de las maneras, tendremos a nosotros una nueva ventana similar a l
 						
 %									\imagen{img/anexo/Filtro_dialog2}{Diálogo para la selección de filtro después de seleccionar un algoritmo.}
 			
-			\item \textbf{Panel de selección de clasificador y validación cruzada:} Su funcionalidad es similar a la descrita en paneles anteriores, concretamente el panel de selección de filtro. Sin embargo, es este caso solo es posible añadir un único clasificador (así como solo una única configuración de validación cruzada), por lo que las opciones que típicamente se mostraban en un diálogo separado, ahora se muestran en la propia pantalla (ver imagen \ref{img/anexo/Clasificador_dialog}).
+			\item \textbf{Panel de selección de clasificador y validación cruzada:} Su funcionalidad es similar a la descrita en paneles anteriores, concretamente el panel de selección de filtro. Sin embargo, es este caso solo es posible añadir un único clasificador (así como solo una única configuración de validación cruzada), por lo que las opciones que típicamente se mostraban en un diálogo separado, ahora se muestran en la propia pantalla (ver imagen \ref{fig:img/anexo/Clasificador_dialog}).
 			
 									\imagen{img/anexo/Clasificador_dialog}{Panel para la configuración del clasificador y la validación cruzada.}			
 			

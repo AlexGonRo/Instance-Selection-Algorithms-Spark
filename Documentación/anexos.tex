@@ -24,13 +24,35 @@
 
 \usepackage[disable]{todonotes}
 
+%Color
+\usepackage{color}
+\definecolor{javapurple}{rgb}{0.5,0,0.35}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
 %Código
 \usepackage{listings}
 \renewcommand{\lstlistingname}{Código}% Listing -> Algorithm
-\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of Algorithms
+\renewcommand{\lstlistlistingname}{List of \lstlistingname s}% List of Listings -> List of 
+\lstset{showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  commentstyle=\color{pgreen},
+  keywordstyle=\color{javapurple}\bfseries,
+  stringstyle=\color{pred},
+  basicstyle=\ttfamily,
+  literate=%
+    {á}{{\'a}}1
+    {é}{{\'e}}1
+    {í}{{\'i}}1
+    {ó}{{\'o}}1
+    {ú}{{\'u}}1,
+}
 
-%Color
-\usepackage{color}
+
 
 %Para las notas a pie de página dentro de tablas
 \usepackage{tablefootnote}
@@ -418,8 +440,8 @@
 
 \include{./tex/A_Plan_proyecto}
 \include{./tex/B_Requisitos}
-%\include{./tex/C_Diseno}
-%\include{./tex/D_Manual_programador}
+\include{./tex/C_Diseno}
+\include{./tex/D_Manual_programador}
 \include{./tex/E_Pruebas}
 \include{./tex/F_Manual_usuario}
 
