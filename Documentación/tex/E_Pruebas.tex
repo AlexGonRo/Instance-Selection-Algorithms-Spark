@@ -27,7 +27,7 @@ Indicar que, a la hora de seleccionar los conjuntos, se han elegido aquellos que
 Además, es importante indicar que todos los atributos han sido normalizados antes de realizar las mediciones.
 
 
-\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{L{5.55cm} >{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
+\tablaSmall{Conjuntos de datos utilizados para la comparación entre Weka y Spark.}{L{5.55cm} R{2.35cm} m{2.35cm} m{2.35cm}}{ConjuntosWekaSpark}
 {\centering Nombre del conjunto & \centering Instancias & \centering Atributos  & \multicolumn{1}{c}{Clases} \\}{
 
 Iris & 150 & \centering 4 & \multicolumn{1}{c}{3}  \\ [0.2cm]
@@ -92,17 +92,38 @@ A continuación se muestran los resultados ordenados de menor a mayor según el 
 
 \FloatBarrier
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Iris.}{l c c c c}{RendimientoIris}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+ \begin{table}
+  \begin{center}
+  \begin{threeparttable}
+   \rowcolors {2}{gray!35}{}
+   \begin{tabular}{l r r r r}
+    \toprule
+    \multicolumn{1}{c}{Criterio} & \multicolumn{1}{c}{Weka} & \multicolumn{1}{c}{Spark 1 hilo} & \multicolumn{1}{c}{Spark 2 hilos}  & \multicolumn{1}{c}{Spark 4 hilos} \\
+    \otoprule
+    Tiempo (s) & 0.1 & 1.97 & 2.13 & 2.15 \\ [0.2cm]
+    Memoria (MB) & - & - & - & - \\ [0.2cm]
+    CPU (\%) & - & - & - & - \\ [0.2cm]
+    \bottomrule
+   \end{tabular}
+   \begin{tablenotes}
+   \item[1] Los datos de las mediciones sobre el uso de memoria y CPU en el conjunto Iris no son concluyentes debido al corto periodo de tiempo que tarda en ejecutarse.
+   \end{tablenotes}
+   \caption{Rendimiento sobre el conjunto de datos Iris.}
+   \label{tabla:RendimientoIris}
+   \end{threeparttable}
+  \end{center}
+ \end{table}
 
- Tiempo (s) & 0.1 & 1.97 & 2.13 & 2.15 \\ [0.2cm]
- Memoria (MB)\tablefootnote{\label{noteIris}Los datos de las mediciones sobre el uso de memoria y CPU en el conjunto Iris no son concluyentes debido al corto periodo de tiempo que tardan en ejecutarse.} & - & - & - & - \\ [0.2cm]
- CPU (\%)\footref{noteIris} & - & - & - & - \\ [0.2cm]
-}
-\todo{Controlar el posicionamiento del pie de página.}
+%\tablaSmall{Rendimiento sobre el conjunto de datos Iris.}{l c c c c}{RendimientoIris}
+%{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Human Activity Recognition.}{l c c c c}{RendimientoHAR}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+% Tiempo (s) & 0.1 & 1.97 & 2.13 & 2.15 \\ [0.2cm]
+% Memoria (MB)\tablefootnote{Los datos de las mediciones sobre el uso de memoria y CPU en el conjunto Iris no son concluyentes debido al corto periodo de tiempo que tardan en ejecutarse.} & - & - & - & - \\ [0.2cm]
+% CPU (\%)\footref{noteIris} & - & - & - & - \\ [0.2cm]
+%}
+
+\tablaSmall{Rendimiento sobre el conjunto de datos Human Activity Recognition.}{l r r r r}{RendimientoHAR}
+{\multicolumn{1}{c}{Criterio} & \multicolumn{1}{c}{Weka} & \multicolumn{1}{c}{Spark 1 hilo} & \multicolumn{1}{c}{Spark 2 hilos}  & \multicolumn{1}{c}{Spark 4 hilos}\\}{
 
  Tiempo (s) & 12.37 & 16.13 & 11.75 & 11.71 \\ [0.2cm]
  Memoria (MB) & 242.01 & 173.80 & 219.75 & 219.17 \\ [0.2cm]
@@ -111,8 +132,8 @@ A continuación se muestran los resultados ordenados de menor a mayor según el 
 }
 
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Covertype.}{l c c c c}{RendimientoCovertype}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos Covertype.}{l r r r r}{RendimientoCovertype}
+{\multicolumn{1}{c}{Criterio} & \multicolumn{1}{c}{Weka} & \multicolumn{1}{c}{Spark 1 hilo} & \multicolumn{1}{c}{Spark 2 hilos}  & \multicolumn{1}{c}{Spark 4 hilos} \\}{
 
  Tiempo (s) & 183.95 & 101.91 & 73.23 & 53.78 \\ [0.2cm]
  Memoria (MB) & 576.78 & 177.37 & 213.7 & 211.7\\ [0.2cm]
@@ -121,8 +142,8 @@ A continuación se muestran los resultados ordenados de menor a mayor según el 
 }
 
 
-\tablaSmall{Rendimiento sobre el conjunto de datos Poker.}{l c c c c}{RendimientoPoker}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos Poker.}{l r r r r}{RendimientoPoker}
+{\multicolumn{1}{c}{Criterio} & \multicolumn{1}{c}{Weka} & \multicolumn{1}{c}{Spark 1 hilo} & \multicolumn{1}{c}{Spark 2 hilos}  & \multicolumn{1}{c}{Spark 4 hilos} \\}{
 
  Tiempo (s) & 73.90 & 47.44 & 31.84 & 30.77  \\ [0.2cm]
  Memoria (MB) & 424.65 & 162.93 & 243.76 & 255.11\\ [0.2cm]
@@ -130,8 +151,8 @@ A continuación se muestran los resultados ordenados de menor a mayor según el 
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (1.469.873 instancias).}{l c c c c}{RendimientoHIGGS1}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (1.469.873 instancias).}{l r r r r}{RendimientoHIGGS1}
+{\multicolumn{1}{c}{Criterio} & \multicolumn{1}{c}{Weka} & \multicolumn{1}{c}{Spark 1 hilo} & \multicolumn{1}{c}{Spark 2 hilos}  & \multicolumn{1}{c}{Spark 4 hilos} \\}{
 
  Tiempo (s) & 246.97 & 191.9 & 130.37 & 99.2 \\ [0.2cm]
  Memoria (MB) & 832.88 & 872.56 & 864.92 & 921.49 \\ [0.2cm]
@@ -139,8 +160,8 @@ A continuación se muestran los resultados ordenados de menor a mayor según el 
 
 }
 
-\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (2.939.746 instancias).}{l c c c c}{RendimientoHIGGS2}
-{\multicolumn{1}{c}{Criterio} & Weka & Spark 1 hilo & Spark 2 hilos  & Spark 4 hilos \\}{
+\tablaSmall{Rendimiento sobre el conjunto de datos HIGGS (2.939.746 instancias).}{l r r r r}{RendimientoHIGGS2}
+{\multicolumn{1}{c}{Criterio} & \multicolumn{1}{c}{Weka} & \multicolumn{1}{c}{Spark 1 hilo} & \multicolumn{1}{c}{Spark 2 hilos}  & \multicolumn{1}{c}{Spark 4 hilos} \\}{
 
  Tiempo (s) & 503.93 & 368.72 & 264.02 & 215.21\\ [0.2cm]
  Memoria (MB) & 1747.22  & 883.28 & 911.77 & 853.58 \\ [0.2cm]
@@ -188,10 +209,11 @@ Se ha realizado la comparación teniendo en mente la medición de los siguientes
 \begin{itemize}
 	\item \textbf{Reducción del conjunto de datos:} Relación entre el tamaño del conjunto de datos original y el obtenido tras aplicar el algoritmo. Este valor resulta de la siguiente ecuación: \[1-(\frac{nInstanciasFinales}{nInstanciasIniciales})\]
 
-
 	\item \textbf{Tiempo:} Tiempo real que ha requerido la ejecución del algoritmo de selección de instancias.
-	\item \textbf{Precisión de un clasificador con el nuevo conjunto:} Porcentaje de acierto en test al aplicar el algoritmo del vecino más cercano (\textit{k}-Nearest neighbor) sobre el nuevo conjunto de datos.
+	\item \textbf{Precisión de un clasificador con el nuevo conjunto:} Porcentaje de acierto en test al aplicar el algoritmo del vecino más cercano (\textit{k}-Nearest Neighbor) sobre el nuevo conjunto de datos.
 \end{itemize}
+
+Adicionalmente, en muchos experimentos realizados (no todos) se presenta el porcentaje de acierto en test del clasificador \textit{k}-NN cuando no se ha aplicado ninguna operación de selección de instancias sobre el conjunto de entrenamiento. De esta manera, el lector puede comprobar el efecto que tiene realizar un algoritmo de selección sobre el resultado de clasificación, pero no será un aspecto estudiado en este anexo.
 
 \subsection{Otros aspectos relevantes}\label{subsec:otrosLSHISyDemoIS}
  \begin{itemize}
@@ -233,63 +255,63 @@ Durante las mediciones, se ha utilizado la siguiente configuración del algoritm
 
 \FloatBarrier
 
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Letter Recognition''.}{l c c c c c}{CompLetterLSHIS}
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Letter Recognition''.}{l r r r r r}{CompLetterLSHIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
 Reducción (\%) & 65.86 & 67.03 & 67.2 & 67.27 & - \\ [0.2cm]
  Tiempo (s) & 0.04 & 0.34 & 0.38 & 0.52 & - \\ [0.2cm]
  Precisión (\%) & 92.7 & 92.8 & 93.04 & 92.84 &  95.97 \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Human Activity Recognition''.}{l c c c c c}{CompHumanLSHIS}
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Human Activity Recognition''.}{l r r r r r}{CompHumanLSHIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
  Reducción (\%) & 99.47 & 99.46 & 99.46 & 99.45 & - \\ [0.2cm]
  Tiempo (s) & 0.06 & 0.44 & 0.38 & 0.52 & - \\ [0.2cm]
  Precisión (\%) & 85.61 & 84.39 & 84.94 & 84.68 & 99,57 \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Covertype''.}{l c c c c}{CompCovtypeLSHIS}
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Covertype''.}{l r r r r}{CompCovtypeLSHIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} \\}{
  Reducción (\%) & 95.8 & 95.61 & 95.6 & 95.6 \\ [0.2cm]
  Tiempo (s) & 0.59 & 3.9 & 2.15 & 2.44 \\ [0.2cm]
  Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & - & - & - \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Poker''.}{l c c c c}{CompPokerLSHIS}
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``Poker''.}{l r r r r}{CompPokerLSHIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} \\}{
  Reducción (\%) & 63.73 & 61.27 & 61.25 & 61.45 \\ [0.2cm]
 Tiempo (s) & 3.35 & 5.62 & 3.67 & 4.25 \\ [0.2cm]
- Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & &  &  \\ [0.2cm]
+ Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & - & - & - \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``HIGGS'' (1.469.873 instancias).}{l c c c c}{CompH1GLSHIS}
-{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} \\}{
+\tablaSmall{Comparativa de LSHIS sobre el conjunto de datos ``HIGGS'' (1.469.873 instancias).}{l r r r r}{CompH1GLSHIS}
+{\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores\hyperref[subsec:Aclaraciones]{**}} \\}{
  Reducción (\%) & 60.91 & 54.46 & 54.47 & - \\ [0.2cm]
  Tiempo (s) & 5.34 & 13.9 & 9.75 & - \\ [0.2cm]
- Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & &  & - \\ [0.2cm]
+ Precisión (\%)\hyperref[subsec:Aclaraciones]{*} & - & - & - & - \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Image Segmentation''.}{l c c c c c}{CompSegmentationDemoIS}
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Image Segmentation''.}{l r r r r r}{CompSegmentationDemoIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
  Reducción (\%) & 71.22 & 77.9 & 78.01 & 78.19 & - \\ [0.2cm]
  Tiempo (s) & 5.43 & 4.59 & 3.97 & 4.7 & - \\ [0.2cm]
  Precisión (\%) & 96.32 & 95.9 & 95.46 & 95.51 & 96.76 \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Banana shape''.}{l c c c c c}{CompBananaDemoIS}
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Banana shape''.}{l r r r r r}{CompBananaDemoIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
  Reducción (\%) & 63.63 & 63.97 & 64.1 & 63.35 & - \\ [0.2cm]
  Tiempo (s) & 18.24 & 15.61 & 10.82 & 10.2 & - \\ [0.2cm]
  Precisión (\%) & 85.75 & 85.93 & 85.98 & 86.1 & 87.2 \\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Pen-Based Recognition of Handwritten Digits''.}{l c c c c c}{CompPenbasedDemoIS}
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Pen-Based Recognition of Handwritten Digits''.}{l r r r r r}{CompPenbasedDemoIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
  Reducción (\%) & 77.12 & 82.58 & 82.05 & 81.3 & -\\ [0.2cm]
  Tiempo (s) & 20.6 & 15.48 & 10.43 & 10.18 & -\\ [0.2cm]
  Precisión (\%) & 98.18 &98.1 & 97.85 & 98.18 & 99.39\\ [0.2cm]
 }
 
-\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Letter Recognition''.}{l c c c c c}{CompLetterDemoIS}
+\tablaSmall{Comparativa de DemoIS sobre el conjunto de datos ``Letter Recognition''.}{l r r r r r}{CompLetterDemoIS}
 {\multicolumn{1}{c}{Criterio} & Weka & \specialcell{Spark\\1 Ejecutor} & \specialcell{Spark\\2 Ejecutores}  & \specialcell{Spark\\4 Ejecutores} & \specialcell{Conjunto\\original}\\}{
  Reducción (\%) & 56.9 & 56.99 & 56.15 & 58.28 & - \\ [0.2cm]
  Tiempo (s) & 326.98 & 365.9 & 183.3 & 176.26 & -\\ [0.2cm]
@@ -297,12 +319,13 @@ Tiempo (s) & 3.35 & 5.62 & 3.67 & 4.25 \\ [0.2cm]
 }
 
 \FloatBarrier
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\subsection{Aclaraciones sobre las mediciones}\label{subsec:Aclaraciones}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
 
+*: El cálculo de la precisión no ha sido medido por la imposibilidad de hacerlo en un tiempo razonable.
 
-\subsection{Aclaraciones}\label{subsec:Aclaraciones}
-
-* : El cálculo de la precisión no ha sido medido por la imposibilidad de hacerlo en un tiempo razonable.
-
+** : Por falta de recursos en la máquina local no se ha podido realizar la medición adecuada con esta configuración.
 
 \subsection{Conclusiones}
 

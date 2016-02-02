@@ -2,20 +2,22 @@
 
 \section{Introducción}
 
-A lo largo de este apéndice vamos a indicar el material necesario para poder ejecutar el proyecto, así como la manera de instalarlo y hacerlo funcionar una vez contemos con todos los elementos requeridos.
+A lo largo de este apéndice vamos a indicar el material necesario para poder ejecutar el proyecto, así como la manera de instalarlo y hacerlo funcionar una vez contemos con todos los elementos necesarios.
 
 \section{Requisitos de usuarios}
+
+Es objetivo de esta sección destacar los requisitos míniminos para la ejecución del proyecto, tanto a nivel software como hardware.
 
 \subsection{Requisitos software}\label{sec:ReqSoftware}
 
 A continuación se muestra una lista de todos los requisitos mínimos para la ejecución del proyecto. En las secciones \ref{sec:Instalacion} y \ref{sec:InstalacionOpcional} podrá encontrarse el método de instalación para cada uno de estos componentes.
 
-Podemos advertir diferentes distribuciones (ver sección \ref{subsec:distribuciones}) y diferentes maneras de ejecutar el proyecto (ver sección \ref{sec:manualUsuario}), por lo que no todos los componentes son necesarios en todos los casos
+Podemos advertir diferentes distribuciones de nuestro proyecto y diferentes maneras de ejecutarlo, por lo que no todos los componentes son necesarios en todos los casos (ver sección (ver sección \ref{sec:manualUsuario} para obtener más información).
 
 \begin{itemize}
-\item Java 8
-\item Apache Maven (Solo necesario si necesitamos Apache Spark)
-\item Apache Spark (Solo necesario si deseamos lanzar las ejecuciones en nuestra máquina)
+\item Java 8.
+\item Apache Maven - Solo necesario si necesitamos Apache Spark.
+\item Apache Spark - Solo necesario si deseamos lanzar las ejecuciones en nuestra máquina.
 \end{itemize}
 
 \subsection{Requisitos mínimos del sistema}
@@ -32,7 +34,7 @@ Dado que existen diferentes modos de uso del proyecto, es necesario indicar aqu�
 \item Deseamos ejecutar los algoritmos en nuestro proyecto:
 	\begin{itemize}
 	\item \textbf{Procesador:} Procesador multihilo con capacidad de soportar, al menos, 2 hilos simultaneamente.
-	\item \textbf{Memoria RAM:} 4 GB
+	\item \textbf{Memoria RAM:} 4 GB.
 	\item \textbf{Espacio libre en disco:} aprox 2.1GB más el espacio adicional para los conjuntos de datos que deseemos almacenar.
 	\end{itemize}
 \end{itemize}
@@ -78,22 +80,22 @@ mixed mode)
 
 \subsection{ISAlgorithms}\label{subsec:InstalarISAlgorithms}
 
-Puede ser descargado desde el repositorio del proyecto desde \url{https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark}.
+Puede ser descargado desde el repositorio del proyecto en \url{https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark}
+
+Aunque para algunas acciones no será necesario que nuestro software se encuentre en un directorio concreto, se recomienda situar el fichero en el directorio \textit{\$SPARK\_HOME/lib}. Esto será obligatorio en el lanzamiento de baterías de ejecuciones directamente desde la interfaz gráfica y el lanzamiento de baterias predefinidas anteriormente usando,de nuevo, la interfaz.)
+
+Igualmente se recomienda utilizar el nombre ``ISAlgorithms.jar'' como nombre del fichero .jar, independientemente de su distribución. Esto es de nuevo obligatorio al realizar acciones que involucran la interfaz gráfica.
 
 Para más información sobre las posibles distribuciones ver la sección \ref{subsec:distribuciones}.
-
-Aunque para algunas acciones no será necesario que el paquete se encuentre en un directorio concreto ni que tenga un nombre específico, se recomienda situar el fichero en el lugar de instalación de Spark, dentro de una carpeta llamada ``lib''. Así pues, en nuestro caso la ruta donde situar el fichero sería \textit{\$SPARK\_HOME/lib}. Igualmente se recomienda renombrar el archivo con el nombre ``ISAlgorithms.jar''.
-
-\todo{Queda algo cutre esta explicación.}
 
 
 \section{Instalaciones Opcionales}\label{sec:InstalacionOpcional}
 
-Existen una serie de componentes que no van a ser necesarios en todas las distribuciones del producto (ver \ref{subsec:distribuciones}). Los componentes definidos a continuación son necesarios para permitir la ejecución de tareas de minería en la máquina local.
+Existen una serie de componentes que no van a ser necesarios en todas las distribuciones del producto (ver sección \ref{subsec:distribuciones}). Los componentes definidos a continuación son necesarios para permitir la ejecución de tareas de minería en la máquina local.
 
 \subsection{Apache Maven}\label{subsec:instalaMaven}
 
-Este elemento, si bien no es necesario para la ejecución del proyecto, es necesario para la construcción de Apache Spark (ver \ref{subsec:sparkInstalacion}), por lo que es incluido en este listado.
+Este elemento, si bien no es necesario para la ejecución del proyecto, es necesario para la construcción de Apache Spark, por lo que es incluido en este listado.
 
 Lo primero que debemos hacer es descargarnos el paquete que contiene la herramienta. Esto podemos hacerlo desde el navegador en la página oficial de Apache Maven (\url{https://maven.apache.org/}) o mediante el siguiente comando en consola:
 
@@ -187,9 +189,7 @@ Brevemente, vamos a considerar 4 formas de lanzamiento:
 	\item Lanzamiento en el servicio de computación en la nube Google Cloud Dataproc.
 \end{itemize}
 
-Recordemos, antes de empezar, que nuestra aplicación consta de varias distribuciones y no todas pueden lanzar experimentos de todas las maneas posibles. Para ello, conviene revisar primero la sección \ref{subsec:distribuciones}.
-
-Igualmente, existen diferentes modos de despliegue de Spark, algo que también influye en nuestra ejecución. Es por ello recomendable leer primero la subsección \ref{subsec:modosDespliegueSpark}, independientemente de la manera en la que deseemos ejecutar la aplicación.
+Recordemos, antes de empezar, que nuestra aplicación consta de varias distribuciones y algunas cuentan con limitaciones en cuanto a su funcionalidad. Igualmente, existen diferentes modos de despliegue de Spark, algo que también influye en nuestra ejecución. Todo esto también será explicado en esta sección.
 
 \subsection{Distribuciones}\label{subsec:distribuciones}
 
@@ -216,7 +216,7 @@ Spark proporciona diferentes modos de lanzamiento, que vamos a diferenciar en tr
 	
 	Puede resultar eficiente usarlo en un grupo de nodos pequeño, pero no es buena opción cuando contamos con una red más amplia \cite{karau2015learning}.
 	
-	Este es el modo de despliegue que hemos utilizado en gran parte del proyecto. Una explicación más detallada de como iniciarlo en una sola máquina (el ordenador en el que se esté trabajando) puede encontrarse en la subsección \ref{subsec:startStandalone}.
+	Este es el modo de despliegue que hemos utilizado en gran parte del proyecto. Una explicación más detallada de como iniciarlo en una sola máquina (aquella en el que se esté trabajando) puede encontrarse en más adelante en esta misma sección.
 	
 	\item \textbf{Otros modos de despliegue}: Existen numerosos administradores de clústeres que pueden funcionar con Spark, tales como Mesos o YARN, pero en ningún caso hemos necesitado programar un servicio similar, por lo que no entraremos a detalle. Cabe destacar, sin embargo, que el gestor de clústeres YARN es el que usa Google Cloud Dataproc cuando hemos lanzado ejecuciones sobre él.
 \end{itemize}
@@ -240,7 +240,7 @@ Ahora, vamos a iniciar un nodo trabajador (\textit{worker}) y asociarlo al maste
 ./sbin/start-slave.sh <master-spark-URL>
 \end{lstlisting}
 
-Si hemos los pasos correctamente, y no hemos modificado la configuración por defecto, la dirección URL del nodo master debería ser algo similar a \textit{spark://ruta:puerto}, donde ``ruta'' es el atributo \$HOSTNAME de la máquina donde hemos iniciado el nodo maestro y ``puerto'', por defecto, es 7077. En caso de duda, siempre podemos visitar \url{http://localhost:8080/}, donde ,entre otra información, podemos ver la URL del master.
+Si hemos los pasos correctamente, y no hemos modificado la configuración por defecto, la dirección URL del nodo master debería ser algo similar a \textit{spark://ruta:puerto}, donde ``ruta'' es el atributo \$HOSTNAME de la máquina donde hemos iniciado el nodo maestro y ``puerto'', por defecto, es 7077. En caso de duda, siempre podemos visitar \url{http://localhost:8080/}, donde, entre otra información, podemos ver la URL del master.
 
 
 \subsection{Lanzamiento de ejecución desde línea de comandos}
@@ -294,7 +294,7 @@ Cuando la ejecución haya finalizado correctamente, se habrá generado una nueva
 
 \subsection{Lanzamiento de ejecución o batería de ejecuciones desde la interfaz gráfica}\label{subsec:ejecutaGUI}
 
-Antes de empezar, merece la pena recordar que para llevar a cabo este paso es necesario que, tal y como se ha indicado en \ref{subsec:InstalarISAlgorithms}, el fichero .jar que vamos a utilizar debe estar situado en la ruta \textit{\$SPARK\_HOME/lib}.
+Antes de empezar, merece la pena recordar que para llevar a cabo este paso es necesario que, tal y como se ha indicado en la sección \ref{subsec:InstalarISAlgorithms} destinada a la instalación, el fichero .jar que vamos a utilizar debe estar situado en la ruta \textit{\$SPARK\_HOME/lib}.
 
 El primer paso consistirá en lanzar la interfaz gráfica. Para ello, podemos hacer doble clic sobre el archivo .jar distribuido o ejecutar la siguiente sentencia en la línea de comandos:
 
@@ -327,23 +327,33 @@ De cualquiera de las maneras, tendremos a nosotros una nueva ventana similar a l
 			\item \textbf{Panel de selección de filtro:} Similar al panel anterior, muestra un listado de todas las configuraciones propuestas hasta la fecha y la posibilidad de añadir más o eliminar las ya existentes.
 			
 			Mencionar una peculiaridad en este caso. Al presionar sobre el botón ``Añadir...'' se abrirá un panel con solo un campo para seleccionar un algoritmo selector de instancias. El resto de campos se generarán de manera automática cuando seleccionemos un algoritmo concreto (ver imágenes \ref{fig:img/anexo/Filtro_dialog1} y \ref{fig:img/anexo/Filtro_dialog2}).
+
+\FloatBarrier
 		\begin{figure}[!h]
 		\centering
-		\includegraphics[width=0.5\textwidth]{img/anexo/Filtro_dialog1}
+		\includegraphics[width=0.4\textwidth]{img/anexo/Filtro_dialog1}
 		\caption{Diálogo para la selección de filtro.}\label{fig:img/anexo/Filtro_dialog1}
 	\end{figure}
-%						\imagen{img/anexo/Filtro_dialog1}{Diálogo para la selección de filtro.}
+%	\imagen{img/anexo/Filtro_dialog1}{Diálogo para la selección de filtro.}
+
 	\begin{figure}[!h]
 		\centering
-		\includegraphics[width=0.7\textwidth]{img/anexo/Filtro_dialog2}
+		\includegraphics[width=0.6\textwidth]{img/anexo/Filtro_dialog2}
 		\caption{Diálogo para la selección de filtro después de seleccionar un algoritmo.}\label{fig:img/anexo/Filtro_dialog2}
 	\end{figure}		
-						
-%									\imagen{img/anexo/Filtro_dialog2}{Diálogo para la selección de filtro después de seleccionar un algoritmo.}
+\FloatBarrier						
+%	\imagen{img/anexo/Filtro_dialog2}{Diálogo para la selección de filtro después de seleccionar un algoritmo.}
 			
-			\item \textbf{Panel de selección de clasificador y validación cruzada:} Su funcionalidad es similar a la descrita en paneles anteriores, concretamente el panel de selección de filtro. Sin embargo, es este caso solo es posible añadir un único clasificador (así como solo una única configuración de validación cruzada), por lo que las opciones que típicamente se mostraban en un diálogo separado, ahora se muestran en la propia pantalla (ver imagen \ref{fig:img/anexo/Clasificador_dialog}).
+		\item \textbf{Panel de selección de clasificador y validación cruzada:} Su funcionalidad es similar a la descrita en paneles anteriores, concretamente el panel de selección de filtro. Sin embargo, es este caso solo es posible añadir un único clasificador (así como solo una única configuración de validación cruzada), por lo que las opciones que típicamente se mostraban en un diálogo separado, ahora se muestran en la propia pantalla (ver imagen \ref{fig:img/anexo/Clasificador_dialog}).
 			
-									\imagen{img/anexo/Clasificador_dialog}{Panel para la configuración del clasificador y la validación cruzada.}			
+	\begin{figure}[!h]
+		\centering
+		\includegraphics[width=0.8\textwidth]{img/anexo/Clasificador_dialog}
+		\caption{Panel para la configuración del clasificador y la validación cruzada.}\label{fig:img/anexo/Clasificador_dialog}
+	\end{figure}		
+			
+			
+%	\imagen{img/anexo/Clasificador_dialog}{Panel para la configuración del clasificador y la validación cruzada.}			
 			
 		\end{itemize}
 	\item \textbf{Menú inferior:} Cuenta con dos botones para ejecutar diferentes acciones. La modalidad ``ZIP'' será descrita en la subsección \ref{subsec:createZip}, pero en esta sección nos interesa presionar el botón ``Ejecutar''.
@@ -361,11 +371,11 @@ Una vez terminadas todas las ejecuciones, la interfaz nos informará de ello med
 
 \subsection{Definición de una batería de ejecución y lanzamiento por separado}\label{subsec:createZip}
 
-El procedimiento inicial es similar al marcado en \ref{subsec:ejecutaGUI}, es decir, una vez abierta la interfaz gráfica hemos de indicar todas las configuraciones de ejecución que deseemos. La diferencia esta vez la encontramos al final de la operación, donde en lugar de presionar sobre el botón ``Ejecutar'', lo haremos sobre el botón ``ZIP''
+El procedimiento inicial es similar al marcado en el método de lanzamiento anterior, es decir, una vez abierta la interfaz gráfica hemos de indicar todas las configuraciones de ejecución que deseemos. La diferencia esta vez la encontramos al final de la operación, donde en lugar de presionar sobre el botón ``Ejecutar'', lo haremos sobre el botón ``ZIP''
 
 Esta operación, que tal vez puede tardar unos instantes si hemos seleccionado conjuntos de datos muy grandes, generará una carpeta de nombre ``zip'' en el directorio desde donde hemos invocado la interfaz gráfica. Dentro de la carpeta encontraremos un nuevo archivo .zip que contendrá un script de ejecución .sh junto con todos los conjuntos de datos que necesitemos para realizar las ejecuciones que hemos definido previamente.
 
-Ese fichero lo moveremos a donde sea necesario, típicamente un servicio clúster donde se encuentre Spark instalado junto con nuestra librería en el directorio \textit{\$SPARK\_HOME/lib}, tal y como se ha indicado en \ref{subsec:InstalarISAlgorithms}.
+Ese fichero lo moveremos a donde sea necesario, típicamente un servicio clúster donde se encuentre Spark instalado junto con nuestra librería en el directorio \textit{\$SPARK\_HOME/lib}, tal y como se ha indicado en la sección destinada a la instalación de nuestra librería en \ref{subsec:InstalarISAlgorithms}.
 
 Una vez allí, el archivo puede descomprimirse usando el comando: 
 
@@ -424,7 +434,7 @@ Ahora, vamos a crear nuestro primer clúster. Presionamos sobre el botón ``Crea
 \imagen{img/anexo/dataproc_clusterMenu}{Pantalla principal de Google Cloud Dataproc}
 
 Bien, con nuestro clúster creado únicamente falta definir la tarea que debemos ejecutar.
-Para ello, en el menú lateral izquierdo podremos ver una sección llamada ``Tareas'' (ver imagen \ref{fig:dataproc_clusterMenu}). Nos podemos dirigir a ella y crear una nueva tarea del mismo modo que hemos creado anteriormente un segmento de memoria o una agrupación. De nuevo, es importante tener en cuenta que:
+Para ello, en el menú lateral izquierdo podremos ver una sección llamada ``Tareas'' (ver imagen \ref{fig:img/anexo/dataproc_clusterMenu}). Nos podemos dirigir a ella y crear una nueva tarea del mismo modo que hemos creado anteriormente un segmento de memoria o una agrupación. De nuevo, es importante tener en cuenta que:
 
 \begin{itemize}
 \item Deberemos definir el ``Tipo de tarea'' como ``Spark''
@@ -458,7 +468,7 @@ A continuación se va realizar un listado con todas las posibles opciones que ac
     \hline
    	\centering ISClassExec & Define una tarea en la que intervenga un algoritmo de selección de instancias y un clasificador \\
    	\hline
-   	\centering ISClassExecTest & Define una tarea en la que intervenga un algoritmo de selección de instancias y un clasificador y, además mide el tiempo de ejecución de la labor de filtrado. Este último modo de lanzamiento podría afectar ligeramente a la ejecución de la tarea, aumentando su tiempo de ejecución. Para más información ver \ref{subsec:}\\
+   	\centering ISClassExecTest & Define una tarea en la que intervenga un algoritmo de selección de instancias y un clasificador y, además mide el tiempo de ejecución de la labor de filtrado.\\
    	\hline
    	\rowcolor{gray}
    	\multicolumn{2}{|m{13cm}|}{\centering Parámetros del lector} \\
@@ -508,5 +518,3 @@ A continuación se va realizar un listado con todas las posibles opciones que ac
    \label{tabla:cheatsheet}
   \end{center}
  \end{table}
-
-\todo{recordar que aquí hay un enlace roto}
