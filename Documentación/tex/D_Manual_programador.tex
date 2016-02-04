@@ -227,6 +227,8 @@ Actualmente se cuentan con los siguientes ficheros para generar distribuciones:
 \item \textbf{pom\_cluster.xml:} Crea una distribución que contendrá todos los elementos menos los relacionados con la interfaz gráfica. La compilación ha de realizarse esta vez con Scala 2.10, por ser la versión que necesitan los servicios que hemos utilizado.
 \end{itemize}
 
+La operación de compilación generará dos archivos .jar diferentes en el directorio ``target''. El primero de ellos, siempre bajo el nombre ``ISAlgorithms-nºversión.jar'' contiene las clases de nuestro proyecto requeridas por la distribución pedida. El segundo, cuyo nombre varía ligeramente según que distribución queramos generar, contiene no solo las clases que necesitemos de nuestro programa sino también aquellas clases de las dependencias que necesitemos para correr el programa (a excepción de las de Spark, pues estará instalado en la máquina donde vamos a ejecutar). Recordemos, que en los archivos ``pom'' podemos ver que dependencias necesitamos en cada caso.
+
 \subsection{Generando documentación}\label{subsec:documentacion}
 
 De nuevo mediante el uso de Apache Maven, podemos obtener la documentación de las clases del proyecto utilizando el siguiente comando desde el directorio raíz del proyecto:
