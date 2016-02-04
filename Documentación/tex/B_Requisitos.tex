@@ -14,13 +14,13 @@ Podemos definir dos claros objetivos con los que se comenzó el proyecto:
 
 \item La comparativa entre el rendimiento de las soluciones secuenciales de minería de datos frente a las nuevas soluciones de ejecución paralela que han surgido recientemente. Esta tarea se llevará a cabo utilizando una librería ya existente (Weka) para realizar ejecuciones que sigan el modelo secuencial, y Spark para realizar ejecuciones paralelas.
 
-Las mediciones deberán están enfocadas en dos sentidos: una comparación general del rendimiento entre Spark y Weka, y la comparación concreta de nuestras implementaciones, definidas en el punto anterior, sobre aquellas que ya estén creadas para la librería Weka.
+Las mediciones deberán están enfocadas en dos sentidos: una comparación general del funcionamiento entre Spark y Weka, y la comparación concreta de nuestras implementaciones, definidas en el punto anterior, con sus homólogas para la librería Weka, que serán proporcionadas por los tutores del proyecto.
 \end{itemize}
 
 Igualmente, y conforme el proyecto iba avanzando, se consideró añadir una nueva serie de objetivos, de importancia menor, a nuestra aplicación:
 
 \begin{itemize}
-\item La creación de una interfaz gráfica más amigable y visual que no solo facilite el uso de todo el material generado, sino que permita, además, definir baterías de experimentos para ser ejecutados al instante o en una máquina diferente.
+\item La creación de una interfaz gráfica más amigable y visual que no solo facilite el uso de todo el material generado sino que permita, además, definir baterías de experimentos para ser ejecutados al instante o en una máquina diferente.
 \item El despliegue del proyecto en el entorno donde está pensado para ser ejecutado: un clúster con diferentes nodos y múltiples unidades de procesamiento.
 \end{itemize}
 
@@ -28,13 +28,13 @@ Igualmente, y conforme el proyecto iba avanzando, se consideró añadir una nuev
 
 A continuación se va a proceder a listar todas aquellas características exigidas al software que se ha implementado.
 
-Se podrán distinguir entre requisitos funcionales, que son aquellos que definen un comportamiento específico esperado, y requisitos no funcionales, que son aquellos que sin traducción directa en el algún comportamiento concreto definen aspectos influyentes de la aplicación.
+Se podrán distinguir entre requisitos funcionales, que son aquellos que definen un comportamiento específico esperado, y requisitos no funcionales, que son aquellos que, sin traducción directa en un comportamiento concreto, definen aspectos influyentes de la aplicación.
 
 \subsection{Requisitos funcionales}
 
 \begin{itemize}
 
-\item \textbf{RF-1} La aplicación ha de permitir el lanzamiento mediante línea de comandos, de ejecuciones de minería de datos que consten de un algoritmo de selección de instancias y un clasificador.
+\item \textbf{RF-1} La aplicación ha de permitir el lanzamiento, mediante línea de comandos, de ejecuciones de minería de datos que consten de un algoritmo de selección de instancias y un clasificador.
 	\begin{itemize}
 		\item \textbf{RF-1.1} Se podrá indicar si se desea o no realizar la medición del tiempo de filtrado.
 		\item \textbf{RF-1.2} Se podrán indicar opciones para la correcta lectura del conjunto de datos. Esto implica indicar donde estará el atributo de clase y si el fichero contiene o no cabecera.
@@ -54,13 +54,14 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
 		\item \textbf{RF-2.6} Se almacenará un fichero por cada lanzamiento con los datos de reducción y precisión de la ejecución.
 	\end{itemize}
 
-\item \textbf{RF-3} La aplicación ha de permitir, mediante la interfaz gráfica, definir ejecuciones o baterías de ejecuciones y exportar estos experimentos en un archivo .zip con los materiales necesarios.
+\item \textbf{RF-3} La aplicación ha de permitir, mediante la interfaz gráfica, definir ejecuciones o baterías de ejecuciones y exportar las definiciones de estos experimentos en un archivo .zip con los materiales necesarios.
 	\begin{itemize}
 		\item \textbf{RF-3.1} Se podrán seleccionar algunas de las opciones de lanzamiento de Spark (ruta al directorio de instalación de Spark, ruta al nodo maestro, número de núcleos, número de ejecutores y memoria de cada ejecutor).
 		\item \textbf{RF-3.2} Se podrán elegir uno o más conjuntos de datos, junto con sus opciones para una correcta lectura de los mismos. Se utilizará un conjunto de datos por ejecución
 		\item \textbf{RF-3.3} Se podrá elegir y configurar uno o más algoritmos de preprocesamiento, usando uno por ejecución.
 		\item \textbf{RF-3.4} Se podrá seleccionar y configurar un algoritmo de clasificación.
-		\item \textbf{RF-3.5} Se deberá generar un archivo .zip que contenga un script para ejecutar la batería de ejecuciones, junto con todos los conjuntos de datos necesarios para las ejecuciones.
+		\item \textbf{RF-2.5} Se podrán configurar las opciones para realizar una validación cruzada.
+		\item \textbf{RF-3.6} Se deberá generar un archivo .zip que contenga un script para ejecutar la batería de ejecuciones, junto con todos los conjuntos de datos necesarios para las ejecuciones.
 	\end{itemize}
 
 \item \textbf{RF-4} Debe existir una sección destinada a explicar el funcionamiento de la interfaz gráfica.
@@ -73,7 +74,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
 
 \item \textbf{RNF-1} La implementación no ha de tener problemas para correr en paralelo o en sistemas distribuidos formados por varios nodos.
 
-\item \textbf{RNF-2} El código ha de cumplir con una serie de medidas estáticas de calidad.
+\item \textbf{RNF-2} El código ha de cumplir con una serie de medidas estáticas de calidad que faciliten el futuro mantenimiento del proyecto. Estas medidas son las especificadas por defecto por el programa Scalastyle (\url{http://www.scalastyle.org/}).
 
 \item \textbf{RNF-3} Los resultados de reducción y precisión generados por nuestros algoritmos de selección de instancias han de ser similares a los generados por la implementación secuencial de dichos algoritmos.
 
@@ -133,7 +134,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Alta \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Lanzar ejecución - Línea de comandos''}
+   \caption{Caso de uso ``Lanzar ejecución - Línea de comandos''.}
    \label{tabla:casoUso1}
   \end{center}
  \end{table} 
@@ -174,12 +175,12 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     \hline
     Postcondiciones & Los resultados de la ejecución han sido almacenados en un fichero de texto en la ruta correspondiente. \\
     \hline
-    Excepciones & Ninguna \\
+    Excepciones & Alguno de los parámetros introducidos por el usuario son erroneos. En ese caso se cancela la ejecución o ejecuciones que se vean afectadas y se informa al usuario de lo ocurrido. \\
     \hline
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Realizar ejecución/es GUI''}
+   \caption{Caso de uso ``Realizar ejecución/es GUI''.}
    \label{tabla:casoUso2}
   \end{center}
  \end{table} 
@@ -196,13 +197,13 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Autor & Alejandro González Rogel \\
     \hline
     Requisitos & 
-    		RF-2\newline
-    		RF-2.1\newline
-		RF-2.2\newline
-		RF-2.3\newline
-		RF-2.4\newline
-		RF-2.5\newline
-		RF-2.6\\
+    		RF-3\newline
+    		RF-3.1\newline
+		RF-3.2\newline
+		RF-3.3\newline
+		RF-3.4\newline
+		RF-3.5\newline
+		RF-3.6\\
     \hline
     Descripción & Mediante el uso de la interfaz gráfica, el usuario puede programar una o varias ejecuciones y generar un archivo de extensión .zip que contendrá un script de lanzamiento y todos los conjuntos de datos necesarios para la ejecución.\\
     \hline
@@ -225,7 +226,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Media \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Generar archivo .zip con baterías de ejecuciones''}
+   \caption{Caso de uso ``Generar archivo .zip con baterías de ejecuciones''.}
    \label{tabla:casoUso3}
   \end{center}
  \end{table}  
@@ -250,10 +251,12 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     \hline
     Precondiciones & El usuario ha iniciado la interfaz gráfica.\\
     \hline
-    Acciones & 1. El usuario ha presionado un botón para añadir una nueva configuración de Spark. \newline
-    			   2. La aplicación muestra un nuevo diálogo. \newline
-    			   3. El usuario rellena todos los campos mostrados en el nuevo diálogo. \newline
-    			   4. El usuario presiona un botón para aceptar la nueva configuración.  \\
+    Acciones & 
+    1. El usuario completa los campos comunes para todas las configuraciones de Spark \newline
+    2. El usuario presiona un botón para añadir una nueva configuración de Spark. \newline
+    			   3. La aplicación muestra un nuevo diálogo. \newline
+    			   4. El usuario rellena todos los campos mostrados en el nuevo diálogo. \newline
+    			   5. El usuario presiona un botón para aceptar la nueva configuración.  \\
     \hline
     Postcondiciones & Una nueva configuración ha de haberse añadido a la lista de configuraciones. \\
     \hline
@@ -262,7 +265,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Seleccionar configuración Spark''}
+   \caption{Caso de uso ``Seleccionar configuración Spark''.}
    \label{tabla:casoUso5}
   \end{center}
  \end{table}
@@ -288,8 +291,8 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     \hline
     Acciones & 1. El usuario ha presionado un botón para añadir un nuevo conjunto de datos. \newline 
     2. La aplicación muestra un nuevo diálogo. \newline
-    			   3. El usuario selecciona el botón para buscar en los archivos del sistema un conjunto de datos. Alternativamente, puede escribirlo manualmente. \newline
-    			   4. El usuario cumplimenta todos los campos restantes mostrados en el diálogo. \newline
+    			   3. El usuario selecciona el botón para buscar en los archivos del sistema el fichero deseado. Alternativamente, puede escribirlo manualmente. \newline
+    			   4. El usuario cumplimenta, si lo ve necesario, todos los campos restantes mostrados en el diálogo. \newline
     			   5. El usuario presiona un botón para aceptar la nueva configuración. \\
     \hline
     Postcondiciones & Un nuevo conjunto de datos, junto con sus opciones de lectura, ha de haberse añadido a la lista de conjuntos de datos. \\
@@ -299,7 +302,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Seleccionar conjunto de datos''}
+   \caption{Caso de uso ``Seleccionar conjunto de datos''.}
    \label{tabla:casoUso6}
   \end{center}
  \end{table}
@@ -328,7 +331,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     		
     		2. La aplicación muestra un nuevo diálogo. \newline
     		3. El usuario selecciona, tras pulsar el botón de selección, el filtro que desea. \newline
-    		4. La aplicación añade nuevos campos al diálogo.
+    		4. La aplicación añade nuevos campos al diálogo.\newline
     		5. El usuario cumplimenta los nuevos campos mostrados en el diálogo. \newline
     		6. El usuario presiona un botón para aceptar la nueva configuración. \\
     \hline
@@ -339,7 +342,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Seleccionar algoritmo de selección de instancias''}
+   \caption{Caso de uso ``Seleccionar algoritmo de selección de instancias''.}
    \label{tabla:casoUso7}
   \end{center}
  \end{table}
@@ -375,7 +378,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Seleccionar algoritmo de clasificación''}
+   \caption{Caso de uso ``Seleccionar algoritmo de clasificación''.}
    \label{tabla:casoUso8}
   \end{center}
  \end{table}
@@ -410,7 +413,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Seleccionar valores de validación cruzada''}
+   \caption{Caso de uso ``Seleccionar valores de validación cruzada''.}
    \label{tabla:casoUso9}
   \end{center}
  \end{table}
@@ -443,7 +446,7 @@ Se podrán distinguir entre requisitos funcionales, que son aquellos que definen
     Importancia & Baja \\
     \hline
    \end{tabular}
-   \caption{Caso de uso ``Consultar ayuda GUI''}
+   \caption{Caso de uso ``Consultar ayuda GUI''.}
    \label{tabla:casoUso4}
   \end{center}
  \end{table}

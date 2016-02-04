@@ -6,7 +6,7 @@ En el escenario actual de la minería de datos (ver definición en \ref{DefMiner
 
 Una de las propuestas ha sido la posibilidad de ejecutar las labores de minería de manera paralela. Por otro lado, analizando el problema desde un enfoque diferente, aunque no incompatible, han adquirido gran popularidad los algoritmos encargados de reducir el número de instancias y atributos, de manera que podamos hacer más pequeño el conjunto a estudiar o incluso reducir su nivel de ruido. Este trabajo surge bajo la motivación de explorar estas nuevas soluciones. 
 
-Será un proyecto con dos objetivos principales: por un lado la implementación de diferentes algoritmos de reducción de instancias que, además de correr en paralelo, nos permitirán mejorar la calidad de los datos y reducir su tamaño. Por otro, el análisis del rendimiento de implementaciones lineales frente a nuestras implementaciones paralelas.
+Será un proyecto con dos objetivos principales: por un lado la implementación de diferentes algoritmos de reducción de instancias que, además de correr en paralelo, nos permitan reducir el número de datos iniciales. Por otro, el análisis del rendimiento de implementaciones lineales frente a nuestras implementaciones paralelas.
 
 Como objetivo adicional, surgido durante la realización del trabajo, tendremos en consideración la creación de un entorno visual y más intuitivo donde el usuario pueda ejecutar nuestro código de una manera más sencilla.
 
@@ -26,7 +26,7 @@ Se ha realizado la implementación de los siguientes algoritmos:
 
 \section{Estudio del rendimiento de la minería de datos en un modelo de ejecución en paralelo}\label{sec:estudio}
 
-El principal objetivo de este estudio será comprobar los tiempos de ejecución según qué paradigma (secuencial o paralelo) y según que conjunto de datos.
+El principal objetivo de este estudio será comprobar los tiempos de ejecución según qué paradigma (secuencial o paralelo) y según qué conjunto de datos.
 
 Utilizaremos dos herramientas diferentes: Weka (ver definición en \ref{sec:DefWeka}) para la ejecución lineal y Spark (ver definición \ref{sec:DefSpark}) para la ejecución en paralelo.
 
@@ -34,9 +34,9 @@ Las pruebas serán realizadas en una única máquina local, con la posibilidad d
 
 \section{Ejecución del proyecto en un clúster en la nube}\label{sec:ejecucionNube}
 
-A fin de asegurar que el trabajo podría funcionar sin ningún tipo de complicación en un entorno real, se ha propuesto como objetivo el despliegue de la aplicación en algún servicio que ofrezca computación en la nube.
+A fin de asegurar que el trabajo puede funcionar sin ningún tipo de complicación en un entorno real, se ha propuesto como objetivo el despliegue de la aplicación en algún servicio que ofrezca computación en la nube.
 
-Se ha elegido para ello el servicio Google Cloud Dataproc \cite{dataprocSoft}, que ofrece la posibilidad de realizar trabajos de Spark. Igualmente, se ha considerado la posibilidad de ejecutar lanzamientos en un servidor clúster ya contratado por la Universidad de Burgos donde, además, podríamos llevar a cabo un estudio sobre la eficiencia de nuestra aplicación, tal y como se define en la sección \ref{sec:estudio}.
+Se ha elegido para ello el servicio Google Cloud Dataproc \cite{dataprocSoft}, que ofrece la posibilidad de realizar trabajos de Spark. Igualmente, se ha considerado la posibilidad de ejecutar lanzamientos en un servidor clúster propiedad de la Universidad de Córdoba y al que la la Universidad de Burgos tiene acceso. En este último caso, además, podríamos llevar a cabo un estudio sobre la velocidad de nuestra aplicación en este tipo de sistemas.
 
 
 \section{Implementación de una interfaz gráfica de usuario}

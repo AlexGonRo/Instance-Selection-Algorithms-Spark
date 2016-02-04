@@ -8,9 +8,9 @@ A lo largo de este apéndice se va a presentar tanto la evolución temporal que 
 
 En esta sección vamos a presentar un resumen de lo que ha sido la realización del proyecto. 
 
-El desarrollo del proyecto se ha llevado a cabo mediante el uso de metodologías ágiles, realizando reuniones periódicas con los tutores para debatir sobre el desarrollo del trabajo y definir nuevos objetivos. Estas reuniones se han realizado, salvo excepciones, de manera bisemanal, y suponían el fin de un periodo de trabajo (\textit{sprint}) y el comienzo del siguiente. Durante estas reuniones, además, se presentaba el trabajo realizado durante la última iteración.
+El desarrollo del proyecto se ha llevado a cabo mediante el uso de metodologías ágiles, realizando reuniones periódicas con los tutores para debatir sobre el desarrollo del trabajo y definir nuevos objetivos. Estas reuniones se han realizado, salvo excepciones, de manera bisemanal, y suponían el fin de un periodo de trabajo (\textit{sprint}) y el comienzo del siguiente. Durante estos encuentros, además, se presentaba el trabajo realizado durante la última iteración.
 
-Con el fin de no expandir más de lo necesario este anexo, solo se presentará una breve descripción del trabajo realizado en sprint del proyecto. Información más amplia sobre cada uno de los hitos y/o tareas puede encontrarse en la sección \textit{Issues} del repositorio del proyecto, donde los hitos formarán un \textit{issue} y las tareas, así como conversaciones entre los miembros del proyecto, pueden verse recogidas dentro de dicho \textit{issue}.
+Con el fin de no expandir más de lo necesario este anexo, solo se presentará una breve descripción del trabajo realizado en cada sprint del proyecto. Información más amplia sobre cada uno de los hitos y/o tareas puede encontrarse en la sección \textit{Issues} del repositorio del proyecto, donde los hitos formarán un \textit{issue} y las tareas, así como conversaciones entre los miembros del proyecto, pueden verse recogidas dentro de dicho \textit{issue}.
 
 \subsection{Sprint 1 [29/09/15-13/10/15]}
 
@@ -30,9 +30,9 @@ Se busca una serie de conjuntos de datos con diferentes características de tama
 
 Se genera una pequeña clase lanzadora en Spark para poder lanzar y medir nuestros experimentos. Del mismo modo se realizan pequeñas modificaciones en el código de Weka para poder realizar correctamente mediciones.
 
-Además, el comienzo de la documentación forzó al aprendizaje de \LaTeX.
+Además, el comienzo de la documentación fuerza al aprendizaje de \LaTeX.
 
-Finalmente, se terminó el sprint con la entrega del algoritmo en Scala utilizado para las mediciones y un informe con la explicación, resultados y conclusiones de la comparación Weka-Spark.
+Finalmente, se termina el sprint con la entrega del algoritmo en Scala utilizado para las mediciones y un informe con la explicación, resultados y conclusiones de la comparación entre Weka y Spark.
 
 \subsection{Sprint 3 [29/10/15-19/11/15]}
 
@@ -50,7 +50,7 @@ El propio algoritmo LSHIS sufre una mejora, permitiendo ahora ejecutarlo con uno
 
 Se comienza la implementación del algoritmo DemoIS, pero queda suspendida a la espera de contar con una implementación paralela del algoritmo \textit{k}-Nearest Neighbors (\textit{k}NN).
 
-Igualmente frenada por esta espera del algoritmo \textit{k}NN, se plantea una comparación entre nuestra implementación LSHIS y la ya realizada en Weka, aunque nunca llega a producirse dentro de este sprint.
+Igualmente frenada por esta espera del algoritmo \textit{k}NN, se plantea una comparación entre nuestra implementación LSHIS y la ya realizada en Weka, que nunca llega a producirse dentro de este sprint.
 
 Se crea una máquina virtual con todos los materiales necesarios para el despliegue y distribución sencilla de nuestra aplicación.
 
@@ -58,7 +58,7 @@ Al finalizar este sprint contamos con una versión mejorada del algoritmo LSHIS,
 
 \subsection{Sprint 5 [10/12/15-22/12/15]}
 
-Se implementa de manera completa el algoritmo DemoIS. Esto obliga a la creación de algunos otros componentes como el algoritmo \textit{k}NN, cuya implementación paralela no pudimos conseguir.
+Se implementa de manera completa el algoritmo DemoIS. Esto obliga a la creación de  componentes como el algoritmo \textit{k}NN, cuya implementación paralela no pudimos conseguir.
 
 Se realizan pruebas sobre nuestro algoritmo LSHIS. Dichas pruebas generan un número considerable de problemas y, finalmente, cuando conseguimos realizar las mediciones, éstas arrojan malos resultados.
 
@@ -68,7 +68,7 @@ Tras el sprint, podemos mostrar un nuevo algoritmo de selección de instancias y
 
 \subsection{Sprint 6 [22/12/15-08/01/16]}
 
-Se realiza una primera implementación de la interfaz gráfica, que acaba por afectar a prácticamente la totalidad de la biblioteca, aunque nunca de manera sustancial.
+Se realiza una primera implementación de la interfaz gráfica que acaba por afectar a prácticamente la totalidad de la biblioteca, creando nuevas clases, métodos y ocasionando algún cambio en el flujo del programa.
 
 Las pruebas sobre nuestros algoritmos siguen siendo problemáticas y continuamos trabajando sobre ello. Durante este periodo se encuentran una serie de errores que afectaban a la manera en la que medíamos el tiempo de ejecución, así como unos errores en los algoritmos de Weka con los que intentábamos comparar nuestros resultados.
 
@@ -82,17 +82,17 @@ Se realiza una nueva iteración sobre nuestra implementación de los algoritmos,
 
 Habiendo solventado todos los problemas, comenzamos, de nuevo, a realizar pruebas sobre el rendimiento de nuestro trabajo.
 
-Igualmente, iniciamos otra tarea que había quedado suspendida, el despliegue del proyecto en un clúster real, lanzándolo finalmente en dos servicios diferentes: Google Beta Dataproc \cite{dataprocSoft} y un servicio clúster con el que contaba la Universidad de Burgos.
+Igualmente, iniciamos otra tarea que había quedado suspendida, el despliegue del proyecto en un clúster real, lanzándolo finalmente en dos servicios diferentes: Google Cloud Dataproc \cite{dataprocSoft} y un servicio clúster al que tiene acceso la Universidad de Burgos.
 
 Durante este periodo también se trabaja en una gran refactorización del código, cuya calidad había disminuido considerablemente con todos los cambios introducidos en el sprint anterior.
 
-Al finalizar esta iteración contamos con unos algoritmos que han demostrado funcionar correctamente y los resultados de una serie de comparativas que hemos realizado sobre nuestras implementaciones.
+Al finalizar esta iteración contamos con unos algoritmos que han demostrado funcionar correctamente y los resultados de una serie de comparativas que hemos realizado entre nuestras implementaciones y las proporcionadas para la librería Weka.
 
 \subsection{Sprint 8 [25/01/16-05/02/16]}
 
-Entre este periodo y el anterior, se mantienen una serie de ejecuciones de nuestros algoritmos en el servicio clúster con el que cuenta la universidad, pero acaban cancelándose por problemas con los nodos.
+Entre este periodo y el anterior, se mantienen una serie de ejecuciones de nuestros algoritmos en el servicio clúster al que tenía acceso la universidad, pero acaban cancelándose por problemas con los nodos.
 
-Se realizan pequeñas modificaciones en el código en vista a mejorar su calidad o corregir algún comportamiento indeseado.
+Se realizan modificaciones en el código en vista a mejorar su calidad o corregir algún comportamiento indeseado ocasionado por algunas modificaciones en la iteración anterior.
 
 Para terminar, se prepara la versión final de todos los materiales necesarios para la presentación del proyecto al finalizar este último sprint.
 
@@ -101,13 +101,13 @@ Para terminar, se prepara la versión final de todos los materiales necesarios p
 
 El trabajo presentado a lo largo de este proyecto podría enfocarse de dos maneras distintas en esta sección: por un lado, podemos hablar de la viabilidad de los algoritmos implementados. Por otro, de las bases que este proyecto podría sentar para construir una librería con algoritmos de selección de instancias que corran en paralelo.
 
-Sobre el primer punto, la viabilidad de los algoritmos, podemos basarnos en su rendimiento (estudiado en el anexo \ref{anexo:Pruebas}) para concluir que, aunque una de nuestras implementaciones (LSHIS) no aporta una gran mejoría en cuanto a tiempo de ejecución se refiere, la otra (DemoIS) puede llegar fácilmente a mejorar los tiempos de respuesta de su predecesora. Además, ambos algoritmos están pensados para su ejecución sobre grandes conjuntos de datos, algo que no pueden soportar las versiones anteriores de estos algoritmos y que nos proporciona una ventaja fundamental en un ambiente donde cada vez existen un mayor número de datos que analizar.
+Sobre el primer punto, la viabilidad de los algoritmos, podemos basarnos en los estudios realizados (presentados en el anexo \ref{anexo:Pruebas}) para concluir que, aunque una de nuestras implementaciones (LSHIS) no aporta una gran mejoría en cuanto a tiempo de ejecución se refiere, la otra (DemoIS) puede llegar fácilmente a mejorar los tiempos de respuesta de su predecesora. Además, ambos algoritmos están pensados para su ejecución sobre grandes conjuntos de datos, algo que no pueden soportar las versiones anteriores de estos algoritmos y que nos proporciona una ventaja fundamental en un ambiente donde cada vez existen un mayor número de datos que analizar.
 
-Sobre el proyecto como una base para formar una librería, supondría, no solo trabajar en un área en continua expansión, sino comenzar en un momento en el que no existen otras grandes librerías que trabajen con Spark, lo que nos proporciona una gran flexibilidad para orientar el proyecto a donde se estime conveniente.
+Sobre el proyecto como una base para formar una librería, supondría, no solo trabajar en un área en continua expansión, sino comenzar en un momento en el que no existen muchas otras aplicaciones similares que trabajen con Spark. Todo esto nos proporciona una gran flexibilidad para orientar el proyecto a donde se estime conveniente.
 
-En lo que se refiere a aspectos de viabilidad es interesante referirse también al posible futuro de la tecnología en la que se basa el proyecto: Spark.
+Finalmente, es interesante referirse también al posible futuro de la tecnología en la que se basa el proyecto: Spark.
 
-Aunque Apache Spark es una librería cuya versión inicial se presentó a mediados de 2014, ha gozado de buena acogida desde entonces, siendo actualmente uno de los proyectos mejor valorados de la fundación Apache Software Foundation y uno de los más activos \cite{ApacheContributions}. Igualmente, podemos observar en la gráfica \ref{fig:img/anexo/spark_StackOverflow} como el interés por esta tecnología ha crecido en un corto periodo de tiempo para equipararse en interés a muchas de las soluciones ya existentes en el mercado. Nos encontramos, por lo tanto, operando con una tecnología que promete seguir desarrollándose gracias a la aceptación con la que ha sido recibida.
+Aunque Apache Spark es una librería cuya versión inicial se presentó a mediados de 2014, ha gozado de buena acogida desde entonces, siendo actualmente uno de los proyectos mejor valorados de la fundación Apache Software Foundation y uno de los más activos \cite{ApacheContributions}. Igualmente, podemos observar en la gráfica \ref{fig:img/anexo/spark_StackOverflow} como el interés por esta tecnología ha crecido en un corto periodo de tiempo hasta equipararse al nivel de muchas de las soluciones ya existentes en el mercado. Nos encontramos, por lo tanto, operando con una tecnología que promete seguir desarrollándose gracias a la aceptación con la que ha sido recibida.
 
 \imagen{img/anexo/spark_StackOverflow}{Evolución del interés por Apache Spark en la plataforma Stack Overflow \cite{SparkAnalysisRedMonk}.}
 
@@ -120,13 +120,13 @@ La minería de datos es un ámbito del que se espera rápida y fuerte expansión
 
 \imagen{img/anexo/Forbes_big_data}{Interés de las empresas por apostar por el Big Data (2014) \cite{forbesBigData}.}
 
-Un campo en expansión puede proporcionarnos un buen terreno para obtener la rentabilidad económica, pero para ello necesitamos contar con alguna ventaja competitiva que nos permita diferenciarnos del competidor. Podemos destacar la modernidad de la tecnología utilizada, que, al estar enfocada al llamado \textit{big data}, consigue realizar tareas que soluciones anteriores no podían resolver en un tiempo prudencial. Además, dentro del tipo de aplicacaciones que ofertan esta posibilidad, podemos destacar de Spark la capacidad de utilizar memoria para agilizar las operaciones.
+Un campo en expansión puede proporcionarnos un buen terreno para obtener la rentabilidad económica, pero para ello necesitamos contar con alguna ventaja competitiva que nos permita diferenciarnos del competidor. Podemos destacar la modernidad de la tecnología utilizada, que, al estar enfocada al llamado \textit{big data}, consigue realizar tareas que soluciones anteriores no podían resolver en un tiempo prudencial. Además, dentro del tipo de software que oferta esta posibilidad, podemos destacar de Spark la capacidad para gestionar la memoria y agilizar con ello las operaciones realizadas.
 
-En referencia a los servicios sobre los que ejecutar nuestra aplicación, nos encontramos en un punto en el que no es necesario contar con una enorme inversión inicial para hacerse con todo el hardware necesario para conseguir un rápido análisis de datos (clúster con varios nodos, gran capacidad de memoria RAM, etc.). Actualmente, estos servicios pueden contratarse a empresas que ya cuentan con todos estos recursos (tales como Google y su servicio Google Cloud), pagando solo por el uso que hacemos de ellos, lo que abre todavía más el mercado de empresas que podrían permitirse el uso de un clúster para ejecutar este tipo de tareas de minería de datos.
+En referencia a los servicios sobre los que ejecutar nuestra aplicación, nos encontramos en un punto en el que no es necesario contar con una enorme inversión inicial para hacerse con todo el hardware necesario (clúster con varios nodos, gran capacidad de memoria RAM, etc.). Actualmente, estos servicios pueden contratarse a empresas que ya cuentan con todos los recursos (tales como Google y su servicio Google Cloud), pagando solo por el uso que hacemos de ellos, lo que abre todavía más el mercado de empresas que podrían permitirse el uso de un clúster para ejecutar tareas de minería de datos.
 
 \textbf{Clientes objetivo y licencias de distribución}
 
-Aunque, como se ha mencionado, nunca se ha tenido en mente enfocar este producto a ningún aspecto de comercialización concreto, podemos distinguir dos grúpos de clientes sobre los que podría trabajarse:
+Aunque, como se ha mencionado, nunca se ha tenido en mente enfocar este producto a ningún aspecto de comercialización concreto, podemos distinguir dos grupos de clientes sobre los que podría trabajarse:
 
 \begin{itemize}
 \item \textbf{Educación e investigación:} Al igual que otras alternativas existentes en el mercado (como Weka \cite{WekaSoft} o KEEL \cite{KEELSoft1, KEELSoft2}), nuestro proyecto podría abordar el área de la educación desde una nueva perspectiva: la creación de una librería de algoritmos de minería de datos paralelos.
@@ -135,7 +135,7 @@ En esta situación, se distribuiría el producto utilizando la licencia GNU GPL 
 
 \item \textbf{Empresas que manejen grandes volúmenes de datos:} Aunque la minería de datos es algo que parece estar cogiendo fuerza en muchas áreas, nuestra ventaja competitiva reside en la capacidad para tratar problemas de \textit{big data} (grandes conjuntos de datos) de manera eficiente. Es por ello que nuestro objetivo deberían ser aquellas organizaciones, por lo general de gran tamaño, que tengan el problema de tratar con tal cantidad de datos.
 
-En este supuesto, el proyecto podría orientarse para actuar como una capa intermedia entre la empresa y un servicio de computación de la nube. Por las características ya mencionadas de estos servicios de computación, nuestro servicio debería ofrecerse de manera que el usuario adquiriese derecho a uso por un periodo de tiempo limitado, pudiendo renovar o cancelar la suscripción pasado ese tiempo y haciendo más asequible el precio final. Cabe destacar que esta es una situación que el trabajo presentado, más orientado a la investigación, no está preparado para afrontar en la etapa actual, por lo que no se teorizará más sobre el posible desarrollo económico.
+En este supuesto, el proyecto podría orientarse para actuar como una capa intermedia entre la empresa y un servicio de computación de la nube. Por las características ya mencionadas de estos servicios de computación, nuestro producto debería ofrecerse de manera que el usuario adquiriese derecho a uso por un periodo de tiempo limitado, pudiendo renovar o cancelar la suscripción pasado ese tiempo y haciendo más asequible el precio final. Cabe destacar que esta es una situación que el trabajo presentado, más orientado a la investigación, no está preparado para afrontar en la etapa actual, por lo que no se teorizará más sobre el posible desarrollo económico.
 
 \end{itemize}
 

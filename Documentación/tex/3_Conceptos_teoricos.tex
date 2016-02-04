@@ -6,9 +6,9 @@
 
 Es el proceso mediante el cual se pretende extraer conocimiento de un conjunto de datos que, sin ser tratados o analizados previamente, no nos proporcionan información útil \cite{DataMiningConcepts}.
 
-Se trata de un término que podría generar confusión con el de KDD (\textit{Knowledge Discovery from Data} \cite{fayyad1996data}), siendo en ocasiones tratado como un mero sinónimo de este término (que apareció antes que el de minería de datos) y en otras siendo descrito como un mero proceso dentro del descubrimiento de información, encargado de obtener conocimiento mediante la aplicación de algoritmos sobre datos recibidos~\cite{DataMiningConcepts}. 
+Se trata de un término que podría generar confusión con el de KDD (\textit{Knowledge Discovery from Data} \cite{fayyad1996data}), siendo en ocasiones tratado como un mero sinónimo de este término (que apareció antes que el de minería de datos) y en otras siendo descrito como un proceso dentro del descubrimiento de información, encargado de obtener conocimiento mediante la aplicación de algoritmos sobre datos recibidos~\cite{DataMiningConcepts}. 
 
-A lo largo de esta memoria trataremos a la minería de datos como sinónimo de KDD, esto es, el conjunto de procesos que comprenden desde el pre procesamiento de los datos hasta la obtención y presentación de información la información útil que contienen.
+A lo largo de esta memoria trataremos a la minería de datos como sinónimo de KDD, esto es, el conjunto de procesos que comprenden desde el pre procesamiento de los datos hasta la obtención y presentación de la información útil que contienen.
 
 \section{Big Data}\label{sec:defBigData}
 
@@ -16,15 +16,15 @@ Big Data, pese a ser un término cuya definición no ha sido nunca estandarizada
 
 Fue utilizado por primera vez en 1997, en referencia a un problema donde un conjunto de datos tenía dificultad para ser almacenado en memoria o incluso en disco \cite{forbesBigData,cox1997application}. Este aspecto es vital para la comprensión y el trabajo en el área del Big Data: hemos de considerar, desde un primer momento, que no todo nuestros datos van a poder ser guardados en memoria al mismo tiempo.
 
-Sin embargo, el volumen de información no es el único aspecto importante a considerar cuando tratamos con el Big Data. Existe una expresión denominada ``Las cuatro uves del Big Data'' (\textit{The Four V's of Big Data}) que pretende definir las cuatro características básicas de este término: volumen, variedad, velocidad y veracidad \cite{IBMBigData4Vs}. Cualquier trabajo relacionado con el Big Data deberá tener en cuenta la influencia, en mayor o menor medida, de cada uno de estos términos dentro del proyecto y actuar en consecuencia.
+Sin embargo, el volumen de información no es el único aspecto importante a considerar cuando tratamos con el Big Data. Existe una expresión denominada ``Las cuatro uves del Big Data'' (\textit{The Four V's of Big Data}) que pretende definir las cuatro características básicas de este término: volumen, variedad, velocidad y veracidad \cite{IBMBigData4Vs}. Cualquier trabajo relacionado con el Big Data deberá tener en cuenta la influencia, en mayor o menor medida según el área de trabajo, de cada uno de estos términos y actuar en consecuencia.
 
-En lo que se refiere a este proyecto, este término tiene una importancia fundamental: nuestro objetivo final es el de implementar nuevas soluciones que permitan trabajar sobre una gran cantidad de datos, haciendo frente a todos los problemas que esto pudiese suponer.
+En lo que se refiere a este proyecto, el término tiene una importancia fundamental: nuestro objetivo final es el de implementar nuevas soluciones que permitan trabajar sobre una gran cantidad de datos, haciendo frente a todos los problemas que esto pudiese suponer.
 
 \section{Algoritmos de selección de instancias}\label{sec:DefAlgSel}
 
-El objetivo de estos algoritmos es solucionar dos problemas que afectan a la minería de datos: la cantidad cada vez mayor de datos, y su calidad. Podremos, por lo tanto,  definirlos como una herramienta para extraer, de un conjunto de instancias, aquellas que conocemos, o sospechamos, son superfluas o perjudiciales~\cite{IntroInstanceSelect}.
+El objetivo de estos algoritmos es solucionar dos problemas que afectan a la minería de datos: la cantidad cada vez mayor de datos, y su calidad. Podremos, por lo tanto,  definirlos como una herramienta para eliminar, de un conjunto de instancias, aquellas que conocemos, o sospechamos, son superfluas o perjudiciales~\cite{IntroInstanceSelect}.
 
-Eliminando una porción del conjunto de instancias durante la fase de pre procesamiento de los datos conseguimos que el tiempo de ejecución algoritmos posteriores se reduzca, dado que hay menos instancias a examinar, mientras que es posible mejorar los resultados obtenidos al finalizar el proceso de minería~\cite{IntroInstanceSelect}.
+Suprimiendo una porción del conjunto de instancias durante la fase de pre procesamiento de los datos conseguimos que el tiempo de ejecución algoritmos posteriores se reduzca, dado que hay menos instancias a examinar, mientras que es posible llegar a mejorar los resultados obtenidos al finalizar el proceso de minería si conseguimos eliminar instancias ruidosas~\cite{IntroInstanceSelect}.
 
 \subsection{Locality sensitive hashing instance selection (LSHIS)}\label{sec:defLSHIS}
 
@@ -62,7 +62,7 @@ $ S = \varnothing $
 
 \subsection{Democratic Instance Selection}\label{sec:defDemoIS}
 
-El algoritmo DemoIS es un método de selección de instancias que consiste en aplicar, durante un número variable de rondas, algoritmos de selección de instancias sobre subconjuntos disjuntos del gran conjunto inicial. En cada iteración, este algoritmo asignará unos ``votos'' a las instancias dependiendo de si han sido o no seleccionadas. Concluidas las rondas de votación, se realizará un cálculo con una función de \textit{fitness} para seleccionar todas aquellas instancias cuyos votos no hayan superado un determinado límite \cite{DemoISPaper}.
+El algoritmo DemoIS es un método de selección de instancias que consiste en aplicar, durante un número variable de rondas, otros algoritmos de selección de instancias sobre subconjuntos disjuntos del gran conjunto inicial. En cada iteración, este algoritmo asignará unos ``votos'' a las instancias dependiendo de si han sido seleccionadas por el algoritmo al que se han sometido. Concluidas las rondas de votación, se realizará un cálculo con una función de \textit{fitness} para seleccionar todas aquellas instancias cuyos votos no hayan superado un determinado límite \cite{DemoISPaper}.
  
 Al igual que el algoritmo LSHIS mencionado anteriormente, la motivación fundamental es la de crear un algoritmo que requiera una carga computacional menor que las soluciones tradicionales. En este caso, eso se consigue mediante la división del conjunto de datos original en otros más pequeños y, por supuesto, el correcto análisis de los resultados anteriores.
 
@@ -106,9 +106,9 @@ Eliminamos de S todas las instancias cuyo número de votos sea $\geq v$
 
 La computación paralela es un tipo de computación en la que múltiples operaciones son llevadas a cabo simultáneamente \cite{Almasi:1989}. Parte del principio de que algunos problemas pueden subdividirse en problemas independientes más pequeños que pueden resolverse al mismo tiempo.
 
-Es un paradigma que desde el principio se usó para operaciones que requiriesen una gran carga computacional, pero que ha despertado mucho interés en los últimos años gracias a la fácil escalabilidad (ver sección \ref{sec:DefEscalabilidad}) que puede ofrecer frente a otras alternativas, como el aumento de la frecuencia de los procesadores, que han alcanzado un punto donde resulta más difícil avanzar \cite{CompParalelaWiki}.
+Es un paradigma que desde el principio se usó para operaciones que requiriesen una gran carga computacional, pero que ha despertado mucho interés en los últimos años gracias a la fácil escalabilidad que puede ofrecer frente a otras alternativas, como el aumento de la frecuencia de los procesadores, que han alcanzado un punto donde resulta más difícil avanzar \cite{CompParalelaWiki}.
 
-En lo que se refiere al uso de la memoria por parte de un sistema paralelo, existe la posibilidad de que la memoria sea compartida o distribuida dependiendo de si las unidades de procesamiento poseen un espacio de memoria común o cada unidad posee su propio espacio. En lo que se refiere a la tecnología que vamos a usar durante la realización del proyecto (ver sección \ref{sec:DefSpark}), la memoria siempre será distribuida \cite{SparkPaper}.
+En lo que se refiere al uso de la memoria por parte de un sistema paralelo, existe la posibilidad de que la memoria sea compartida o distribuida dependiendo de si las unidades de procesamiento poseen un espacio de memoria común o cada unidad posee su propio espacio. En lo que se refiere a la tecnología que vamos a usar (ver sección \ref{sec:DefSpark}), la memoria siempre será distribuida~\cite{SparkPaper}.
 
 \section{Escalabilidad}\label{sec:DefEscalabilidad}
 
@@ -116,7 +116,7 @@ Escalabilidad es la capacidad de un sistema para adaptarse y soportar una carga 
 
 Durante el desarrollo de la memoria siempre usaremos el término de escalabilidad para referirnos a la escalabilidad horizontal, aquella que consigue su objetivo añadiendo más nodos a un sistema.
 
-También es una característica que puede aplicarse a los algoritmos, para los cuales definimos escalabilidad como la capacidad de funcionar eficientemente cuando se aplican sobre situaciones que requieran una gran carga de trabajo. En lo referente al proyecto, esa situación será, por lo general, tratar con grandes conjuntos de datos.
+También es una característica que puede aplicarse a los algoritmos, para los cuales definimos escalabilidad como la capacidad de funcionar eficientemente cuando se aplican sobre situaciones que requieran una gran carga de trabajo. En lo referente al proyecto, esa situación será, obviamente, tratar con grandes conjuntos de datos.
 
 \section{Rendimiento}\label{sec:Rendimiento}
 

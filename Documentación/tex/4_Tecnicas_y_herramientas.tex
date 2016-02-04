@@ -9,7 +9,7 @@ En esta sección detallaremos brevemente la metodología utilizada durante el de
 
 Scrum es una metodología ágil de desarrollo iterativo e incremental para la gestión del desarrollo de un producto~\cite{wikiScrum}. 
 
-Como parte de la metodología, el trabajo se ha dividido en sprints, intervalos de tiempo de pocas semanas que ofrecen un producto al final de los mismos, que a su vez se han dividido en hitos y estos en tareas.
+Como parte de la metodología, el trabajo se ha dividido en \textit{sprints}, intervalos de tiempo de pocas semanas que ofrecen un producto al final de los mismos. Estos, a su vez, se han dividido en hitos y estos, en tareas.
 
 En lo que se refiere a su aplicación práctica dentro del proyecto, los sprints han tenido una duración aproximada de dos semanas, periodo tras el cual había una reunión entre alumno y tutores para hablar sobre el avance y problemas ocurridos a lo largo del sprint, así como para definir el avance del proyecto durante el próximo periodo de tiempo.
 
@@ -24,20 +24,20 @@ La realización de este trabajo ha dado lugar al uso de multitud de herramientas
 
 \subsection{Apache Spark}\label{sec:DefSpark}
 
-Apache Spark (\url{http://spark.apache.org/}) es un motor de interés general destinado al procesamiento distribuido de grandes conjuntos de datos. Está implementado en Scala, pero también proporciona APIs para otros lenguajes de programación (Java, Python y R) y otro tipo de herramientas para áreas como el aprendizaje automático (ver la sección \ref{MLib})~\cite{SparkDoc}.
+Apache Spark (\url{http://spark.apache.org/}) es un motor de interés general destinado al procesamiento distribuido de grandes conjuntos de datos. Está implementado en Scala, pero también proporciona APIs para otros lenguajes de programación (Java, Python y R) y librerías para áreas como el aprendizaje automático (ver la sección \ref{MLib})~\cite{SparkDoc}.
 
 La idea nació como proyecto en 2010, en la Universidad de California, Berkeley, y su primera versión estable apareció el 30 de mayo de 2014. La motivación inicial era la de proporcionar un nuevo modelo de computación paralela que permitiera la ejecución eficiente de modelos que debían utilizar durante múltiples iteraciones grandes conjuntos de datos. Aproximaciones anteriores basadas en el modelo de MapReduce \cite{MapReducePaper} (como Hadoop), requerían cargar de nuevo todos los datos en memoria, haciendo la tarea demasiado costosa. Como beneficio adicional, Spark ha demostrado que requiere de muchas menos líneas de código a la hora de programar algoritmos destinados al manejo de \textit{Big Data}~\cite{SparkPaper}.
 
 Actualmente Spark es un proyecto de código abierto cedido a Apache, siendo uno de los más activos en cuanto a contribuciones de la comunidad~\cite{ApacheContributions}. 
 
-Para la realización del proyecto hemos utilizado diferentes versiones de Spark. Por lo general hemos trabajado con la versión 1.5.1, pero al utilizar servicios de computación en la nube (ver sección \ref{sec: ejecucionNube}) hemos utilizado la versión 1.5.2 en Google Cloud Dataproc y 1.6.0 en el servicio Clúster Dell.
+Para la realización del proyecto hemos utilizado diferentes versiones de Spark. Por lo general hemos trabajado con la versión 1.5.1, pero al utilizar servicios de computación en la nube (ver sección \ref{sec: ejecucionNube}) hemos utilizado la versión 1.5.2 en Google Cloud Dataproc y 1.6.0 en un servicio Clúster Dell de la Universidad de Córdoba.
 
 \subsubsection{Machine Learning Library (MLlib)}\label{MLib}
 
 Se trata de una de las librerías incluidas en Spark. Contiene un conjunto de clases relacionadas con el campo del aprendizaje automático, como tipos de datos o funcionalidades estadísticas.  
 
 \subsubsection{Resilient Distributed Datasets (RDD)}\label{sec:DefRDD}
-Es una de las características esenciales de Spark. Consiste en una colección de objetos, accesible en modo solo lectura y distribuida a lo largo de un conjunto de máquinas que pueden reconstruir una de sus particiones si esta llegase a perderse~\cite{SparkPaper}. En el caso concreto de nuestro proyecto, los onjetos que formen las RDD serán, en la mayoría de los casos, las instancias utilizadas durante las labores de minería.
+Es una de las características esenciales de Spark. Consiste en una colección de objetos accesible en modo solo lectura y distribuida a lo largo de un conjunto de máquinas, que pueden reconstruir una de sus particiones si esta llegase a perderse~\cite{SparkPaper}. En el caso concreto de nuestro proyecto, los objetos que formen las RDD serán, en la mayoría de los casos, las instancias utilizadas durante las labores de minería.
 
 Estas estructuras soportan dos tipos de operaciones:
 
@@ -46,7 +46,7 @@ Estas estructuras soportan dos tipos de operaciones:
 	\item \textbf{Acciones:} Operaciones sobre las RDD que devuelven un resultado que depende del tipo de acción aplicada.
 \end{itemize}
 
-Otra de las grandes diferencias que caracterizan a las RDD de otro tipo de estructuras es la posibilidad de definir fácilmente el nivel de memoria en el que queremos alojar los datos, algo de lo que muchos \textit{frameworks} anteriores carecían~\cite{RDDPaper}. En un principio todas las RDD son efímeras, esto es, serán eliminadas de memoria si no se indica lo contrario, pero pueden mantenerse para obtener mejores resultados de rendimiento si los datos van a usarse repetidamente con relativa frecuencia. A esta acción de mantener en memoria una RDD se le llama cachear (\textit{caching}).
+Otra de las grandes diferencias que caracterizan a las RDD de otro tipo de estructuras es la posibilidad de definir fácilmente el nivel de memoria en el que queremos alojar los datos, algo de lo que muchos \textit{frameworks} anteriores carecían~\cite{RDDPaper}. En un principio todas las RDD son efímeras, esto es, serán eliminadas de memoria si no se indica lo contrario, pero pueden mantenerse para obtener mejores resultados de rendimiento si los datos van a usarse con frecuencia. A esta acción de mantener en memoria una RDD se le llama cachear (\textit{caching}).
 
 \subsection{Weka}\label{sec:DefWeka}
 Weka \cite{WekaSoft} es un software desarrollado para llevar a cabo labores de minería de datos. Se trata de un proyecto de software libre, realizado en Java y desarrollado por la Universidad de Waikato, Nueva Zelanda.
@@ -55,23 +55,23 @@ Contiene, no solo algoritmos de aprendizaje automático para la minería de dato
 
 Al contrario que otras tecnologías que vamos a usar, esta librería no está pensada para la ejecución en paralelo, lo que la convierte en una buena herramienta para comparar el rendimiento que aplicaciones como Spark (véase \ref{sec:DefSpark}) pueden ofrecernos.
 
-Se ha usado en su versión 3.6.13 durante el principio del proyecto y en su versión 3.7.13 por problemas de compatibilidad con una de las librerías proporcionadas por el tutor.
+Se ha usado en su versión 3.6.13 durante el principio del proyecto y, posteriormente, en su versión 3.7.13 por problemas de compatibilidad con una de las librerías proporcionadas por el tutor.
 
 \subsection{Scala}
 
-Scala (\url{http://www.scala-lang.org/}) es un lenguaje de programación orientado a objetos y a la programación funcional. Es un lenguaje fuertemente tipado.
+Scala (\url{http://www.scala-lang.org/}) es un lenguaje de programación orientado a objetos y a la programación funcional. Es también fuertemente tipado.
 
 Es un lenguaje compilado, produciendo como salida ficheros .class que han de ser ejecutados en una máquina virtual de Java (JVM). Esto permite que librerías de Java puedan ser utilizadas directamente en Scala y viceversa. Por la misma razón, Scala posee la misma portabilidad que Java, pudiendo ejecutarse en cualquier sistema operativo siempre y cuando cuente con una máquina virtual de Java. 
 
 Los motivos de su elección como lenguaje de programación han sido mencionados en la sección \ref{EleccionLenguaje}
 
-Se han utilizado dos versiones de Scala diferentes. Para la ejecución de Spark en nuestra máquina local se ha usado Scala en su versión 2.11.7, mientras que, cuando hemos necesitado desplegar el proyecto en otro servicio, hemos necesitado compilar nuestro trabajo usando Scala 2.10.6.
+Se han utilizado dos versiones de Scala diferentes. Para la ejecución de Spark en nuestra máquina local se ha usado Scala en su versión 2.11.7, mientras que, cuando hemos querido desplegar el proyecto en otro servicio, hemos necesitado compilar nuestro trabajo usando Scala 2.10.6.
 
 \subsection{Java}
 
 Java (\url{https://java.com/}) es un lenguaje de programación orientado a objetos de propósito general diseñado para producir programas multiplataforma.
 
-Necesitamos realizar la instalación de Java porque, aunque no trabajemos directamente sobre este lenguaje, si vamos a necesitar de su máquina virtual para poder ejecutar nuestros programas. Además, hemos utilizado algunas de sus clases para realizar diferentes tareas de la aplicación, como partes de la interfaz gráfica.
+Necesitamos realizar la instalación de Java porque, aunque no trabajemos directamente sobre este lenguaje, si vamos a necesitar de su máquina virtual para poder ejecutar nuestros programas. Además, también hemos utilizado algunas de sus clases.
 
 Hemos usado Java 8 u60 para la realización del proyecto.
 
@@ -81,10 +81,10 @@ JConsole y JvisualVM son una serie de herramientas gráficas de monitorización 
 
 En el proyecto, se han utilizado para evaluar y medir el rendimiento de aplicaciones en Java a nivel local. En el caso de JvisualVM, se ha utilizado específicamente para ver el estado de los hilos que componen la aplicación Java, algo que no permite hacer JConsole.
 
-La elección de utilizar estas herramientas frente a cualquier otra ha sido su facilidad de uso y la posibilidad, en el caso de JConsole, de poder exportar a CSV las mediciones realizadas sobre el uso de memoria o CPU. Además, está el hecho de que es una herramienta ya incluida en el JDK de Java.
+La elección de utilizar estas herramientas frente a cualquier otra ha sido su facilidad de uso y la posibilidad, en el caso de JConsole, de poder exportar a CSV las mediciones realizadas sobre el uso de memoria o CPU.
 
 \subsection{Bitbucket}\label{DefBitbucket}
-Bitbucket (\url{https://bitbucket.org/}) es un repositorio de código que permite la creación, control y mantenimiento de proyectos, que podrán ser públicos o privados. Aunque Bitbucket ofrece la posibilidad de usarlo gratuitamente, también cuenta con otras posibilidades que solo se encontrarán disponibles en su versión de pago. Puede trabajar con los sistemas de control de versiones Git y Mercurial.
+Bitbucket (\url{https://bitbucket.org/}) es un repositorio de código que permite la creación, control y mantenimiento de proyectos, que podrán ser públicos o privados. Puede trabajar con los sistemas de control de versiones Git y Mercurial.
 
 Bitbucket fue propuesto como gestor del proyecto durante el primer sprint del proyecto y, al no tener preferencia por ningún otro repositorio, se aceptó como herramienta a utilizar.
 
@@ -105,29 +105,30 @@ Hemos trabajado con la versión 4.4.2.
 
 \subsubsection{ScalaIDE for Eclipse}
 
-Se trata de un plugin que puede añadirse al entorno de desarrollo Eclipse para poder desarrollar en Scala desde Eclipse~\cite{ScalaIDEPage} .
+Se trata de un plugin que puede añadirse al entorno de desarrollo Eclipse para poder desarrollar en Scala~\cite{ScalaIDEPage}.
 
-Este plugin consigue imitar la mayoría de los aspectos que Eclipse proporciona para Java para permitir un desarrollo más cómodo, esto es, el autocompletado de código, resaltado de texto, definiciones e hipervínculos a clases, marcadores de errores u opción \textit{debug}.
+Esta herramienta consigue imitar la mayoría de los aspectos que Eclipse proporciona para Java para permitir un desarrollo más cómodo, esto es, el autocompletado de código, resaltado de texto, definiciones e hipervínculos a clases, marcadores de errores u opción \textit{debug}.
 
 La versión utilizada de este plugin es la 4.2.0.
-
-\subsection{Apache Maven}
-
-Apache Maven (\url{https://maven.apache.org/}) es una herramienta para la gestión y construcción de proyectos software en Java nacida con la intención de definir una manera estándar para la construcción de proyectos.
-
-Se basa en el concepto de \textit{Project Object Model} (\textit{POM}), un archivo en formato XML que describe el proyecto a construir, la manera de construirlo y  las dependencias con otros componentes.
-
-El lenguaje utilizado para la elaboración del proyecto ha sido Scala (ver sección \ref{EleccionLenguaje}) y, como se ha mencionado, Maven fue pensado para trabajar sobre proyectos Java. Es por ello que necesitaremos de añadir un plugin adicional (\textit{Scala-Maven-Plugin}) a nuestro fichero POM.
-
-Hemos utilizado esta herramienta para empaquetar los algoritmos programados para Spark, además de para construir el propio Spark a partir del código fuente. Se ha seleccionado esta herramienta frente a otras opciones propias para Scala por conocerse con anterioridad su funcionamiento y por no requerir demasiado esfuerzo para ser utilizada en el lenguaje de programación que deseamos.
 
 \subsection{ScalaStyle}
 
 ScalaStyle (\url{http://www.scalastyle.org/}) es una plugin enfocado a la detección de medidas estáticas de calidad en el código de Scala.
 
-Su funcionamiento se basa en la definición de una serie de reglas en un fichero .xml cuyo cumplimiento será revisado en todo el código del proyecto, indicando las líneas donde existe una irregularidad con respecto a dichas reglas.
+Su funcionamiento se basa en la definición de una serie de reglas en un fichero .xml cuyo cumplimiento será revisado en todo el código del proyecto, indicando aquellos puntos donde existe una irregularidad con respecto a dichas reglas.
 
 Se ha incorporado este plugin en Eclipse para detectar y corregir errores de calidad en el código.
+
+
+\subsection{Apache Maven}
+
+Apache Maven (\url{https://maven.apache.org/}) es una herramienta para la gestión y construcción de proyectos software en Java. Nace con la intención de definir una manera estándar para la construcción de proyectos.
+
+Se basa en el concepto de \textit{Project Object Model} (\textit{POM}), un archivo en formato XML que describe el proyecto a construir, la manera de construirlo y  las dependencias con otros componentes.
+
+El lenguaje utilizado para la elaboración del proyecto ha sido Scala y, como se ha mencionado, Maven fue pensado para trabajar sobre proyectos Java. Es por ello que necesitaremos de añadir un plugin adicional (\textit{Scala-Maven-Plugin}) a nuestro fichero POM.
+
+Hemos utilizado esta herramienta para empaquetar nuestro trabajo, además de para construir el propio Spark a partir del código fuente. Se ha seleccionado esta herramienta frente a otras opciones propias para Scala por conocerse con anterioridad su funcionamiento y por no requerir demasiado esfuerzo para ser utilizada en el lenguaje de programación que deseamos.
 
 
 \subsection{Zotero}
@@ -144,7 +145,7 @@ Se ha utilizado su versión más reciente hasta la fecha, TeX Live 2015.
 
 \subsection{TexMaker}
 
-TexMaker (\url{http://www.xm1math.net/texmaker/}) es un editor multiplataforma pensado para el desarrollo de documentos escritos en LaTex. Al igual que otros muchos editores, esta plataforma presenta diferentes herramientas para hacer la creación de los documentos mucho más sencilla, tales como el autocompletado de etiquetas, la detección de errores ortográficos o el coloreado de texto.
+TexMaker (\url{http://www.xm1math.net/texmaker/}) es un editor multiplataforma pensado para el desarrollo de documentos escritos en \LaTeX . Al igual que otros muchos editores, esta plataforma presenta diferentes herramientas para hacer la creación de los documentos mucho más sencilla, tales como el autocompletado de etiquetas, la detección de errores ortográficos o el coloreado de texto.
 
 Hemos usado la versión 4.4.1.
 
