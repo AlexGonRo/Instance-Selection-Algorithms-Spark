@@ -19,24 +19,27 @@
 		<li>Panel del clasificador</li>
 		<li>Menú inferior</li>
 		<li>Ejemplo</li>
+		<li>Errores frecuentes</li>
 	</ol>
 
 
-	<h2 id="Introduccion">Introducción</h2>
+	<h2 id="Introducción">Introducción</h2>
 	<p>A lo largo del siguiente documento se presentará una descripción
 		detallada por cada uno de los paneles y diálogos que ofrece esta
 		interfaz, de manera que se consiga entender la labor de cada uno de
-		sus componentes y esto permita la fácil ejecución de los algoritmos.</p>
+		sus componentes y esto permita la fácil configuración de las tareas.</p>
+	<p>
+		<font size="4"><b>La correcta ejecución de la aplicación
+				supone que se asigne un valor a cada uno de los campos con los que
+				cuenta la interfaz</b></font>, a excepción de aquel dedicado a la validación
+		cruzada. Es importante, por lo tanto, conocer cuál es la utilidad de
+		cada uno de ellos.
+	</p>
 	<center>
 		<img src="img/Interfaz_entera.png" alt="Interfaz completa">
 	</center>
 
-	<p>
-		<b>La correcta ejecución de la aplicación supone que se asigne un
-			valor a cada uno de los campos con los que cuenta la interfaz</b>. Es,
-		por lo tanto, importante conocer cuál es la utilidad de cada uno de
-		ellos.
-	</p>
+
 
 	<h2>Componentes de la interfaz</h2>
 	<p>Podemos identificar diferentes secciones importantes dentro de
@@ -45,21 +48,21 @@
 		<img src="img/Interfaz_numerada.png"
 			alt="Interfaz con paneles numerados">
 	</center>
-	<ul>
+	<ol>
 		<li><b>Panel de Spark:</b> Nos permitirá seleccionar una o varias
 			opciones de configuración para iniciar nuestra tarea en Spark.</li>
-		<li><b>Panel del conjunto de datos:</b>Posibilita la acción de
-			seleccionar uno o más conjuntos de datos, indicando algunas de sus
-			peculiaridades si es preciso (atributo de clase como primer atributo,
-			cabecera del fichero)</li>
-		<li><b>Panel del filtro:</b>Permite seleccionar uno o varios
+		<li><b>Panel del conjunto de datos:</b> Posibilita la acción de
+			seleccionar uno o más conjuntos de datos para analizar, indicando
+			algunas peculiaridades para su lectura si es preciso (atributo de
+			clase como primer atributo, cabecera del fichero)</li>
+		<li><b>Panel del filtro:</b> Permite seleccionar uno o varios
 			algoritmos de filtrado o selección de instancias.</li>
-		<li><b>Panel del clasificador:</b>Ofrece la posibilidad de
+		<li><b>Panel del clasificador:</b> Ofrece la posibilidad de
 			seleccionar un clasificador, además de las opciones de clasificación
 			ligadas con la validación cruzada.</li>
-		<li><b>Menú inferior:</b>Contiene los botones que pondrán en
+		<li><b>Menú inferior:</b> Contiene los botones que pondrán en
 			funcionamiento las acciones de la aplicación.</li>
-	</ul>
+	</ol>
 	<h2>Panel de Spark</h2>
 	<center>
 		<img src="img/Spark_panel.png" alt="Panel Spark">
@@ -71,30 +74,33 @@
 			a ser comunes a todas las ejecuciones que realicemos durante nuestra
 			experimentación. Estas son:
 			<ul>
-				<li><b>Spark_Home:</b>Directorio donde se encuentra la
+				<li><b>Spark_Home:</b> Directorio donde se encuentra la
 					instalación de Apache Spark en la máquina final donde se ejecutarán
-					los algoritmos de minería.</li>
-				<li><b>Master:</b>La dirección URL donde se encuentra el "jefe"
-					(master) de nuestra red. En modo Standalone dicha URL tiene una
-					apariencia tal que spark://HOST:PORT. Para correr en modo local
-					podemos hacerlo indicarlo escribiendo local[_], donde _ indica el
-					número de hilos de ejecución que deseamos asignar.</li>
+					los algoritmos de minería. Este valor será obtenido directamente si
+					nuestro sistema cuenta con la variable <i>$SPARK_HOME</li>.
+				<li><b>Master:</b> La dirección URL donde se encuentra el
+					maestro (master) de nuestra red. En modo Standalone dicha URL tiene
+					una apariencia tal que <i>spark://HOST:PORT</i>. Para correr en
+					modo local podemos hacerlo indicarlo escribiendo <i>local[n]</i>,
+					donde n indica el número de hilos de ejecución que deseamos
+					asignar.</li>
 			</ul></li>
-		<li><b>Lista:</b>Proporciona la posibilidad de añadir una o
-			varias configuraciones de ejecución en cuanto a la configuración de
-			Spark se refiere. Podemos distinguir los siguientes campos:
+		<li><b>Listado de configuraciones:</b>Proporciona la posibilidad
+			de añadir una o varias configuraciones de ejecución en cuanto a la
+			configuración de Spark se refiere. Podemos distinguir los siguientes
+			campos:
 			<ul>
-				<li><b>Número de nucleos por ejecutor:</b>Número de hilos
+				<li><b>Número de núcleos por ejecutor:</b> Número de hilos
 					asignados a cada ejecutor (proceso/s de ejecución dentro de un nodo
 					trabajador).</li>
-				<li><b>Número de nucleos totales:</b>Número de nucleos totales
-					a usar durante la ejecución (entre todos los ejecutores).</li>
-				<li><b>Memoria por ejecutor:</b>Capacidad de memoria asignada a
-					cada ejecutor. Cabe destacar que este campo ha de incluir el número
-					que indique la memoria de ejecución seguido de una letra que
-					identifique la unidad de la que estamos hablando('g' en el caso de
-					GB). Además, es necesario recordar que cada ejecutor debe contar
-					con, al menor, 1 GB de memoria.</li>
+				<li><b>Número de núcleos totales:</b> Número de núcleos totales
+					a usar durante la ejecución entre todos los ejecutores.</li>
+				<li><b>Memoria por ejecutor:</b> Capacidad de memoria asignada
+					a cada ejecutor. Debe indicarse la unidad de medida que estamos
+					utilizando. Inmediatamente después del número deberemos escribir
+					'g' para indicar gibibytes, o 'm' para indicar mebibytes. Además,
+					es necesario recordar que cada ejecutor debería contar con un
+					mínimo de 1 gibibyte de memoria.</li>
 			</ul></li>
 	</ul>
 	<center>
@@ -105,14 +111,15 @@
 		añadir/eliminar los conjuntos de datos seleccionados para el
 		experimento.</p>
 	<p>En lo que respecta a la ventana de selección de conjuntos de
-		datos podemos distinguir los siguientes elementos:</p>
+		datos (obtenida cuando hacemos clic sobre "Añadir...") podemos
+		distinguir los siguientes elementos:</p>
 	<ul>
-		<li><b>Sección de selección de conjunto de datos:</b>Consta de un
-			campo de texto y de un botón que lanza una herramienta para poder
+		<li><b>Sección de selección de conjunto de datos:</b> Consta de
+			un campo de texto y de un botón que lanza una herramienta para poder
 			seleccionar de manera más sencilla el conjunto de datos que deseamos.
 			Una vez seleccionado el conjunto de datos, el campo de texto mostrará
-			la ruta del fichero</li>
-		<li><b>Sección de configuración de opciones:</b>Por defecto, el
+			la ruta al fichero.</li>
+		<li><b>Sección de configuración de opciones:</b> Por defecto, el
 			programa asume que el atributo de clase es el último de la lista de
 			atributos de las instancias y que el conjunto de datos no tiene una
 			cabecera. Si alguno de estos supuestos no se cumpliese, debemos
@@ -125,16 +132,18 @@
 	</center>
 	<h2>Panel del filtro</h2>
 	<p>Está compuesto de una única lista que permite añadir o eliminar
-		elementos gracias a los botones junto a la lista.</p>
-	<p>El diálogo que se muestra tras el botón "Añadir" únicamente
-		permite seleccionar un filtro de entre un número de opciones.</p>
+		elementos gracias a los botones anexos.</p>
+	<p>El diálogo que se muestra tras pulsar el botón "Añadir..."
+		únicamente permite seleccionar un filtro de entre un número de
+		opciones.</p>
 	<center>
 		<img src="img/Filtro_dialog1.png" alt="Diálogo del filtro de la GUI">
 	</center>
-	<p>La selección de cualquier algoritmo ocasionará que la pantalla
-		se llene con nuevas opciones que dependerán del algoritmo
-		seleccionado.Todas estas nuevas opciones deberían mostrar un texto
-		descriptivo de su función si mantenemos el ratón sobre ellas.</p>
+	<p>La selección de cualquier algoritmo ocasionará que el anterior
+		diálogo se llene con nuevas opciones, las cuales dependerán del
+		algoritmo seleccionado. Todas estas nuevas opciones deberían mostrar
+		un texto descriptivo de su función si mantenemos el ratón sobre el
+		campo de texto.</p>
 	<center>
 		<img src="img/Filtro_dialog2.png"
 			alt="Diálogo del filtro de la GUI CON LSHIS cargado">
@@ -143,17 +152,17 @@
 	<p>Este panel cuenta con una función múltiple:</p>
 	<ul>
 		<li><b>Selección de un clasificador:</b> Al igual que en el panel
-			del filtro, se permite seleccionar mediante el botón "Elegir..." un
+			del filtro, se permite seleccionar, mediante el botón "Elegir...", un
 			clasificador de entre la lista de posibles. Esto refrescará la
-			ventana principal dejando visibles nuevas opciones para rellenar que
-			dependerán de cada algoritmo.</li>
-		<li><b>Selección de validación cruzada:</b>Podemos marcar o
+			ventana principal dejando visibles nuevas opciones para la
+			configuración del algoritmo.</li>
+		<li><b>Selección de validación cruzada:</b> Podemos marcar o
 			desmarcar una casilla junto al nombre "Cross-Validation" para indicar
 			que queremos realizar una validación cruzada en nuestros
 			experimentos. Los campos siguientes permiten seleccionar el número de
 			"folds" o veces que repetiremos la validación cruzada y una semilla
 			aleatoria. Si la casilla junto al texto "Cross-Validation" no está
-			marcada, el resto de campos son ignorados</li>
+			marcada, el resto de campos son ignorados.</li>
 	</ul>
 	<center>
 		<img src="img/Clasificador_dialog.png" alt="Panel del clasificador">
@@ -166,28 +175,72 @@
 	<ul>
 		<li><b>Texto informativo:</b> Aunque no se muestra nada mientras
 			no se esté ejecutando ningún comando desde la interfaz, permite
-			visualizar la operación en curso que se está realizando si hemos
-			pulsado alguno de los dos botones del menú ingerior.</li>
-		<li><b>Botón Zip:</b>Genera un archivo .zip con un fichero .sh
+			visualizar la operación en curso si ya hemos pulsado alguno de los
+			dos botones del menú inferior.</li>
+		<li><b>Botón Zip:</b> Genera un archivo .zip con un fichero .sh
 			que contiene las órdenes para realizar una batería de ejecuciones de
 			acuerdo a los datos rellenados en la interfaz. Además, también
 			empaqueta todos los conjuntos de datos que pudiesen necesitarse para
 			la ejecución de dicha batería de datos. Es una opción pensada para
-			ejecutar los algoritmos en una máquina diferente a la que está
-			ejecutanto la interfaz.</li>
-		<li><b>Botón Ejecutar:</b>Comienza la ejecución de la batería de
-			datos en la máquina local. No es la opción ideal si lo que se busca
-			es velocidad de ejecución.</li>
+			ejecutar los algoritmos en una máquina diferente de la que está
+			ejecutando la interfaz.</li>
+		<li><b>Botón Ejecutar:</b> Comienza el lanzamiento de la batería
+			de ejecuciones directamente desde la interfaz. En la parte izquierda
+			inferior de la pantalla podremos ver el estado del proceso, que, por
+			lo general, va a requerir algo de tiempo realizar las ejecuciones.</li>
 	</ul>
 
-
+	<h2 id="Resultado">Resultados</h2>
+	<p>Las carpetas resultantes de aplicar cualquiera de las dos
+		ejecuciones disponibles (ejecutar o comprimir) se encontrarán en la
+		ruta desde donde el usuario invocó al programa si lo hizo por linea de
+		comandos. Si se abrió el programa mediante una operación de doble
+		clic, los resultados aparecerán en el directorio "HOME" del usuario.
+	
 	<h2 id="Ejemplo">Ejemplo</h2>
-	<p>A continuación se muestra una el estado de la interfaz tras generar una batería de dos ejecuciones (misma configuración de Spark y mismo conjunto de datos pero diferente filtro)</p>
+	<p>A continuación se muestra una el estado de la interfaz tras
+		generar una batería de dos ejecuciones (misma configuración de Spark y
+		mismo conjunto de datos pero diferente filtro)</p>
 	<center>
 		<img src="img/Interfaz_entera_rellena.png" alt="Interfaz completa">
 	</center>
-	Vale la pena recordar que, para que una ejecución se produzca de manera satisfactoria, todos los campos paneles han de contar con, al menos, una configuración.
 
+	<p>Un aspecto a mencionar aquí es cómo calcular el número de
+		ejecuciones de una batería. La respuesta es sencilla: la interfaz
+		realizará tantas ejecuciones como combinaciones posibles pueda formar
+		entre las diferentes configuraciones que el usuario ha introducido.
+		Así, por ejemplo, si el usuario ha introducido dos configuraciones
+		para Spark, dos conjuntos de datos y dos filtros diferentes, se podrán
+		generar hasta ocho combinaciones posibles de elementos (pues el
+		clasificador siempre es el mismo para todas las ejecuciones).</p>
+
+	<h2 id="Ejemplo">Errores frecuentes</h2>
+
+	<p>Es posible que al realizar algunos experimentos nos encontremos
+		con algún problema al intentar lanzarlos. A continuación,
+		mencionaremos cuáles son las causas más probables por las que esto
+		ocurre.
+	<p>En primer lugar, vale la pena recordar que, para que una
+		ejecución se produzca de manera satisfactoria, todos los paneles de la
+		interfaz han de contar con, al menos, una configuración.</p>
+
+	<p>En segundo lugar, es necesario recordar que la posesión de esta
+		aplicación no implica tener instalada la tecnología para poder
+		realizar las ejecuciones (Spark). Algunas distribuciones de esta
+		aplicación no cuentan con el material necesario para realizar
+		lanzamientos, solo para definirlos y crear un fichero .zip</p>
+
+	<p>
+		También es importante mencionar que, para que una ejecución pueda
+		realizarse, la distribución pertinente de nuestra aplicación ha de
+		situarse en la carpeta <i>$SPARK_HOME/lib</i>. De lo contrario, la
+		interfaz podría mostrar un mensaje indicando que es imposible
+		localizar el archivo.
+	</p>
+	<p>Si cumplimos los requisitos anteriores, hay que considerar que
+		exista un error al configurar alguno de los componentes del
+		experimento. Compruebe que absolutamente todos los campos de las
+		diferentes configuraciones tienen algún valor.</p>
 </body>
 
 </html>

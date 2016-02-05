@@ -1,4 +1,4 @@
-package gui.dialogs
+package gui.dialog
 
 import java.awt.Component
 import java.awt.Dimension
@@ -30,6 +30,11 @@ class AboutDialog extends JDialog {
    */
   private val yDim = 160
 
+  /**
+   * Espacio horizontal entre elementos
+   */
+  private val hspace = 10
+
   // Elementos de la ventana
   /**
    * Texto con el título del proyecto.
@@ -59,17 +64,17 @@ class AboutDialog extends JDialog {
   okButton.setAlignmentX(Component.CENTER_ALIGNMENT)
 
   // Añadimos todos los elementos al diálogo
-  setTitle("About")
+  setTitle("Acerca de...")
   setSize(new Dimension(xDim, yDim))
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
-  add(Swing.VStrut(10).peer)
+  add(Swing.VStrut(hspace).peer)
   add(titleLabel)
-  add(Swing.VStrut(10).peer)
+  add(Swing.VStrut(hspace).peer)
   add(autorLabel)
-  add(Swing.VStrut(15).peer)
+  add(Swing.VStrut(hspace).peer)
   add(tutor1Label)
   add(tutor2Label)
-  add(Swing.VStrut(10).peer)
+  add(Swing.VStrut(hspace).peer)
   add(okButton)
 
   setVisible(true);

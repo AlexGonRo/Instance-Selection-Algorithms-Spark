@@ -1,14 +1,16 @@
 package instanceSelection.seq.cnn
 
+import scala.Left
+import scala.Right
 import scala.collection.mutable.MutableList
 
 import org.apache.spark.mllib.regression.LabeledPoint
 
-import instanceSelection.seq.abstracts.LinearISTrait
-import utils.Option
+import instanceSelection.seq.abstr.TraitSeqIS
+import utils.DistCalculator
 
 /**
- * Algoritmo de selección de instancias Condensed Nearest Neighbor (CNN)
+ * Algoritmo de selección de instancias Condensed Nearest Neighbor (CNN).
  *
  * CNN construye un conjunto resultado S de un conjunto original T
  * tal que todo ejemplo de T está más cerca a un ejemplo de S de la misma
@@ -19,7 +21,12 @@ import utils.Option
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class CNN extends LinearISTrait {
+class CNN extends TraitSeqIS {
+
+  /**
+   * Calculadora de distancias entre puntos.
+   */
+  val distCalc = new DistCalculator
 
   def instSelection(data: Iterable[LabeledPoint]): Iterable[LabeledPoint] = {
 
@@ -59,7 +66,10 @@ class CNN extends LinearISTrait {
     data: Iterable[LabeledPoint]): Either[LabeledPoint, Boolean] = {
 
     var iter = data.iterator
-    while (iter.hasNext) {
+    var nextInstanceFound = false
+    var nextInstance: LabeledPoint = null
+
+    while (iter.hasNext && !nextInstanceFound) {
       val actualInst = iter.next()
       // Calculamos la instancia o instancias más cercanas
       val closestInst = closestInstances(s, actualInst)
@@ -76,13 +86,19 @@ class CNN extends LinearISTrait {
       // Si no hay instancia cercana de la misma clase, devolvemos la
       // instancia problemática
       if (addToS) {
-        return Left(actualInst)
+        nextInstanceFound = true
+        nextInstance = actualInst
       }
+    }
+
+    if (nextInstanceFound) {
+      Left(nextInstance)
+    } else {
+      // Fin del algoritmo
+      Right(false)
 
     }
 
-    // Fin del algoritmo
-    return Right(false)
   }
 
   /**
@@ -100,7 +116,7 @@ class CNN extends LinearISTrait {
     var iterador = s.iterator
     while (iterador.hasNext) {
       var actualInstance = iterador.next()
-      val actualDist = euclideanDistance(
+      val actualDist = distCalc.euclideanDistance(
         inst.features.toArray, actualInstance.features.toArray)
       if (actualDist == minDist) {
         closest += actualInstance
@@ -112,36 +128,6 @@ class CNN extends LinearISTrait {
     }
 
     closest
-  }
-
-  /**
-   * Calcula la distancia euclidea entre dos vectores de datos numéricos.
-   *
-   * El cálculo de esta distancia no es completo, se suprime la operación de la
-   * raiz cuadrada con la intención de ahorrar operaciones.
-   *
-   * @param point1  Un punto de la medición.
-   * @param point2  Segundo punto.
-   */
-  private def euclideanDistance(point1: Array[Double],
-                                point2: Array[Double]): Double = {
-
-    var dist = 0.0
-    for { i <- 0 until point1.size } {
-      dist += Math.pow((point1(i) - point2(i)), 2)
-    }
-
-    dist
-  }
-
-  /**
-   * Devuelve un elemento iterable que contiene todas las opciones que ofrece
-   * configurar el selector de instancias.
-   *
-   * @return Listado de opciones que admite el el selector de instancias.
-   */
-  override def listOptions: Iterable[Option] = {
-    MutableList.empty[Option]
   }
 
   /**

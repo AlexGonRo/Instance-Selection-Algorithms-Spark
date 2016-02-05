@@ -1,8 +1,12 @@
 package classification.seq
 
 /**
- * Paquete que contiene todas las clases necesarias para la implementación lineal
- * del algoritmo de clasificación KNN (K-nearest neighbour)
+ * Implementación lineal del algoritmo de clasificación KNN
+ * (K-nearest neighbour).
+ *
+ * KNN es un algoritmo de clasificación supervisada que se basa en calcular
+ * la distancia entre diferentes instancias y emitir un resultado en función
+ * de aquellas instancias más cercanas a la que queremos clasificar.
  *
  */
-package knn
+package object knn

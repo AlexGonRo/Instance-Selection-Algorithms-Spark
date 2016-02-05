@@ -1,16 +1,17 @@
 package utils.io
 
-import scala.collection.mutable.ArrayBuffer
+import java.util.logging.Level
+import java.util.logging.Logger
+
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-import java.util.logging.Logger
-import java.util.logging.Level
 
 /**
- * Clase destinada la lectura de conjuntos de datos almacenados en ficheros y a
- * su conversión en estructuras RDD.
+ * Proporciona métodos para la lectura de conjuntos de datos almacenados
+ * en ficheros y realiza su conversión a estructuras
+ * [[org.apache.spark.rdd.RDD]].
  *
  *
  * @constructor Genera un nuevo lector de ficheros
@@ -64,7 +65,8 @@ class FileReader {
 
     // En el caso de que el fichero contenga una cabezera lo eliminamos
     if (header) {
-      data = data.zipWithIndex().filter(_._2 >= headerLines).map(_._1)
+      val broadcastVar = sc.broadcast(headerLines)
+      data = data.zipWithIndex().filter(_._2 >= broadcastVar.value).map(_._1)
     }
 
     // Transformación sobre la RDD para almacenar las instancias en LabeledPoints
@@ -103,20 +105,25 @@ class FileReader {
     var readingHL = false
 
     for { i <- 0 until args.size } { // Por cada argumento
-      args(i) match {
-        case "-f" => first = true
-        case "-hl" => {
-          header = true
-          try {
-            headerLines = args(i + 1).toInt
-          } catch {
-            // Si el siguiente parámetro no es numérico o directamente no existe
-            case e @ (_: IllegalStateException | _: NumberFormatException) =>
-              printErrorReadingCSVArgs
-          }
+      if (readingHL) {
+        try {
+          headerLines = args(i).toInt
+        } catch {
+          // Si el siguiente parámetro no es numérico o directamente no existe
+          case e @ (_: IllegalStateException | _: NumberFormatException) =>
+            printErrorReadingCSVArgs
         }
-        case _ =>
-          printErrorReadingCSVArgs
+        readingHL = false
+      } else {
+        args(i) match {
+          case "-first" => first = true
+          case "-hl" => {
+            header = true
+            readingHL = true
+          }
+          case _ =>
+            printErrorReadingCSVArgs
+        }
       }
     }
   }

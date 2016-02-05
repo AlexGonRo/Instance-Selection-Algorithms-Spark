@@ -1,21 +1,30 @@
-package classification.seq.abstracts
+package classification.seq.abstr
 
 import org.apache.spark.mllib.regression.LabeledPoint
 import utils.Option
 
 /**
- * Interfaz que define los métodos bñasicos que deberá contener un clasificador.
+ * Interfaz que define los métodos básicos que deberá contener un clasificador
+ * secuencial.
+ *
+ * Participa en el patrón de diseño "Strategy" actuando como estrategia
+ * ("Strategy"). Las clases que hereden de esta interfaz participarán en este
+ * mismo patrón como estrategias concretas("concrete strategy") y su
+ * participante contexto podría ser alguna clase que herede de
+ * [[launcher.execution.executionTraitExec]] (no necesariamente todas).
+ * En la versión actual [[launcher.execution.ISClassExec]] y
+ * [[launcher.execution.ISClassExecTest]] podrían actuar como contexto.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-abstract class TraitClassifier {
+trait TraitSeqClassifier {
 
   /**
    * Dado un conjunto de entrenamiento realiza el entrenamiento del clasificador
    * en base a dicho conjunto.
    *
-   * @param  trainingSet  Conjunto de entrenamiento
+   * @param  trainingSet  Conjunto de entrenamiento.
    */
   def train(trainingSet: Iterable[LabeledPoint]): Unit
 
@@ -36,17 +45,6 @@ abstract class TraitClassifier {
   def classify(instances: Iterable[LabeledPoint]): Array[Double]
 
   /**
-   * Devuelve un elemento iterable que contiene todas las opciones que pueden
-   * configurarse de un algoritmo.
-   *
-   * @return Listado de opciones que admite el el selector de instancias.
-   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
-   *   no es correcto.
-   */
-  @throws(classOf[IllegalArgumentException])
-  def listOptions: Iterable[Option]
-
-    /**
    * Dada una lista de parámetos, este método es capaz de analizarlos e inicializar
    * con ellos los valores iniciales del algoritmo.
    *

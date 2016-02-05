@@ -7,7 +7,8 @@
 	<name>ISAlgorithms</name>
 	<inceptionYear>2015</inceptionYear>
 	<url>https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark</url>
-	<description>Proyecto para la ejecución de algoritmos de selección de instancias de manera paralela en Spark.</description>
+	<description>Proyecto para la ejecución de algoritmos de selección de instancias de manera paralela en Spark.
+	Distribución sin interfaz gráfica.</description>
 
 	<properties>
 		<encoding>UTF-8</encoding>
@@ -45,30 +46,6 @@
 		</resources>
 
 		<plugins>
-
-			<!-- Plugin para la comprobación de medidas estáticas de calidad -->
-			<plugin>
-				<groupId>org.scalastyle</groupId>
-				<artifactId>scalastyle-maven-plugin</artifactId>
-				<version>0.7.0</version>
-				<configuration>
-					<verbose>false</verbose>
-					<failOnViolation>true</failOnViolation>
-					<includeTestSourceDirectory>true</includeTestSourceDirectory>
-					<failOnWarning>false</failOnWarning>
-					<sourceDirectory>${basedir}/src/main/scala</sourceDirectory>
-					<configLocation>${basedir}/scalastyle_config.xml</configLocation>
-					<outputFile>${basedir}/scalastyle-output.xml</outputFile>
-					<outputEncoding>UTF-8</outputEncoding>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 
 			<!-- Plugin para compilar en Scala y la generación de Scaladoc -->
 			<plugin>
@@ -126,7 +103,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.name}</finalName>
+					<finalName>${project.name}_cluster</finalName>
 				</configuration>
 			</plugin>
 		</plugins>

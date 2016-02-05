@@ -13,9 +13,8 @@ import scala.swing.Swing
 import scala.swing.TextField
 import scala.swing.event.ButtonClicked
 
-import classification.seq.abstracts.TraitClassifier
 import gui.UI
-import gui.dialogs.ChooseElementDialog
+import gui.dialog.ChooseElementDialog
 import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
@@ -51,10 +50,6 @@ class ClassifierPanel(parent: UI,
    * Opciones de configuración del algoritmo seleccionado.
    */
   var options = Iterable.empty[utils.Option]
-  /**
-   * Algoritmo de classificación elegido.
-   */
-  var classificationAlg: TraitClassifier = null
 
   // Elementos del panel
   /**
@@ -98,15 +93,27 @@ class ClassifierPanel(parent: UI,
   private val cvSeedTextField = new TextField()
   cvSeedTextField.tooltip = "Semilla para la validación cruzada"
 
+  /**
+   * Separación entre elementos de un panel
+   */
+  private val hstrctSize = 6
+  /**
+   * Tamaño del magen superior e inferior de los subpaneles.
+   */
+  private val tdb = 3
+  /**
+   * Tamaño de los márgenes laterales de los subpaneles.
+   */
+  private val lb = 10
   // Subpaneles dentro del panel
   /**
    * Panel que contiene los elementos para la selección de un classificador.
    */
   private val panel1 = new BoxPanel(Orientation.Horizontal) {
     contents += classifierLabel
-    contents += Swing.HStrut(6)
+    contents += Swing.HStrut(hstrctSize)
     contents += classifierTextField
-    contents += Swing.HStrut(6)
+    contents += Swing.HStrut(hstrctSize)
     contents += chooseButton
   }
 
@@ -117,11 +124,11 @@ class ClassifierPanel(parent: UI,
   private val panel3 = new BoxPanel(Orientation.Horizontal) {
     contents += crossValidationLabel
     contents += crossValidationCheckBox
-    contents += Swing.HStrut(6)
+    contents += Swing.HStrut(hstrctSize)
     contents += crossValidationTextField
-    contents += Swing.HStrut(6)
+    contents += Swing.HStrut(hstrctSize)
     contents += cvSeedLabel
-    contents += Swing.HStrut(6)
+    contents += Swing.HStrut(hstrctSize)
     contents += cvSeedTextField
   }
 
@@ -139,11 +146,11 @@ class ClassifierPanel(parent: UI,
    * del clasificador.
    */
   private val biggestPanel = new BoxPanel(orientation) {
-    border = new EmptyBorder(3, 10, 3, 10)
+    border = new EmptyBorder(tdb, lb, tdb, lb)
     contents += panel1
-    contents += Swing.VStrut(6)
+    contents += Swing.VStrut(hstrctSize)
     contents += panel3
-    contents += Swing.VStrut(6)
+    contents += Swing.VStrut(hstrctSize)
   }
 
   // Añadimos los contenidos.
@@ -168,7 +175,6 @@ class ClassifierPanel(parent: UI,
    */
   private def chooseClassifier(): Unit = {
 
-    // TODO Ese if...(como en todas las comunicaciones entre paneles y dialogos)
     val chooseElementDialog = new ChooseElementDialog(this.peer,
       listOfClassifiersPath)
     if (chooseElementDialog.chosenAlgorithm != "") {
@@ -176,14 +182,9 @@ class ClassifierPanel(parent: UI,
       val algorithmName = chooseElementDialog.chosenAlgorithm
       classifierTextField.text = algorithmName
 
-      // Cargar la clase
-
-      classificationAlg =
-        Class.forName(algorithmName).newInstance.asInstanceOf[TraitClassifier]
-
       // Cargar el número de atributos con tips y demás
 
-      options = classificationAlg.listOptions
+      options = chooseElementDialog.algorithmOptions
       panel2 = new GridPanel(options.size, 2) {
 
         options.foreach { option =>
@@ -191,7 +192,7 @@ class ClassifierPanel(parent: UI,
           if (option.optionType == 0) {
             var tmp = new CheckBox()
             tmp.tooltip = option.description
-            tmp.hasFocus == option.default
+            tmp.selected = option.default.toBoolean
             contents += tmp
           } else if (option.optionType == 1) {
             var tmp = new TextField()
@@ -199,10 +200,6 @@ class ClassifierPanel(parent: UI,
             tmp.tooltip = option.description
             contents += tmp
 
-          } else {
-            var tmp = new ComboBox(option.possibilities)
-            tmp.tooltip = option.description
-            contents += tmp
           }
         }
 

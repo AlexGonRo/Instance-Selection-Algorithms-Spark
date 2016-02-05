@@ -7,8 +7,8 @@ import scala.collection.mutable.MutableList
 
 import org.apache.spark.mllib.regression.LabeledPoint
 
-import classification.seq.abstracts.TraitClassifier
-import utils.Option
+import classification.seq.abstr.TraitSeqClassifier
+import utils.DistCalculator
 
 /**
  * Clasificador KNN.
@@ -18,13 +18,18 @@ import utils.Option
  * las instancias más próximas a la que nos interesa las que tendremos en cuenta
  * a la hora de predecir una clasificación.
  *
+ * Participante en el patrón de diseño "Strategy" en el que actúa con el
+ * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
+ * participa como estrategia ("Strategy")
+ * [[classification.seq.abstr.TraitSeqClassifier]].
+ *
  * @constructor Genera un nuevo clasificador con los atributos por defecto
  *   y sin entrenar.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class KNN extends TraitClassifier {
+class KNN extends TraitSeqClassifier {
 
   /**
    * Ruta donde se encuentran las cadenas a mostrar por el logger.
@@ -34,6 +39,10 @@ class KNN extends TraitClassifier {
    * Logger del clasificador.
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
+  /**
+   * Calculadora de distancias entre puntos.
+   */
+  val distCalc = new DistCalculator
 
   /**
    * Número de vecinos cercanos.
@@ -46,12 +55,25 @@ class KNN extends TraitClassifier {
   var trainingData: Iterable[LabeledPoint] = Iterable.empty[LabeledPoint]
 
   override def setParameters(args: Array[String]): Unit = {
+
+    // Comprobamos si tenemos el número de atributos correcto.
+    if (args.size % 2 != 0) {
+      logger.log(Level.SEVERE, "KNNPairNumberParamError",
+        this.getClass.getName)
+      throw new IllegalArgumentException()
+    }
     for { i <- 0 until args.size by 2 } {
-      args(i) match {
-        case "-k" => k = args(i + 1).toInt
-        case somethingElse: Any =>
-          logger.log(Level.SEVERE, "KNNWrongArgsError", somethingElse.toString())
-          logger.log(Level.SEVERE, "KNNISPossibleArgs")
+      try {
+        args(i) match {
+          case "-k" => k = args(i + 1).toInt
+          case somethingElse: Any =>
+            logger.log(Level.SEVERE, "KNNWrongArgsError", somethingElse.toString())
+            logger.log(Level.SEVERE, "KNNISPossibleArgs")
+            throw new IllegalArgumentException()
+        }
+      } catch {
+        case ex: NumberFormatException =>
+          logger.log(Level.SEVERE, "KNNNoNumberError", args(i + 1))
           throw new IllegalArgumentException()
       }
     }
@@ -73,7 +95,7 @@ class KNN extends TraitClassifier {
     // Calculamos la distancia a cada una de las instancias del conjunto de
     // datos
     val distances = for { actualInst <- trainingData }
-      yield (actualInst.label, euclideanDistance(
+      yield (actualInst.label, distCalc.euclideanDistance(
       inst.features.toArray, actualInst.features.toArray))
 
     // Almacenamos las K instancias más cercanas
@@ -97,24 +119,6 @@ class KNN extends TraitClassifier {
       count += 1
     }
     result
-  }
-
-  /**
-   * Calcula la distancia euclidea entre dos vectores de datos numéricos.
-   *
-   * El cálculo de esta distancia no es completo, se suprime la operación de la
-   * raiz cuadrada con la intención de ahorrar operaciones.
-   *
-   * @param  point1  Primer punto.
-   * @param  point2  Segundo punto.
-   */
-  private def euclideanDistance(point1: Array[Double],
-                                point2: Array[Double]): Double = {
-    var dist = 0.0
-    for {i <- 0 until point1.size}
-      dist += Math.pow((point1(i) - point2(i)), 2)
-
-    dist
   }
 
   /**
@@ -150,11 +154,5 @@ class KNN extends TraitClassifier {
 
     closest
   }
-
-  override def listOptions: Iterable[Option] = {
-    val options: MutableList[Option] = MutableList.empty[Option]
-    options += new Option("Vecinos", "Número de vecinos cercanos", "-k", k, 1)
-    options
-  } // end listOptions
 
 }

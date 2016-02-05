@@ -1,15 +1,17 @@
 package utils.partitioner
 
-import org.apache.spark.Partitioner
 import java.util.Random
 
+import org.apache.spark.Partitioner
+
 /**
- * Particionador completamente aleatorio un conjunto de datos en una RDD.
+ * Particionador completamente aleatorio de los objetos de una estructura
+ * [[org.apache.spark.rdd.RDD]].
  *
  * Las posibles particiones que pudiesen generarse con esta clase no tienen
  * garantizado el mismo número de instancias entre ellas.
  *
- * @constructor Crea un nuevo generador de particiones aleatorio
+ * @constructor Crea un nuevo generador de particiones aleatorio.
  * @param  numPartitions  Número de particiones en las que subdividiremos el
  *   conjunto de datos.
  * @param  seed  Semilla para el generador de números aleatorios.

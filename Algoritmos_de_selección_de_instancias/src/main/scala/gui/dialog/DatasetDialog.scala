@@ -1,6 +1,8 @@
-package gui.dialogs
+package gui.dialog
 
 import java.awt.GridLayout
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
 import gui.component.CSVFilter
 import gui.panel.DatasetPanel
@@ -17,9 +19,8 @@ import javax.swing.JTextField
 import javax.swing.border.EmptyBorder
 
 /**
- * Ventana que permite la selección de un conjunto de datos y las selección de
- * diferentes opciones que proporcionen las indicativas correctas para poder
- * leer el archivo.
+ * Diálogo que permite la selección de un conjunto de datos y de las opciones
+ * necesarias para poder leer correctamente el archivo.
  *
  * @constructor Genera un nuevo panel con todos los componentes para poder indicar
  *   la selección de un nuevo conjunto de datos.
@@ -39,6 +40,19 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   var command = ""
 
   // Elementos de la ventana
+  /**
+   * Tamaño del magen superior e inferior de los subpaneles.
+   */
+  private val tdb = 6
+  /**
+   * Tamaño de los márgenes laterales de los subpaneles.
+   */
+  private val lb = 10
+  /**
+   * Separación entre los elementos del panel que contiene las opciones para
+   * la lectura del conjunto de datos.
+   */
+  private val vgap = 20
   /**
    * Texto para el conjunto de datos.
    */
@@ -104,7 +118,7 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
    * Panel que permite seleccionar un conjuto de datos.
    */
   private val panel1 = new JPanel()
-  panel1.setBorder(new EmptyBorder(6, 10, 3, 10))
+  panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
   panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS))
   panel1.add(cdLabel)
   panel1.add(cdTextField)
@@ -115,8 +129,8 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
    * conjunto de datos
    */
   private val panel2 = new JPanel()
-  panel2.setBorder(new EmptyBorder(3, 10, 6, 10))
-  panel2.setLayout(new GridLayout(1, 2, 0, 20))
+  panel2.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
+  panel2.setLayout(new GridLayout(1, 2, 0, vgap))
   /**
    * Muestra opciones para indicar donde estará el atributo de clase de las
    * instancias.
@@ -142,7 +156,7 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
    * Contiene los botones para aceptar/cancelar el contenido del diálogo.
    */
   private val panel3 = new JPanel()
-  panel3.setBorder(new EmptyBorder(3, 10, 6, 10))
+  panel3.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
   panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS))
   panel3.add(cancelButton)
   panel3.add(okButton)
@@ -155,20 +169,20 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   add(panel3)
 
   // Añadimos diferentes "listener" a los componentes
-  chooseButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  chooseButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       chooseActionPerformed(evt)
     }
   })
 
-  okButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  okButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       okActionPerformed(evt);
     }
   })
 
-  cancelButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  cancelButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       cancelActionPerformed(evt);
     }
   })
@@ -183,7 +197,7 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
    *
    * @param  evt  Evento lanzado al presionar sobre el botón.
    */
-  private def chooseActionPerformed(evt: java.awt.event.ActionEvent): Unit =
+  private def chooseActionPerformed(evt: ActionEvent): Unit =
     {
       val returnVal = fileChooser.showOpenDialog(chooseButton)
 
@@ -198,12 +212,11 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
    *
    * @param  evt  Evento lanzado al presionar sobre el botón.
    */
-  private def okActionPerformed(evt: java.awt.event.ActionEvent): Unit =
+  private def okActionPerformed(evt: ActionEvent): Unit =
     {
-      // TODO PROBLEMA SI LA RUTA TIENE ESPACIOS
-      command += cdTextField.getText + " "
+      command += "\"" + cdTextField.getText + "\" "
       if (firstRadioButton.isSelected()) {
-        command += "-f "
+        command += "-first "
       }
       if (headCheckBox.isSelected()) {
         command += "-hl " + numHeaderLinesTextField.getText + " "
@@ -216,7 +229,7 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
    *
    * @param  evt  Evento lanzado al presionar sobre el botón.
    */
-  private def cancelActionPerformed(evt: java.awt.event.ActionEvent): Unit =
+  private def cancelActionPerformed(evt: ActionEvent): Unit =
     {
       this.dispose();
     }

@@ -1,9 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<filters>
-	<filter>
+<!-- Definición de algoritmos de filtrado y sus atributos para ser 
+	utilizados por la interfaz gráfica.
+	
+	algorithms.name Ruta de paquetes hasta la clase y nombre de la clase
+	option.name Nombre de la opción para la interfaz gráfica.
+	option.description Tooltip para la interfaz gráfica.
+	option.command Comando utilizado en una llamada a consola para
+	  configurar el parámetro.
+	option.default Valor por defecto
+	option.optionType 0 CheckBox
+	                  1 Campo de texto
+-->
+<algorithms>
+	<algorithm>
 		<name>instanceSelection.lshis.LSHIS</name>
-	</filter>
-	<filter>
+		<options>
+			<option>
+				<name>ANDs</name>
+				<description>Número de funciones-AND.</description>
+				<command>-and</command>
+				<default>10</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>ORs</name>
+				<description>Número de funciones-OR.</description>
+				<command>-or</command>
+				<default>1</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Anchura</name>
+				<description>Anchura de los buckets.</description>
+				<command>-w</command>
+				<default>1</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Semilla</name>
+				<description>Semilla del generador de números aleatorios.</description>
+				<command>-s</command>
+				<default>1</default>
+				<optionType>1</optionType>
+			</option>
+		</options>
+	</algorithm>
+	<algorithm>
 		<name>instanceSelection.demoIS.DemoIS</name>
-	</filter>
-</filters>
+		<options>
+			<option>
+				<name>Nº rondas</name>
+				<description>Número de rondas de votación.</description>
+				<command>-rep</command>
+				<default>10</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Alpha</name>
+				<description>Valor alpha.</description>
+				<command>-alpha</command>
+				<default>0.75</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Vecinos</name>
+				<description>Número de vecinos más cercanos en KNN.</description>
+				<command>-k</command>
+				<default>1</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Particiones</name>
+				<description>Número de particiones en las que se dividirá el conjunto de datos original.</description>
+				<command>-np</command>
+				<default>10</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Porcentaje error</name>
+				<description>Porcentaje del conjunto de datos utilizado para calcular el error durante el cálculo del fitness.</description>
+				<command>-dsperc</command>
+				<default>1.0</default>
+				<optionType>1</optionType>
+			</option>
+			<option>
+				<name>Semilla</name>
+				<description>Semilla del generador de números aleatorios.</description>
+				<command>-s</command>
+				<default>1</default>
+				<optionType>1</optionType>
+			</option>
+		</options>
+	</algorithm>
+</algorithms>

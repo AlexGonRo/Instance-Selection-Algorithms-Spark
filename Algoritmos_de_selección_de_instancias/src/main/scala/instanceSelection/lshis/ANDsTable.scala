@@ -1,8 +1,9 @@
 package instanceSelection.lshis
 
-import java.util.Random
-import org.apache.spark.mllib.regression.LabeledPoint
 import java.util.Arrays
+import java.util.Random
+
+import org.apache.spark.mllib.regression.LabeledPoint
 
 /**
  *
@@ -20,9 +21,9 @@ import java.util.Arrays
  * @version 1.1.0
  */
 @SerialVersionUID(1L)
-private class ANDsTable(var numOfANDs: Int,
-                        var dim: Int,
-                        var width: Double,
+private class ANDsTable(numOfANDs: Int,
+                        dim: Int,
+                        width: Double,
                         seed: Long) extends Serializable {
 
   // Creamos tantos objetos EuclideanHash como se requieran
@@ -46,8 +47,8 @@ private class ANDsTable(var numOfANDs: Int,
    * @version 1.1.0
    */
   @SerialVersionUID(1L)
-  class EuclideanHash(var dim: Int,
-                      var width: Double,
+  class EuclideanHash(dim: Int,
+                      width: Double,
                       seed: Long) extends Serializable {
 
     /**
@@ -58,7 +59,7 @@ private class ANDsTable(var numOfANDs: Int,
     /**
      * Desplazamiento para el cálculo del valor hash.
      */
-    val offset = {
+    private val offset = {
       if (width < 1.0) {
         rand.nextInt((width * 10).toInt) / 10.0
       } else {
@@ -105,7 +106,7 @@ private class ANDsTable(var numOfANDs: Int,
    */
   def hash(inst: LabeledPoint): Int = {
 
-    val attr = inst.features.toArray /* :+ inst.label */
+    val attr = inst.features.toArray
     // Calculamos todos los valores resultantes de pasar el vector por cada una
     // de las funciones hash (ANDs) que guarda el objeto.
     val hashValues = for { i <- 0 until ands.size }

@@ -1,9 +1,11 @@
-package gui.dialogs
+package gui.dialog
 
 import java.awt.GridLayout
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
-import gui.panel.SparkPanel
 import javax.swing.BoxLayout
+import javax.swing.JButton
 import javax.swing.JDialog
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -32,6 +34,19 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
 
   // Componentes del diálogo
   /**
+   * Tamaño del magen superior e inferior de los subpaneles.
+   */
+  private val tdb = 6
+  /**
+   * Tamaño de los márgenes laterales de los subpaneles.
+   */
+  private val lb = 10
+  /**
+   * Espacio de separación entre los diferentes componentes de un layout
+   * cuadriculado
+   */
+  private val gGap = 5
+  /**
    * Texto indicando el número de nucleos por ejecutor.
    */
   private val coresExecutorLabel = new JLabel("Número de núcleos por ejecutor")
@@ -59,11 +74,21 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   /**
    * Botón para aceptar una nueva configuración.
    */
-  private val okButton = new javax.swing.JButton("Añadir")
+  private val okButton = new JButton("Añadir")
   /**
    * Botón para cancelar y cerrar el diálogo.
    */
-  private val cancelButton = new javax.swing.JButton("Cancelar")
+  private val cancelButton = new JButton("Cancelar")
+
+  // Asignamos tooltips a los campos de texto.
+
+  coresExecutorTextField.setToolTipText("Número de núcleos usados" +
+    "por cada unidad ejecutora (executor).")
+  totalCoresTextField.setToolTipText("Número total de núcleos para " +
+    "usignar a una tarea.")
+  memExecutorTextField.setToolTipText("Cantidad de memoria usada por " +
+    "unidad ejecutora (executor). DEBE INDICARSE UNIDAD " +
+    "(m=mebibytes,g=gibibytes)")
 
   // Paneles
 
@@ -71,8 +96,8 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    * Panel con los diferentes campos a rellenar.
    */
   private val panel1 = new JPanel()
-  panel1.setBorder(new EmptyBorder(6, 10, 3, 10))
-  panel1.setLayout(new GridLayout(3, 2, 5, 5))
+  panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
+  panel1.setLayout(new GridLayout(3, 2, gGap, gGap))
   panel1.add(coresExecutorLabel)
   panel1.add(coresExecutorTextField)
   panel1.add(totalCoresLabel)
@@ -84,7 +109,7 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    * Panel con los botones para aceptar/cancelar una determinada configuración.
    */
   private val panel2 = new JPanel()
-  panel2.setBorder(new EmptyBorder(3, 10, 6, 10))
+  panel2.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
   panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS))
   panel2.add(cancelButton)
   panel2.add(okButton)
@@ -97,14 +122,14 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
 
   // Añadimos a los botones la capacidad de escuchar eventos lanzados
   // al seleccionarlos.
-  okButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  okButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       okActionPerformed(evt);
     }
   })
 
-  cancelButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  cancelButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       cancelActionPerformed(evt);
     }
   })
@@ -119,7 +144,7 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    *
    * @param  evt  Evento lanzado al presionar sobre el botón.
    */
-  private def okActionPerformed(evt: java.awt.event.ActionEvent): Unit =
+  private def okActionPerformed(evt: ActionEvent): Unit =
     {
       command += "--executor-cores " + coresExecutorTextField.getText + " "
       command += "--total-executor-cores " + totalCoresTextField.getText + " "
@@ -132,7 +157,7 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    *
    * @param  evt  Evento lanzado al presionar sobre el botón.
    */
-  private def cancelActionPerformed(evt: java.awt.event.ActionEvent): Unit =
+  private def cancelActionPerformed(evt: ActionEvent): Unit =
     {
       this.dispose();
     }

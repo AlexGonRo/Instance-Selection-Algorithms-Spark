@@ -2,10 +2,11 @@ package utils.io
 
 import java.io.File
 import java.io.PrintWriter
+import java.text.SimpleDateFormat
 import java.util.Calendar
+
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-import java.text.SimpleDateFormat
 
 /**
  * Proporciona métodos para almacenar el resultado obtenido tras la ejecución de

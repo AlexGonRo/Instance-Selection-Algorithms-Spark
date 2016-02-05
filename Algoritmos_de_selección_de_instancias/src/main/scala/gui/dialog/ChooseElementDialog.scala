@@ -1,11 +1,14 @@
-package gui.dialogs
+package gui.dialog
 
 import java.awt.Color
+import java.awt.Container
+import java.awt.event.ActionListener
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 
 import scala.collection.mutable.ArrayBuffer
-
-import org.w3c.dom.Element
-import org.w3c.dom.Node
+import scala.collection.mutable.MutableList
+import scala.xml.XML
 
 import javax.swing.BoxLayout
 import javax.swing.DefaultListModel
@@ -16,10 +19,10 @@ import javax.swing.JPanel
 import javax.swing.ListSelectionModel
 import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
-import javax.xml.parsers.DocumentBuilderFactory
+import utils.Option
 
 /**
- * Ventana que permite la selección de diferentes opciones mostradas en una
+ * Diálogo que permite la selección de diferentes opciones mostradas en una
  * lista.
  *
  * @constructor Genera una lista con diferentes opciones leidas de un archivo
@@ -30,13 +33,17 @@ import javax.xml.parsers.DocumentBuilderFactory
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
+class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog {
 
   /**
    * Texto que contiene la ruta al algoritmo seleccionado.
    */
   var chosenAlgorithm = ""
 
+  /**
+   * Listado de opciones del algoritmo seleccionado.
+   */
+  var algorithmOptions: MutableList[Option] = MutableList.empty[Option]
   // Elementos de la ventana
   /**
    * Botón de aceptar.
@@ -59,20 +66,20 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
    * Modelo del componente lista.
    */
   private val listModel = new DefaultListModel[String]
-
-  for { i <- 0 until elements.size } {
-    listModel.addElement(elements(i))
-  }
-  elementsList.setModel(listModel)
-  elementsList.setBorder(new LineBorder(Color.GRAY, 1, true))
-  elementsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION)
-
+  /**
+   * Tamaño del magen superior e inferior de los subpaneles.
+   */
+  private val tdb = 6
+  /**
+   * Tamaño de los márgenes laterales de los subpaneles.
+   */
+  private val lb = 10
   // Paneles de la ventana
   /**
    * Panel con una lista que muestra las diferentes opciones.
    */
   private val panel1 = new JPanel()
-  panel1.setBorder(new EmptyBorder(6, 10, 3, 10))
+  panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
   panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS))
   panel1.add(elementsList)
 
@@ -80,10 +87,20 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
    * Panel con los botones para aceptar o cancelar.
    */
   private val panel2 = new JPanel()
-  panel2.setBorder(new EmptyBorder(3, 10, 6, 10))
+  panel2.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
   panel2.setLayout(new BoxLayout(panel2, BoxLayout.X_AXIS))
   panel2.add(cancelButton)
   panel2.add(okButton)
+
+  // Añadimos alguna configuración a la lista
+  elementsList.setBorder(new LineBorder(Color.GRAY, 1, true))
+  elementsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION)
+
+  // Añadimos componentes a la lista
+  for { i <- 0 until elements.size } {
+    listModel.addElement(elements(i))
+  }
+  elementsList.setModel(listModel)
 
   // Añadimos los paneles a nuestro dialogo
   setTitle("Elegir...")
@@ -91,15 +108,21 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
   add(panel1)
   add(panel2)
 
-  okButton.addActionListener(new java.awt.event.ActionListener() {
+  okButton.addActionListener(new ActionListener() {
     def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
       okActionPerformed(evt);
     }
   })
 
-  cancelButton.addActionListener(new java.awt.event.ActionListener() {
+  cancelButton.addActionListener(new ActionListener() {
     def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
       cancelActionPerformed(evt);
+    }
+  })
+
+  elementsList.addMouseListener(new MouseAdapter() {
+    override def mouseClicked(evt: MouseEvent): Unit = {
+      clickPerformed(evt)
     }
   })
 
@@ -118,6 +141,7 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
       if (elementsList.getSelectedIndices().length != 0) {
         var indexChosen = elementsList.getSelectedIndices()(0)
         chosenAlgorithm = listModel.getElementAt(indexChosen)
+        algorithmOptions = getSelectedAlgorithmOptions
         this.dispose();
       }
     }
@@ -142,23 +166,60 @@ class ChooseElementDialog(myParent: JPanel, xmlPath: String) extends JDialog {
 
     val xmlFile = getClass.getResourceAsStream(xmlPath)
     val elements = ArrayBuffer.empty[String]
-    val db = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-    val parsedDoc = db.parse(xmlFile)
 
-    parsedDoc.getDocumentElement().normalize()
+    val xmlElem = XML.load(xmlFile)
 
-    // TODO Revisar el nivel de las etiquetas del XML
-    val nList = parsedDoc.getElementsByTagName("name");
-
-    for { i <- 0 until nList.getLength } {
-      val node = nList.item(i)
-      if (node.getNodeType() == Node.ELEMENT_NODE) {
-        elements += node.asInstanceOf[Element].getTextContent
+    (xmlElem \ "algorithm").foreach { algorithm =>
+      (algorithm \ "name").foreach { name =>
+        elements += name.text
       }
     }
-
     elements
+  }
 
+  /**
+   * Selecciona una opción de la lista si se ha hecho clic sobre ella dos
+   * veces seguidas.
+   *
+   * @param evt Evento de clic
+   */
+  private def clickPerformed(evt: MouseEvent): Unit = {
+    if (evt.getClickCount() == 2) {
+      var indexChosen = elementsList.getSelectedIndices()(0)
+      chosenAlgorithm = listModel.getElementAt(indexChosen)
+      algorithmOptions = getSelectedAlgorithmOptions
+      this.dispose();
+    }
+  }
+
+  /**
+   * Busca todas sus opciones del algoritmo seleccionado.
+   *
+   * @return Opciones del algoritmo.
+   */
+  private def getSelectedAlgorithmOptions: MutableList[Option] = {
+    val optionsList: MutableList[Option] = MutableList.empty[Option]
+    val xmlFile = getClass.getResourceAsStream(xmlPath)
+    val elements = ArrayBuffer.empty[String]
+    val xmlElem = XML.load(xmlFile)
+
+    val index =
+      findAvailableElements.indexOf(chosenAlgorithm)
+
+    ((xmlElem \ "algorithm")(index) \ "options").foreach { options =>
+      (options \ "option").foreach { option =>
+        val name = (option \ "name").text
+        val description = (option \ "description").text
+        val command = (option \ "command").text
+        val default = (option \ "default").text
+        val optionType = (option \ "optionType").text.toInt
+        optionsList +=
+          new Option(name, description, command, default, optionType)
+      }
+
+    }
+
+    optionsList
   }
 
 }

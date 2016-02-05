@@ -1,27 +1,28 @@
 package launcher.execution
 
-import java.util.logging.Level
 import java.util.logging.Logger
 
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
-import classification.seq.abstracts.TraitClassifier
-import instanceSelection.abstracts.TraitIS
+import classification.seq.abstr.TraitSeqClassifier
+import instanceSelection.abstr.TraitIS
 import utils.io.ResultSaver
 
 /**
- * Permite la ejecución de una labor de minería de datos que contenga un
+ * Ejecuta de una labor de minería de datos que contenga un
  * selector de instancias y un classificador, utilizado tras el filtrado.
  *
  * Además, realiza la medición del tiempo de filtrado.
  *
+ * Participa en un patrón "Strategy" de la misma manera y en el
+ * mismo rol que la clase [[launcher.execution.ISClassExec]] de la que hereda.
+ *
  * @author Alejandro González Rogel
- * @version 2.0.0
+ * @version 1.0.0
  */
 class ISClassExecTest extends ISClassExec {
 
@@ -42,26 +43,28 @@ class ISClassExecTest extends ISClassExec {
 
   override protected def executeExperiment(sc: SparkContext,
                                            instSelector: TraitIS,
-                                           classifier: TraitClassifier,
+                                           classifier: TraitSeqClassifier,
                                            train: RDD[LabeledPoint],
                                            test: RDD[LabeledPoint]): Unit = {
 
     train.persist()
     train.name = "TrainData"
-    train.foreach { x => None }
+    train.foreachPartition { x => None }
 
     // Instanciamos y utilizamos el selector de instancias
     val start = System.currentTimeMillis
-    val resultInstSelector = applyInstSelector(instSelector, train, sc)
+    val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
+    resultInstSelector.foreachPartition { x => None }
     executionTimes += System.currentTimeMillis - start
 
-    reduction += 1 - (resultInstSelector.count() / train.count().toDouble)
+    reduction += (1 - (resultInstSelector.count() / train.count().toDouble)) * 100
 
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
 
     classificationResults += classifierResults
-    classificationResults += 1
+    //        classificationResults += 0
+
   }
 
   override protected def saveResults(args: Array[String],

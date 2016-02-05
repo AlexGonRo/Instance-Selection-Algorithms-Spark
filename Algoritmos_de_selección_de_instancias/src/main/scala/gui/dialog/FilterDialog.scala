@@ -1,15 +1,15 @@
-package gui.dialogs
+package gui.dialog
 
 import java.awt.Dimension
 import java.awt.GridLayout
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
 import scala.collection.mutable.ArrayBuffer
 
-import instanceSelection.abstracts.TraitIS
 import javax.swing.BoxLayout
 import javax.swing.JButton
 import javax.swing.JCheckBox
-import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JDialog
 import javax.swing.JLabel
@@ -19,7 +19,7 @@ import javax.swing.border.EmptyBorder
 import utils.Option
 
 /**
- * Ventana que permite la selección de un un filtro para el conjunto de datos
+ * Diálogo que permite la selección de un un filtro para el conjunto de datos
  * así como ajustar los parámetros del mismo.
  *
  * En el momento de la invocación, este diálogo únicamente contará con una
@@ -49,10 +49,7 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    * Opciones configurables del algoritmo seleccionado.
    */
   var algorithmOptions: Iterable[Option] = Iterable.empty[utils.Option]
-  /**
-   * Algoritmo de filtrado de instancias seleccionado.
-   */
-  var isAlgorithm: TraitIS = null
+
   /**
    * Listado con todos los componentes que permiten la selección y
    * configuración de las opciones del filtro.
@@ -65,6 +62,14 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   val listOfFiltersPath = "/resources/availableFilters.xml"
 
   // Componentes de la ventana
+  /**
+   * Tamaño del magen superior e inferior de los subpaneles.
+   */
+  private val tdb = 6
+  /**
+   * Tamaño de los márgenes laterales de los subpaneles.
+   */
+  private val lb = 10
   /**
    * Texto indicativo para indicar que estamos hablando sobre la selección
    * de un filtro.
@@ -93,7 +98,7 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    * Panel con todos los componentes para seleccionar un filtro
    */
   private val panel1 = new JPanel()
-  panel1.setBorder(new EmptyBorder(6, 10, 3, 10))
+  panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
   panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS))
   panel1.add(filterLabel)
   panel1.add(filterTextField)
@@ -105,14 +110,14 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
    * Sus componentes pueden variar dependiendo del filtro seleccionado.
    */
   private var panel2 = new JPanel()
-  panel2.setBorder(new EmptyBorder(6, 10, 3, 10))
+  panel2.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
 
   /**
    * Panel con los botones para aceptar/cancelar una determinada selección del
    * fitro.
    */
   private val panel3 = new JPanel()
-  panel3.setBorder(new EmptyBorder(3, 10, 6, 10))
+  panel3.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
   panel3.setLayout(new BoxLayout(panel3, BoxLayout.X_AXIS))
   panel3.add(cancelButton)
   panel3.add(okButton)
@@ -127,20 +132,20 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   // Damos la capacidad a los botones de escuchar eventos cuando se hace
   // click sobre ellos.
 
-  chooseButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  chooseButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       chooseActionPerformed(evt)
     }
   })
 
-  okButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  okButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       okActionPerformed(evt);
     }
   })
 
-  cancelButton.addActionListener(new java.awt.event.ActionListener() {
-    def actionPerformed(evt: java.awt.event.ActionEvent): Unit = {
+  cancelButton.addActionListener(new ActionListener() {
+    def actionPerformed(evt: ActionEvent): Unit = {
       cancelActionPerformed(evt);
     }
   })
@@ -158,10 +163,7 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   private def chooseActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
 
-      // TODO Revisar este null
-      // TODO y ese if...
-      // TODO (como en todas las comunicaciones entre paneles y dialogos)
-      val chooseElementDialog = new ChooseElementDialog(null,
+      val chooseElementDialog = new ChooseElementDialog(this.getContentPane,
         listOfFiltersPath)
       if (chooseElementDialog.chosenAlgorithm != "") {
         panel2.removeAll()
@@ -169,12 +171,10 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
         panel2.repaint()
         val algorithmName = chooseElementDialog.chosenAlgorithm
         filterTextField.setText(algorithmName)
-        // Cargar la clase
-        isAlgorithm =
-          Class.forName(algorithmName).newInstance.asInstanceOf[TraitIS]
+
         // Cargar el número de atributos con toda su información
         dinamicOptions = ArrayBuffer.empty[JComponent]
-        algorithmOptions = isAlgorithm.listOptions
+        algorithmOptions = chooseElementDialog.algorithmOptions
 
         panel2.setLayout(new GridLayout(algorithmOptions.size, 2) {
 
@@ -183,7 +183,7 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
             if (option.optionType == 0) {
               var tmp = new JCheckBox()
               tmp.setToolTipText(option.description)
-              tmp.hasFocus == option.default
+              tmp.setSelected(option.default.toBoolean)
               panel2.add(tmp)
               dinamicOptions += tmp
             } else if (option.optionType == 1) {
@@ -192,16 +192,13 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
               tmp.setToolTipText(option.description)
               panel2.add(tmp)
               dinamicOptions += tmp
-            } else {
-              var tmp = new JComboBox(option.possibilities.toArray)
-              tmp.setToolTipText(option.description)
-              panel2.add(tmp)
-              dinamicOptions += tmp
             }
           }
           // Dibujar
-          // TODO Revisar por qué pack() no funciona correctamente
+          // pack() no funciona correctamente
+          // scalastyle:off
           setSize(new Dimension(400, 250))
+          // scalastyle:on
           // pack()
           revalidate()
           repaint()
@@ -233,12 +230,6 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
             command +=
               actualOption.command + " " +
               dinamicOptions(i).asInstanceOf[JTextField].getText + " "
-          } else {
-            // TODO Comprobar si esta opción funciona bien
-            command +=
-              actualOption.command + " " +
-              dinamicOptions(i).asInstanceOf[JComboBox[String]].
-              getSelectedItem.toString + " "
           }
         }
         this.dispose();

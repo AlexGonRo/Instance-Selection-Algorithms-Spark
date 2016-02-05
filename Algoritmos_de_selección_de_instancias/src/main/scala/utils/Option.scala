@@ -1,7 +1,7 @@
 package utils
 
 /**
- * Clase que almacena toda la información necesaria de una opción de un
+ * Almacena toda la información necesaria sobre una opción configurable de un
  * clasificador o selector de instancias.
  *
  * @param  name  Nombre formal.
@@ -14,14 +14,10 @@ package utils
  *
  *   1 indica atributo numérico.
  *
- *   2 indica múltiples opciones de entre cadenas de texto.
- *
- * @param possibilities  Posibles opciones seleccionables para el tipo de opción 2.
- *
  * @author Alejandro González Rogel
  * @version 1.0.0
  *
  */
-class Option(val name: String, val description:String, val command:String,
-    val default:Any, val optionType:Int,val possibilities:Seq[String]=Seq.empty)
+class Option(val name: String, val description: String, val command: String,
+             val default: String, val optionType: Int)
 

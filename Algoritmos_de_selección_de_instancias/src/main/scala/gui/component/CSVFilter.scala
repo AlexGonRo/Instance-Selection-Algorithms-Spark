@@ -5,8 +5,10 @@ import java.io.File
 import javax.swing.filechooser.FileFilter
 
 /**
- * Filtro del selector de archivos de Java que permite visualizar unicamente
- * los archivos con extensión .csv.
+ * Filtro del selector de archivos de Java [[javax.swing.filechooser]].
+ *
+ * Permite visualizar todos los archivos o únicamente aquellos con
+ * extensión .csv.
  *
  * @constructor Crea un nuevo filtro.
  *
@@ -26,16 +28,16 @@ class CSVFilter extends FileFilter {
    */
   override def accept(f: File): Boolean = {
     if (f.isDirectory()) {
-      return true
+      true
+    } else {
+      val fileName = f.getName()
+      val extension = fileName.substring(fileName.lastIndexOf(".") + 1)
+      if (extension != null && extension.equals("csv")) {
+        true
+      } else {
+        false
+      }
     }
-
-    val fileName = f.getName()
-    val extension = fileName.substring(fileName.lastIndexOf(".") + 1)
-    if (extension != null && extension.equals("csv")) {
-      return true;
-    }
-
-    return false;
   }
 
   /**

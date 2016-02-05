@@ -6,4 +6,4 @@ package instanceSelection.seq
  *
  */
 
-package abstracts
+package instanceSelection.seq.abstr

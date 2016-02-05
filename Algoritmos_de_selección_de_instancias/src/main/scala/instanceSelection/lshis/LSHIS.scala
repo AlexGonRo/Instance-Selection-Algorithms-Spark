@@ -1,19 +1,17 @@
 package instanceSelection.lshis
 
+import java.util.Random
 import java.util.logging.Level
 import java.util.logging.Logger
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.MutableList
-import java.util.Random
 
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
-import instanceSelection.abstracts.TraitIS
-import utils.Option
+import instanceSelection.abstr.TraitIS
 
 /**
  *
@@ -28,6 +26,10 @@ import utils.Option
  * instancia de cada clase, que pasará a formar parte del conjunto
  * de instancias final.
  *
+ * Participante en el patrón de diseño "Strategy" en el que actúa con el
+ * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
+ * participa como estrategia ("Strategy")
+ * [[instanceSelection.abstr.TraitIS]].
  *
  * @constructor Crea un nuevo algoritmo LSHIS con los parámetros por defecto.
  *
@@ -46,11 +48,11 @@ class LSHIS extends TraitIS {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Número de funciones-AND a utilizar.
+   * Número de funciones-AND.
    */
   var ANDs: Int = 10
   /**
-   * Número de funciones-OR a utilizar.
+   * Número de funciones-OR.
    */
   var ORs: Int = 1
   /**
@@ -61,10 +63,6 @@ class LSHIS extends TraitIS {
    * Semilla para los números aleatorios.
    */
   var seed: Long = 1
-  /**
-   * Generador de números aleatorios.
-   */
-  private var r: Random = new Random(seed)
 
   override def instSelection(
     sc: SparkContext,
@@ -74,7 +72,9 @@ class LSHIS extends TraitIS {
 
     parsedData.name = "TrainInLSHIS"
 
-    val andTables = createANDTables(parsedData.first().features.size /* + 1 */ )
+    val r = new Random(seed)
+
+    val andTables = createANDTables(parsedData.first().features.size, r)
 
     // Variable para almacenar el resultado final
     var finalResult: RDD[LabeledPoint] = null
@@ -87,7 +87,6 @@ class LSHIS extends TraitIS {
       val keyInstRDD = parsedData.map { instancia =>
         ((andTable.hash(instancia), instancia.label), instancia)
       }
-
       // Seleccionamos una instancia por cada par (bucket,clase)
       val partialResult = keyInstRDD.reduceByKey { (inst1, inst2) => inst1 }
 
@@ -96,13 +95,12 @@ class LSHIS extends TraitIS {
         finalResult.name = "PartialResult"
       } else {
         // Recalculamos los buckets para las instancias ya seleccionadas
-        // en otras iteraciones
+        // en otras iteraciones.
         val alreadySelectedInst = finalResult.map { instancia =>
           ((andTable.hash(instancia), instancia.label), instancia)
         }
-
         // Sobre la RDD de la iteración, seleccionamos aquellas las instancia
-        // cuya key no esté repetida en el resultado final
+        // cuya key no esté repetida en el resultado final.
         val keyClassRDDGroupBy = partialResult.subtractByKey(alreadySelectedInst)
         val selectedInstances = keyClassRDDGroupBy.map[LabeledPoint] {
           case (tupla, instancia) => instancia
@@ -122,32 +120,37 @@ class LSHIS extends TraitIS {
    * dimensión indicada por parametro.
    *
    * @param  dim  Dimensión de las funciones hash
+   * @param  r  Generador de números aleatorios.
    * @return Array con todas las tablas instanciadas
    */
-  private def createANDTables(dim: Int): ArrayBuffer[ANDsTable] = {
+  private def createANDTables(dim: Int, r: Random): ArrayBuffer[ANDsTable] = {
 
     // Creamos tantos componentes AND como sean requeridos.
     var andTables: ArrayBuffer[ANDsTable] = new ArrayBuffer[ANDsTable]
     for { i <- 0 until ORs } {
-      andTables += new ANDsTable(ANDs, dim, width, r.nextInt())
+      andTables += new ANDsTable(ANDs, dim, width, r.nextInt)
     }
     andTables
   } // end createANDTables
 
   override def setParameters(args: Array[String]): Unit = {
 
+    // Comprobamos primero si tenemos el número de atributos correcto.
+    if (args.size % 2 != 0) {
+      logger.log(Level.SEVERE, "LSHISPairNumberParamError",
+        this.getClass.getName)
+      throw new IllegalArgumentException()
+    }
+
     for { i <- 0 until args.size by 2 } {
-      args(i) match {
-        case "-and" => ANDs = args(i + 1).toInt
-        case "-w"   => width = args(i + 1).toDouble
-        case "-s" => {
-          seed = args(i + 1).toInt
-          r = new Random(seed)
-        }
-        case "-or" => ORs = args(i + 1).toInt
-        case somethingElse: Any =>
-          logger.log(Level.SEVERE, "LSHISWrongArgsError", somethingElse.toString())
-          logger.log(Level.SEVERE, "LSHISPossibleArgs")
+
+      try {
+        val identifier = args(i)
+        val value = args(i + 1)
+        assignValToParam(identifier, value)
+      } catch {
+        case ex: NumberFormatException =>
+          logger.log(Level.SEVERE, "LSHISNoNumberError", args(i + 1))
           throw new IllegalArgumentException()
       }
     }
@@ -161,15 +164,20 @@ class LSHIS extends TraitIS {
 
   } // end readArgs
 
-  override def listOptions: Iterable[Option] = {
-    val options: MutableList[Option] = MutableList.empty[Option]
-    options += new Option("ANDs", "Número de funciones-AND", "-and", ANDs, 1)
-    options += new Option("ORs", "Número de funciones-OR", "-or", ORs, 1)
-    options += new Option("Anchura", "Anchura de los buckets", "-w", width, 1)
-    options += new Option("Semilla", "Semilla del generador de números" +
-      "aleatorios", "-s", seed, 1)
-
-    options
-  } // end listOptions
+  protected override def assignValToParam(identifier: String,
+                                          value: String): Unit = {
+    identifier match {
+      case "-and" => ANDs = value.toInt
+      case "-w"   => width = value.toDouble
+      case "-s" => {
+        seed = value.toInt
+      }
+      case "-or" => ORs = value.toInt
+      case somethingElse: Any =>
+        logger.log(Level.SEVERE, "LSHISWrongArgsError", somethingElse.toString())
+        logger.log(Level.SEVERE, "LSHISPossibleArgs")
+        throw new IllegalArgumentException()
+    }
+  }
 
 }

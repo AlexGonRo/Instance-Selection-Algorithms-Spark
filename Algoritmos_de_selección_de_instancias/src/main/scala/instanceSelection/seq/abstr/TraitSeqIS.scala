@@ -1,8 +1,6 @@
-package instanceSelection.seq.abstracts
+package instanceSelection.seq.abstr
 
 import org.apache.spark.mllib.regression.LabeledPoint
-
-import utils.Option
 
 /**
  * Interfaz que proporciona todos los métodos requeridos para la implementación
@@ -13,7 +11,7 @@ import utils.Option
  */
 
 @SerialVersionUID(1L)
-trait LinearISTrait extends Serializable {
+trait TraitSeqIS extends Serializable {
 
   /**
    *
@@ -28,14 +26,6 @@ trait LinearISTrait extends Serializable {
    */
   @throws(classOf[IllegalArgumentException])
   def instSelection(data: Iterable[LabeledPoint]): Iterable[LabeledPoint]
-
-  /**
-   * Devuelve un elemento iterable que contiene todas las opciones que se pueden
-   * configurar en el selector de instancias.
-   *
-   * @return Listado de opciones que admite el el selector de instancias.
-   */
-  def listOptions: Iterable[Option]
 
   /**
    * Dada una lista de parametros, este método es capaz de analizarlos y

@@ -4,7 +4,7 @@ import scala.collection.mutable.MutableList
 
 import org.apache.spark.mllib.regression.LabeledPoint
 
-import instanceSelection.seq.abstracts.LinearISTrait
+import instanceSelection.seq.abstr.TraitSeqIS
 
 /**
  * Algoritmo encargado de asignar "votos" a instancias en función de si han
@@ -35,7 +35,7 @@ private class VotingInNodes extends Serializable {
    */
   def applyIterationPerPartition(
     instancesIterator: Iterator[(Int, LabeledPoint)],
-    linearIS: LinearISTrait): Iterator[(Int, LabeledPoint)] = {
+    linearIS: TraitSeqIS): Iterator[(Int, LabeledPoint)] = {
 
     // Almacenamos todos los valores en listas
     var instancias = new MutableList[LabeledPoint]
@@ -49,7 +49,7 @@ private class VotingInNodes extends Serializable {
     // Ejecutamos el algoritmo
     var selected = linearIS.instSelection(instancias)
 
-    // Actualizamos
+    // Actualizamos los contadores de las instancias no seleccionadas.
     var iter = contInstTuple.iterator
     var actIndex = -1
     while (iter.hasNext) {

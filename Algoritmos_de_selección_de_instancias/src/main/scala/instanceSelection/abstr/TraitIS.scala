@@ -1,14 +1,20 @@
-package instanceSelection.abstracts
+package instanceSelection.abstr
 
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
-import utils.Option
-
 /**
  * Abstracción que incluye todos los métodos que deberán ser implementados por
  * un algoritmo de selección de instancias.
+ *
+ * Participa en el patrón de diseño "Strategy" actuando como estrategia
+ * ("Strategy"). Las clases que hereden de esta interfaz participarán en este
+ * mismo patrón como estrategias concretas("concrete strategy") y su
+ * participante contexto podría ser alguna clase que herede de
+ * [[launcher.execution.executionTraitExec]] (no necesariamente todas).
+ * En la versión actual [[launcher.execution.ISClassExec]] y
+ * [[launcher.execution.ISClassExecTest]] podrían actuar como contexto.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -39,11 +45,16 @@ trait TraitIS {
   def setParameters(args: Array[String]): Unit
 
   /**
-   * Devuelve un elemento iterable que contiene todas las opciones del algoritmo
-   * que pueden configurarse.
+   * Dado una cadena identificativa de un parámetro y un valor,
+   * intenta asignar dicho valor al parámetro concreto.
    *
-   * @return Listado de opciones que admite el el selector de instancias.
+   * @param  identifier Identificador del parámetro en un comando de consola.
+   * @param  value  Valor a asignar.
+   *
+   * @throws IllegalArgumentException Si alguno de los parámetros
+   *   no es correcto: el identificador no existe o el valor no es el esperado.
    */
-  def listOptions: Iterable[Option]
+  @throws(classOf[IllegalArgumentException])
+  protected def assignValToParam(identifier: String, value: String): Unit
 
 }

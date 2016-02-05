@@ -1,7 +1,7 @@
 package instanceSelection
 
 /**
- * Paquete principal que contendrá todos aquellos algoritmos que, pese a ser
+ * Contiene todos aquellos algoritmos que, pese a ser
  * ejecutados en Spark, no poseen una implementación paralela.
  *
  * Las causas para la implementación linear son ,bien por imposibilidad
@@ -10,4 +10,4 @@ package instanceSelection
  *
  */
 
-package seq
+package object seq

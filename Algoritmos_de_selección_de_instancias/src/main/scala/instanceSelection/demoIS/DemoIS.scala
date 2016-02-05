@@ -11,10 +11,9 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
 import classification.seq.knn.KNN
-import instanceSelection.abstracts.TraitIS
-import instanceSelection.seq.abstracts.LinearISTrait
+import instanceSelection.abstr.TraitIS
+import instanceSelection.seq.abstr.TraitSeqIS
 import instanceSelection.seq.cnn.CNN
-import utils.Option
 import utils.partitioner.RandomPartitioner
 
 /**
@@ -26,6 +25,11 @@ import utils.partitioner.RandomPartitioner
  * un número indicado de veces, calcularemos la verdadera salida del algoritmo
  * en base a un criterio que busca adecuar precisión y tamaño del conjunto
  * final.
+ *
+ * Participante en el patrón de diseño "Strategy" en el que actúa con el
+ * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
+ * participa como estrategia ("Strategy")
+ * [[instanceSelection.abstr.TraitIS]].
  *
  * @constructor Crea un nuevo selector de instancias con los parámetros por
  *   defecto.
@@ -63,7 +67,7 @@ class DemoIS extends TraitIS {
   /**
    * Semilla para el generador de números aleatorios.
    */
-  var seed = 1
+  var seed: Long = 1
 
   /**
    * Número de vecinos cercanos a utilizar en el KNN.
@@ -102,13 +106,15 @@ class DemoIS extends TraitIS {
    *   tiene un contador asociado que indica el número de veces que ha sido
    *   seleccionada.
    * @return Conjunto de datos original con los contadores actualizados.
+   *
+   * @todo Habilitar la posibilidad de cambiar el algoritmo de selección
+   * de instancias usado cuando exista más de uno implementado.
    */
   private def doIterations(
     RDDconContador: RDD[(Int, LabeledPoint)]): RDD[(Int, LabeledPoint)] = {
 
     // Algoritmo secuencial a usar en cada subconjunto de datos.
-    // TODO De momento no se habilita la posibilidad de cambiar este parametro.
-    val seqAlgorithm: LinearISTrait = new CNN()
+    val seqAlgorithm: TraitSeqIS = new CNN()
 
     // Operación a realizar en cada uno de los nodos.
     val votingInNodes = new VotingInNodes()
@@ -210,10 +216,19 @@ class DemoIS extends TraitIS {
 
   override def setParameters(args: Array[String]): Unit = {
 
+    // Comprobamos si tenemos el número de atributos correcto.
+    checkIfCorrectNumber(args.size)
+
     for { i <- 0 until args.size by 2 } {
-      val identifier = args(i)
-      val value = args(i + 1)
-      assignValToParam(identifier, value)
+      try {
+        val identifier = args(i)
+        val value = args(i + 1)
+        assignValToParam(identifier, value)
+      } catch {
+        case ex: NumberFormatException =>
+          logger.log(Level.SEVERE, "DemoISNoNumberError", args(i + 1))
+          throw new IllegalArgumentException()
+      }
     }
 
     if (numRepeticiones <= 0 || alpha < 0 || alpha > 1 || k <= 0 ||
@@ -225,18 +240,8 @@ class DemoIS extends TraitIS {
 
   }
 
-  /**
-   * Asigna un valor a un parámetro basandose en el comando identificativo del
-   * mismo.
-   *
-   * @param  identifier Identificador del parámetro en un comando de consola.
-   * @param  value  Valor que deseamos asignar.
-   *
-   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
-   *   no es correcto.
-   */
-  @throws(classOf[IllegalArgumentException])
-  private def assignValToParam(identifier: String, value: String): Unit = {
+  protected override def assignValToParam(identifier: String,
+                                          value: String): Unit = {
     identifier match {
       case "-rep"    => numRepeticiones = value.toInt
       case "-alpha"  => alpha = value.toDouble
@@ -252,22 +257,24 @@ class DemoIS extends TraitIS {
     }
   }
 
-  override def listOptions: Iterable[Option] = {
-    val options: MutableList[Option] = MutableList.empty[Option]
-    options += new Option("Nº rondas", "Número de rondas de votación", "-rep",
-      numRepeticiones, 1)
-    options += new Option("Alpha", "Valor alpha", "-alpha", alpha, 1)
-    options += new Option("Vecinos", "Número de vecinos más cercanos en KNN",
-      "-k", k, 1)
-    options += new Option("Parciciones", "Número de particiones en las" +
-      "que se dividirá el conjunto de datos original", "-np", numPartitions, 1)
-    options += new Option("Porcentaje error", "Porcentaje del conjunto de" +
-      " datos utilizado para calcular el error durante el cálculo del fitness",
-      "-dsperc", datasetPerc, 1)
-    options += new Option("Semilla", "Semilla del generador de números aleatorios",
-      "-s", seed, 1)
+  /**
+   * Comprueba si el número de parámetros introducido puede corresponder a
+   * al de una configuración válida.
+   *
+   * @param Número de parametros y valores introducidos al configurar.
+   *
+   * @throws IllegalArgumentException si el número de parametros no es
+   *   correcto
+   */
+  @throws(classOf[IllegalArgumentException])
+  def checkIfCorrectNumber(argsNumber: Int): Unit = {
 
-    options
+    if (argsNumber % 2 != 0) {
+      logger.log(Level.SEVERE, "DemoISPairNumberParamError",
+        this.getClass.getName)
+      throw new IllegalArgumentException()
+    }
+
   }
 
 }

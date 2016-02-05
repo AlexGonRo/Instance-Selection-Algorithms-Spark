@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<classifiers>
-	<classifier>
+
+<!-- Definicióin de algoritmos de clasificación y sus atributos para ser 
+	utilizados por la interfaz gráfica.
+	
+	algorithms.name Ruta de paquetes hasta la clase y nombre de la clase
+	option.name Nombre de la opción para la interfaz gráfica.
+	option.description Tooltip para la interfaz gráfica.
+	option.command Comando utilizado en una llamada a consola para
+	  configurar el parámetro.
+	option.default Valor por defecto
+	option.optionType 0 CheckBox
+	                  1 Campo de texto
+-->
+<algorithms>
+	<algorithm>
 		<name>classification.seq.knn.KNN</name>
-	</classifier>
-</classifiers>
+		<options>
+			<option>
+				<name>Vecinos</name>
+				<description>Número de vecinos cercanos.</description>
+				<command>-k</command>
+				<default>1</default>
+				<optionType>1</optionType>
+			</option>
+		</options>
+	</algorithm>
+</algorithms>

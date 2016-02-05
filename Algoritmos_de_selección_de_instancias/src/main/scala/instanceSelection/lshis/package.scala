@@ -1,7 +1,7 @@
 package instanceSelection
 
 /**
- * Contiene todas las clases necesarias para la ejecución del algoritmo
+ * Implementación paralela del algoritmo algoritmo
  * Locality Sensitive Hashing Instance Selection(LSH IS).
  *
  * LSH-IS es un algoritmo de selección de instancias apoyado en el uso de LSH.
@@ -13,4 +13,4 @@ package instanceSelection
  * de instancias final.
  *
  */
-package instanceSelection.lshis
+package object lshis

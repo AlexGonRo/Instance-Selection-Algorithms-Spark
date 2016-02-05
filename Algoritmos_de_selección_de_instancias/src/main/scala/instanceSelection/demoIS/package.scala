@@ -1,7 +1,7 @@
 package instanceSelection
 
 /**
- * Contiene todas las clases relacionadas con el algoritmo Democratic
+ * Implementación paralela del algoritmo Democratic
  * Instance Selection
  *
  * Democratic Instance Selection es un algoritmo de selección de instancias

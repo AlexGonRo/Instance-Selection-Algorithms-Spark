@@ -9,17 +9,27 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel
 
-import classification.seq.abstracts.TraitClassifier
-import instanceSelection.abstracts.TraitIS
+import classification.seq.abstr.TraitSeqClassifier
+import instanceSelection.abstr.TraitIS
 import utils.ArgsSeparator
 import utils.io.FileReader
 import utils.io.ResultSaver
 
 /**
- * Permite la ejecución de una labor de minería de datos que contenga un
+ * Ejecuta una labor de minería de datos que contenga un
  * selector de instancias y un classificador, utilizado tras el filtrado.
+ *
+ * Participante en el patrón de diseño "Strategy" en el que actúa con el
+ * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
+ * actua como estrategia ("Strategy") [[launcher.execution.TraitExec]] y que
+ * será usada por [[launcher.ExperimentLauncher]] en la aplicación de este
+ * patrón.
+ *
+ * También es participante de su propio patrón "Strategy", donde actua como
+ * contexto de dos estrategias diferentes: [[instanceSelection.abstr.TraitIS]]
+ * y [[classification.seq.abstr.TraitSeqClassifier]].
+ *
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -80,11 +90,12 @@ class ISClassExec extends TraitExec {
     val classifierName = classiArgs(0).split("\\.").last
 
     // Creamos un nuevo contexto de Spark
-    val sc = new SparkContext(new SparkConf())
+    val sc = new SparkContext()
     // Utilizarlo solo para pruebas lanzadas desde Eclipse
+    // val master = "local[2]"
     // val sparkConf =
-    //  new SparkConf().setMaster("local[2]").setAppName("Prueba_Eclipse")
-    //val sc = new SparkContext(sparkConf)
+    //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
+     // val sc = new SparkContext(sparkConf)
 
     try {
 
@@ -193,24 +204,27 @@ class ISClassExec extends TraitExec {
    * @return pares entrenamiento-test
    */
   protected def createCVFolds(originalData: RDD[LabeledPoint],
-                              crossValidationArgs: Array[String]): ArrayBuffer[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
+                              crossValidationArgs: Array[String]):
+                              ArrayBuffer[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
 
     var crossValidationFolds = 1
     var crossValidationSeed = 1
+    // Porcentaje de instancias del conjunto de datos inicial que tendrán
+    // los bloques de test
+    var testPerc = 0.1
 
     // Vemos si existe validación cruzada
     if (!crossValidationArgs.isEmpty) {
       crossValidationFolds = crossValidationArgs.head.toInt
+      if(crossValidationFolds>1){
+        testPerc = 1 / crossValidationFolds.toDouble
+      }
       if (crossValidationArgs.size == 2) {
         crossValidationSeed = crossValidationArgs(1).toInt
       }
     }
 
-    // Porcentaje de instancias del conjunto de datos inicial que tendrán
-    // los bloques de test
-    val testPerc = 1 / crossValidationFolds.toDouble
-
-    // Instancias todavía no incluidas en ningún bloque.    
+    // Instancias todavía no incluidas en ningún bloque.
     var notSelectedYetOriginalData = originalData
 
     var result = ArrayBuffer.empty[(RDD[LabeledPoint], RDD[LabeledPoint])]
@@ -218,13 +232,10 @@ class ISClassExec extends TraitExec {
     for { i <- 0 until crossValidationFolds } {
       // Porcentaje de instancias aún no seleccionadas que necesitamos
       // seleccionar para esta ronda.
-      // TODO ¿Eliminar persistencia y persistir nueva RDD?
-      // notSelectedYetOriginalData.unpersist(false)
       val selectedPerc = testPerc / (1 - (testPerc * i))
       val test = notSelectedYetOriginalData
         .sample(false, selectedPerc, crossValidationSeed + i)
       notSelectedYetOriginalData = notSelectedYetOriginalData.subtract(test)
-      // notSelectedYetOriginalData.persist(StorageLevel.MEMORY_AND_DISK)
       val train = originalData.subtract(test)
       result += ((train, test))
     }
@@ -263,19 +274,19 @@ class ISClassExec extends TraitExec {
    */
   protected def executeExperiment(sc: SparkContext,
                                   instSelector: TraitIS,
-                                  classifier: TraitClassifier,
+                                  classifier: TraitSeqClassifier,
                                   train: RDD[LabeledPoint],
                                   test: RDD[LabeledPoint]): Unit = {
 
     // Instanciamos y utilizamos el selector de instancias
-
-    val resultInstSelector = applyInstSelector(instSelector, train, sc)
-    reduction += 1 - (resultInstSelector.count() / train.count().toDouble)
+    val trainSize = train.count
+    val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
+    reduction += (1 - (resultInstSelector.count() / trainSize.toDouble)) * 100
 
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
     classificationResults += classifierResults
-    classificationResults += 1
+
   }
 
   /**
@@ -284,12 +295,12 @@ class ISClassExec extends TraitExec {
    * @param classifierArgs  Argumentos de configuración del clasificador.
    */
   protected def createClassifier(
-    classifierArgs: Array[String]): TraitClassifier = {
+    classifierArgs: Array[String]): TraitSeqClassifier = {
     // Seleccionamos el nombre del algoritmo
     val classifierName = classifierArgs.head
     val argsWithoutClassiName = classifierArgs.drop(1)
     val classifier =
-      Class.forName(classifierName).newInstance.asInstanceOf[TraitClassifier]
+      Class.forName(classifierName).newInstance.asInstanceOf[TraitSeqClassifier]
     classifier.setParameters(argsWithoutClassiName)
     classifier
   }
@@ -323,7 +334,7 @@ class ISClassExec extends TraitExec {
    * @param postFilterData  Conjunto de datos de test
    * @param  sc  Contexto Spark
    */
-  protected def applyClassifier(classifier: TraitClassifier,
+  protected def applyClassifier(classifier: TraitSeqClassifier,
                                 trainData: RDD[LabeledPoint],
                                 testData: RDD[LabeledPoint],
                                 sc: SparkContext): Double = {
