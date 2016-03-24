@@ -8,16 +8,24 @@
 	<inceptionYear>2015</inceptionYear>
 	<url>https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark</url>
 	<description>Proyecto para la ejecución de algoritmos de selección de instancias de manera paralela en Spark.
-	Distribución con interfaz gráfica.</description>
+	Distribución con únicamente interfaz gráfica.
+Versión Scala: 2.11.8
+</description>
 
 	<properties>
 		<encoding>UTF-8</encoding>
-		<scala.version>2.11.7</scala.version>
+		<scala.version>2.11.8</scala.version>
 		<scala.compat.version>2.11</scala.compat.version>
 	</properties>
 
 	<dependencies>
-
+	
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- Componentes gráficos -->
 		<dependency>
 			<groupId>org.scala-lang.modules</groupId>
