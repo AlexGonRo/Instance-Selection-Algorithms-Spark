@@ -10,7 +10,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
-import classification.seq.knn.KNN
+import classification.knn.KNN
 import instanceSelection.abstr.TraitIS
 import instanceSelection.seq.abstr.TraitSeqIS
 import instanceSelection.seq.cnn.CNN
@@ -63,22 +63,54 @@ class DemoIS extends TraitIS {
    *  las realizar las votaciones.
    */
   var numPartitions = 10
+  
+    /**
+   * Número de vecinos cercanos a utilizar en el KNN.
+   */
+  var k = 1
+  
+  /**
+   * Número de particiones en las que dividir el conjunto de entrenamiento del KNN.
+   */
+   var numPartitionsKNN = 10
+   
+  /**
+   * Número de veces que se aplica la fase "reduce" en el KNN.
+  */
+  var numReducesKNN = 1
+  
+  /**
+   * Número de particiones en las que dividir el conjunto de test del KNN.
+   */
+  var numReducePartKNN = 1  //-1 auto-setting
+  
+  /**
+   * Peso máximo de cada partición del conjunto de test.
+   */
+  var maxWeightKNN = 0.0
 
+  
   /**
    * Semilla para el generador de números aleatorios.
    */
   var seed: Long = 1
 
   /**
-   * Número de vecinos cercanos a utilizar en el KNN.
-   */
-  var k = 1
-
-  /**
    * Porcentaje del conjunto de datos inicial usado para calcular la precisión
    * de las diferentes aproximaciones según el número de votos de las instancias.
    */
   var datasetPerc = 1.0
+  
+  /**
+   * Número de clases del conjunto de datos.
+   */
+  var numClasses = 0
+  /**
+   * Manera de calcular la distancia entre dos instancias.
+   * 
+   * MANHATTAN = 1 ; EUCLIDEAN = 2 ; HVDM = 3
+   */
+  var distType = 1
 
   override def instSelection(
     sc: SparkContext,
@@ -159,15 +191,15 @@ class DemoIS extends TraitIS {
     // Creamos un conjunto de test
     val testRDD =
       RDDconContador.sample(false, datasetPerc / 100, seed).map(tupla => tupla._2)
-        .collect()
 
     val originalDatasetSize = RDDconContador.count()
 
     for { i <- 1 to numRepeticiones } {
 
       // Seleccionamos todas las instancias que no superan el tresshold parcial
+      //TODO No estoy seguro de que este persist sea necesario.
       val selectedInst = RDDconContador.filter(
-        tupla => tupla._1 < i).map(tupla => tupla._2).collect()
+        tupla => tupla._1 < i).map(tupla => tupla._2).persist()  
 
       if (selectedInst.isEmpty) {
         criterion += Double.MaxValue
@@ -181,34 +213,53 @@ class DemoIS extends TraitIS {
   }
 
   /**
-   *
+   * Calcula un valor fitness aplicando la fórmula de una selección basándose
+   * en la fórmula: alpha * testError + (1 - alpha) * subDatasize
+   * 
    * @param  selectedInst  Subconjunto de instancias cuyo contador ha superado
    *   un número determinado
+   * @param  testRDD  Conjunto de instanciasde test para pasar al KNN
    * @param  dataSetSize  Tamaño del conjunto original de datos.
    * @return Resultado numérico del criterio de selección.
    */
-  private def calcCriterion(selectedInst: Array[LabeledPoint],
-                            testRDD: Array[LabeledPoint],
+  private def calcCriterion(selectedInst: RDD[LabeledPoint],
+                            testRDD: RDD[LabeledPoint],
                             dataSetSize: Long): Double = {
 
     // Calculamos el porcentaje del tamaño que corresponde al subconjunto
-    val subDatasize = selectedInst.size.toDouble / dataSetSize
+    val subDatasize = selectedInst.count.toDouble / dataSetSize
 
     // Calculamos la tasa de error
     val knn = new KNN()
+    //TODO
+    //Metido todo a pelo
     val knnParameters: Array[String] = Array.ofDim(2)
     knnParameters(0) = "-k"
     knnParameters(1) = k.toString()
+    knnParameters(2) = "-numPart"
+    knnParameters(3) =  numPartitionsKNN.toString()
+    knnParameters(4) = "-numRed"
+    knnParameters(5) = numReducesKNN.toString()
+    knnParameters(6) = "-numRedPart"
+    knnParameters(7) = numReducePartKNN.toString()
+    knnParameters(8) = "-maxWight"
+    knnParameters(9) = maxWeightKNN.toString()
+    knnParameters(10) = "-nc"
+    knnParameters(11) = numClasses.toString()
+    knnParameters(12) = "-dt"
+    knnParameters(13) = distType.toString()
     knn.setParameters(knnParameters)
     knn.train(selectedInst)
-    var failures = 0
-    for { instancia <- testRDD } {
-      var result = knn.classify(instancia)
-      if (result != instancia.label) {
-        failures += 1
-      }
-    }
-    val testError = failures.toDouble / testRDD.size
+    val tmp = testRDD.zipWithIndex().map(line => (line._2,line._1)).persist
+    val testFeatures = tmp.map(tuple => (tuple._1,tuple._2.features))
+    val testClasses = tmp.map(tuple => (tuple._1,tuple._2.label))
+    val classResults = knn.classify(testFeatures)
+    
+    
+    val failures = classResults.join(testClasses).filter(tuple => tuple._2._1 != tuple._2._2).count()
+    // TODO Trabajando aquí 
+
+    val testError = failures.toDouble / testRDD.count
 
     // Calculamos el criterio de selección.
     alpha * testError + (1 - alpha) * subDatasize
@@ -232,7 +283,8 @@ class DemoIS extends TraitIS {
     }
 
     if (numRepeticiones <= 0 || alpha < 0 || alpha > 1 || k <= 0 ||
-      numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100) {
+      numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100 ||
+      numClasses < 2 || distType < 1 || distType >3) {
       logger.log(Level.SEVERE, "DemoISWrongArgsValuesError")
       logger.log(Level.SEVERE, "DemoISPossibleArgs")
       throw new IllegalArgumentException()
@@ -249,6 +301,12 @@ class DemoIS extends TraitIS {
       case "-k"      => k = value.toInt
       case "-np"     => numPartitions = value.toInt
       case "-dsperc" => datasetPerc = value.toDouble
+      case "npknn" => numPartitionsKNN = value.toInt
+      case "nrknn" => numReducesKNN = value.toInt
+      case "nrpknn" => numReducePartKNN = value.toInt
+      case "maxWknn" => maxWeightKNN = value.toDouble
+      case "ncknn"  => numClasses = value.toInt
+      case "dtknn"  => numClasses = value.toInt
       case somethingElse: Any =>
         logger.log(Level.SEVERE, "DemoISWrongArgsError",
           somethingElse.toString())

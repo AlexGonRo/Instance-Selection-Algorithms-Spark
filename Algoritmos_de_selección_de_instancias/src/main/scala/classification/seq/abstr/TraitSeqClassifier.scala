@@ -1,7 +1,7 @@
 package classification.seq.abstr
 
+import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.mllib.regression.LabeledPoint
-import utils.Option
 
 /**
  * Interfaz que define los métodos básicos que deberá contener un clasificador
@@ -34,7 +34,7 @@ trait TraitSeqClassifier {
    * @param inst  Instancia a clasificar.
    * @return Número correspondiente a la clase predicha por el clasificador.
    */
-  def classify(inst: LabeledPoint): Double
+  def classify(inst: Vector): Double
 
   /**
    * Realiza la clasificación de un conjunto de instancias.
@@ -42,7 +42,7 @@ trait TraitSeqClassifier {
    * @param instances  Instancias a clasificar.
    * @return Número correspondiente a la clase predicha por el clasificador.
    */
-  def classify(instances: Iterable[LabeledPoint]): Array[Double]
+  def classify(instances: Iterable[Vector]): Array[Double]
 
   /**
    * Dada una lista de parámetos, este método es capaz de analizarlos e inicializar

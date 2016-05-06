@@ -2,16 +2,15 @@ package classification.seq.knn
 
 import java.util.logging.Level
 import java.util.logging.Logger
-
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.mllib.regression.LabeledPoint
-
 import classification.seq.abstr.TraitSeqClassifier
 import utils.DistCalculator
+import org.apache.spark.mllib.linalg.Vector
+import scala.collection.mutable.ListBuffer
 
 /**
- * Clasificador KNN.
+ * Clasificador KNN secuencial.
  *
  * Este algoritmo de clasificación basa sus predicciones en las distancias
  * entre la instancia a clasificar y el resto del conjunto de datos, siendo
@@ -29,12 +28,12 @@ import utils.DistCalculator
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class KNN extends TraitSeqClassifier {
+class KNNSeq extends TraitSeqClassifier {
 
   /**
    * Ruta donde se encuentran las cadenas a mostrar por el logger.
    */
-  private val bundleName = "resources.loggerStrings.stringsKNN";
+  private val bundleName = "resources.loggerStrings.stringsKNNSeq";
   /**
    * Logger del clasificador.
    */
@@ -90,17 +89,9 @@ class KNN extends TraitSeqClassifier {
     trainingData = trainingSet
   }
 
-  override def classify(inst: LabeledPoint): Double = {
+  override def classify(inst: Vector): Double = {
 
-    // Calculamos la distancia a cada una de las instancias del conjunto de
-    // datos
-    val distances = for { actualInst <- trainingData }
-      yield (actualInst.label, distCalc.euclideanDistance(
-      inst.features.toArray, actualInst.features.toArray))
-
-    // Almacenamos las K instancias más cercanas
-    var closest: MutableList[(Double, Double)] =
-      knearestInstances(inst, distances)
+    val closest = knearestClasses(inst)
 
     // Calculamos cuál es la clase predominante y la devolvemos.
     val classification = closest.groupBy(t => t._1).maxBy(t => t._2.length)
@@ -108,7 +99,7 @@ class KNN extends TraitSeqClassifier {
     classification._1
   }
 
-  override def classify(instances: Iterable[LabeledPoint]): Array[Double] = {
+  override def classify(instances: Iterable[Vector]): Array[Double] = {
 
     var result = Array.ofDim[Double](instances.size)
     val iter = instances.iterator
@@ -119,20 +110,24 @@ class KNN extends TraitSeqClassifier {
       count += 1
     }
     result
+
   }
 
   /**
    * Calcula aquellas instancias más cercanas a aquella que nos interesa.
    *
-   * @param  inst Instancia a la que encontrar los vecinos más cercanos
    * @param  distances  Conjunto de clase-distancia a cada elemento del conjunto
    * @return Conjunto de K elementos con clase-distancia al vecino más cercano
    */
-  private def knearestInstances(inst: LabeledPoint,
-                                distances: Iterable[(Double, Double)]):
-                                MutableList[(Double, Double)] = {
+  def knearestClasses(inst: Vector): ListBuffer[(Double, Double)] = {
 
-    var closest: MutableList[(Double, Double)] = MutableList.empty
+    // Calculamos la distancia a cada una de las instancias del conjunto de
+    // datos
+    val distances = for { actualInst <- trainingData }
+      yield (actualInst.label, distCalc.euclideanDistance(
+      inst.toArray, actualInst.features.toArray))
+
+    var closest: ListBuffer[(Double, Double)] = ListBuffer.empty
     var iter = distances.iterator
     closest += iter.next()
 
