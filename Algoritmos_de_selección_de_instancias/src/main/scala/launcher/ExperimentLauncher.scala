@@ -1,8 +1,11 @@
 package launcher
 
 import launcher.execution.ISClassExec
-import launcher.execution.ISClassExecTest
 import launcher.execution.TraitExec
+import launcher.execution.ISClassSeqExec
+import launcher.execution.ClassExec
+import launcher.execution.ISClassSeqExecTest
+import launcher.execution.ClassSeqExec
 
 /**
  * Pone en marcha la ejecución de una labor de minería de datos.
@@ -29,8 +32,11 @@ object ExperimentLauncher {
     val experimentType = args.head
 
     val execution: TraitExec = experimentType match {
+      case "ClassExec"       => new ClassExec
+      case "ClassSeqExec"       => new ClassSeqExec
       case "ISClassExec"     => new ISClassExec
-      case "ISClassExecTest" => new ISClassExecTest
+      case "ISClassSeqExec"  => new ISClassSeqExec
+      case "ISClassSeqExecTest" => new ISClassSeqExecTest
       case _ =>
         throw new IllegalArgumentException(experimentType + "is not an " +
           "execution type.")

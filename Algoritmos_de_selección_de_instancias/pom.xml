@@ -139,7 +139,7 @@ Versión Scala: 2.10.6</description>
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.name}</finalName>
+					<finalName>${project.name}_2_10</finalName>
 					<transformers>
 						<transformer
 							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

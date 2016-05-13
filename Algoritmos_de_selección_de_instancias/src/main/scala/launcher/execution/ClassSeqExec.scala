@@ -11,17 +11,18 @@ import instanceSelection.abstr.TraitIS
 import utils.ArgsSeparator
 import utils.io.FileReader
 import utils.io.ResultSaver
-import classification.abstr.TraitClassifier
 import org.apache.spark.mllib.util.MLUtils
+import classification.seq.abstr.TraitSeqClassifier
 
 /**
  * Ejecuta una labor de minería de datos que contenga un
  * selector de instancias y un classificador, utilizado tras el filtrado.
  *
+ * ¡
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class ISClassExec extends TraitExec {
+class ClassSeqExec extends TraitExec {
 
   /**
    * Ruta del fichero donde se almacenan los mensajes de log.
@@ -31,12 +32,6 @@ class ISClassExec extends TraitExec {
    * Logger.
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
-
-  /**
-   * Porcentajes de reducción del conjunto de datos original en cada
-   * iteración de la validación cruzada.
-   */
-  protected val reduction = ArrayBuffer.empty[Double]
 
   /**
    * Porcentajes de acierto en test del clasificador en cada iteración
@@ -74,10 +69,6 @@ class ISClassExec extends TraitExec {
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
 
-    // Creamos el selector de instancias
-    val instSelector = createInstSelector(instSelectorArgs)
-    val instSelectorName = instSelectorArgs(0).split("\\.").last
-
     // Creamos el classificador
     val classifier = createClassifier(classiArgs)
     val classifierName = classiArgs(0).split("\\.").last
@@ -100,13 +91,13 @@ class ISClassExec extends TraitExec {
       cvfolds.map {
         // Por cada par de entrenamiento-test
         case (train, test) => {
-          executeExperiment(sc, instSelector, classifier, train, test)
+          executeExperiment(sc, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
         }
       }
 
       logger.log(Level.INFO, "Saving")
-      saveResults(args, instSelectorName, classifierName)
+      saveResults(args, classifierName)
       logger.log(Level.INFO, "Done")
 
     } finally {
@@ -199,7 +190,6 @@ class ISClassExec extends TraitExec {
   protected def createCVFolds(originalData: RDD[LabeledPoint],
                               crossValidationArgs: Array[String]):
                               Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
-
     var cvFolds = 1
     var cvSeed = 1
     // Vemos si existe validación cruzada
@@ -219,25 +209,6 @@ class ISClassExec extends TraitExec {
       cv(0) = (tmp(0),tmp(1))
       cv
     }
-
-  }
-
-  /**
-   * Instancia y configura un selector de instancias
-   *
-   * @param instSelectorArgs Configuración del selector de instancias
-   * @return Instancia del nuevo selector de instancias
-   */
-  def createInstSelector(instSelectorArgs: Array[String]): TraitIS = {
-
-    // Seleccionamos el nombre del algoritmo
-    val instSelectorName = instSelectorArgs.head
-
-    val argsWithoutInstSelectorName = instSelectorArgs.drop(1)
-    val instSelector =
-      Class.forName(instSelectorName).newInstance.asInstanceOf[TraitIS]
-    instSelector.setParameters(argsWithoutInstSelectorName)
-    instSelector
   }
 
   /**
@@ -251,19 +222,14 @@ class ISClassExec extends TraitExec {
    *
    */
   private def executeExperiment(sc: SparkContext,
-                                instSelector: TraitIS,
-                                classifier: TraitClassifier,
+                                classifier: TraitSeqClassifier,
                                 train: RDD[LabeledPoint],
                                 test: RDD[LabeledPoint]): Unit = {
 
-    // Instanciamos y utilizamos el selector de instancias
-    val trainSize = train.count
-    val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
-    reduction += (1 - (resultInstSelector.count() / trainSize.toDouble)) * 100
-
+    // Instanciamos y utilizamos el clasificador
     val start = System.currentTimeMillis
     val classifierResults = applyClassifier(classifier,
-      resultInstSelector, test, sc)
+      train, test, sc)
     executionTimes += System.currentTimeMillis - start
     classificationResults += classifierResults
 
@@ -275,30 +241,14 @@ class ISClassExec extends TraitExec {
    * @param classifierArgs  Argumentos de configuración del clasificador.
    */
   private def createClassifier(
-    classifierArgs: Array[String]): TraitClassifier = {
+    classifierArgs: Array[String]): TraitSeqClassifier = {
     // Seleccionamos el nombre del algoritmo
     val classifierName = classifierArgs.head
     val argsWithoutClassiName = classifierArgs.drop(1)
     val classifier =
-      Class.forName(classifierName).newInstance.asInstanceOf[TraitClassifier]
+      Class.forName(classifierName).newInstance.asInstanceOf[TraitSeqClassifier]
     classifier.setParameters(argsWithoutClassiName)
     classifier
-  }
-
-  /**
-   * Aplica un algoritmo de selección de instancias sobre el conjunto de datos
-   * inicial
-   *
-   * @param  InstSelector  Selector de isntancias
-   * @param originalData  Conjunto de datos inicial
-   * @param  sc  Contexto Spark
-   * @return Conjunto de instancias resultado
-   */
-  protected def applyInstSelector(instSelector: TraitIS,
-                                  originalData: RDD[LabeledPoint],
-                                  sc: SparkContext): RDD[LabeledPoint] = {
-    logger.log(Level.INFO, "ApplyingIS")
-    instSelector.instSelection(sc, originalData)
   }
 
   /**
@@ -314,7 +264,7 @@ class ISClassExec extends TraitExec {
    * @param postFilterData  Conjunto de datos de test
    * @param  sc  Contexto Spark
    */
-  protected def applyClassifier(classifier: TraitClassifier,
+  protected def applyClassifier(classifier: TraitSeqClassifier,
                                 trainData: RDD[LabeledPoint],
                                 testData: RDD[LabeledPoint],
                                 sc: SparkContext): Double = {
@@ -322,16 +272,19 @@ class ISClassExec extends TraitExec {
     logger.log(Level.INFO, "ApplyingClassifier")
 
     // Entrenamos
-    classifier.train(trainData)
+    classifier.train(trainData.collect())
     // Clasificamos el test
-    val tmp = testData.zipWithIndex().map(line => (line._2, line._1)).persist
-    val testFeatures = tmp.map(tuple => (tuple._1, tuple._2.features))
-    val testClasses = tmp.map(tuple => (tuple._1, tuple._2.label))
-    val classResults = classifier.classify(testFeatures)
+    val testFeatures = testData.map(inst => (inst.features)).collect
+    val testClasses = testData.map(inst => (inst.label)).collect
+    val classResults = classifier.classify(testFeatures.toIterable)
 
-    val hits =
-      classResults.join(testClasses).filter(tuple => tuple._2._1 == tuple._2._2)
-        .count()
+    var hits = 0;
+    for { i <- 0 until testClasses.size } {
+      if (testClasses(i) == classResults(i)) {
+        hits += 1
+      }
+    }
+    (hits.toDouble / testClasses.size) * 100
 
     hits.toDouble / testData.count
 
@@ -347,25 +300,23 @@ class ISClassExec extends TraitExec {
    * @param  classifierName  Nombre del clasificador de instancias
    */
   protected def saveResults(args: Array[String],
-                            instSelectorName: String,
                             classifierName: String): Unit = {
 
     // Número de folds que hemos utilizado
-    val numFolds = reduction.size.toDouble
+    val numFolds = classificationResults.size.toDouble
 
     // Calculamos los resultados medios de la ejecución
-    val meanReduction =
-      reduction.reduceLeft { _ + _ } / numFolds
     val meanAccuracy =
       classificationResults.reduceLeft { _ + _ } / numFolds
+
     // Calculamos los resultados medios de la ejecución
     val meanExecTime =
       executionTimes.reduceLeft { _ + _ } / numFolds
 
     // Salvamos los resultados
     val resultSaver = new ResultSaver()
-    resultSaver.storeResultsFilterClassInFile(args, meanReduction,
-      meanAccuracy, instSelectorName, classifierName, true, meanExecTime)
+    resultSaver.storeResultsClassInFile(args,
+      meanAccuracy, classifierName, true, meanExecTime)
   }
 
 }

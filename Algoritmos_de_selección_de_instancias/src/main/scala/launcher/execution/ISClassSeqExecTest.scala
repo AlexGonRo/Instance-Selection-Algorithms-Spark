@@ -24,7 +24,7 @@ import utils.io.ResultSaver
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class ISClassExecTest extends ISClassExec {
+class ISClassSeqExecTest extends ISClassSeqExec {
 
   /**
    * Ruta del fichero donde se almacenan los mensajes de log.
@@ -35,11 +35,6 @@ class ISClassExecTest extends ISClassExec {
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
-  /**
-   * Tiempos de ejecucion del filtro en cada iteración de la validación
-   * cruzada.
-   */
-  protected val executionTimes = ArrayBuffer.empty[Long]
 
   override protected def executeExperiment(sc: SparkContext,
                                            instSelector: TraitIS,
@@ -84,7 +79,7 @@ class ISClassExecTest extends ISClassExec {
 
     // Salvamos los resultados
     val resultSaver = new ResultSaver()
-    resultSaver.storeResultsInFile(args, meanReduction,
+    resultSaver.storeResultsFilterClassInFile(args, meanReduction,
       meanAccuracy, instSelectorName, classifierName,
       true, meanInstSelectorExecTime)
   }

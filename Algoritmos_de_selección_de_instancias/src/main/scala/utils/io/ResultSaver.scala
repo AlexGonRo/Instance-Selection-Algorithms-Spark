@@ -40,7 +40,7 @@ class ResultSaver {
   /**
    * Guarda una RDD en un único fichero en la máquina principal.
    *
-   * El fichero será almacenado en una carpeta definida po (de no existir
+   * El fichero será almacenado en una carpeta definida llamada RDDs (de no existir
    * será creada).
    *
    * @param  args  Argumentos utilizados en el lanzamiento de la aplicación.
@@ -52,13 +52,15 @@ class ResultSaver {
                      fileId: String,
                      rdd: RDD[LabeledPoint]): Unit = {
 
-    val resultDir = new File(resultPath)
+    val path = resultPath + fileSeparator + "RDDs"
+
+    val resultDir = new File(path)
     if (!resultDir.exists()) {
       resultDir.mkdir()
     }
 
     val now = Calendar.getInstance().getTime()
-    val fileName = resultPath + fileSeparator + fileId + "_" +
+    val fileName = path + fileSeparator + fileId + "_" +
       myDateFormat.format(now)
 
     val writer = new PrintWriter(new File(fileName))
@@ -75,6 +77,9 @@ class ResultSaver {
    * Almacena en un fichero de texto información sobre el resultado de las
    * operaciones.
    *
+   * Debe ser utilizado cuando la ejecución ha constado de un filtro y un
+   * clasificador.
+   *
    * @param  args  argumentos de llamada de la ejecución.
    * @param  reduction  Porcentaje de redución del conjunto de datos inicial tras
    *   aplicarse un selector de instancias.
@@ -87,13 +92,56 @@ class ResultSaver {
    *   Solo útil cuando queremos almacenar una ejecución de test.
    *
    */
-  def storeResultsInFile(args: Array[String],
-                         reduction: Double,
-                         classificationAccuracy: Double,
-                         filterName: String,
-                         classifierName: String,
-                         isTest: Boolean = false,
-                         execTime: Double = 0.0): Unit = {
+  def storeResultsFilterClassInFile(args: Array[String],
+                                    reduction: Double,
+                                    classificationAccuracy: Double,
+                                    filterName: String,
+                                    classifierName: String,
+                                    isTest: Boolean = false,
+                                    execTime: Double = 0.0): Unit = {
+
+    val resultDir = new File(resultPath)
+    if (!resultDir.exists()) {
+      resultDir.mkdir()
+    }
+
+    val now = Calendar.getInstance().getTime()
+    val fileName = resultPath + fileSeparator + filterName + "_" +
+      classifierName + "_" + myDateFormat.format(now)
+
+    val writer = new PrintWriter(new File(fileName))
+    try {
+      printSummaryInFile(writer, args)
+      printResultsFilterClassInFile(writer, reduction,
+        classificationAccuracy, filterName, classifierName, isTest, execTime)
+    } finally {
+      writer.close()
+    }
+  }
+
+  /**
+   * Almacena en un fichero de texto información sobre el resultado de las
+   * operaciones.
+   *
+   * Debe ser utilizado cuando la ejecución ha sido una labor únicamente de
+   * clasificación, sin filtrado previo.
+   *
+   * @param  args  argumentos de llamada de la ejecución.
+   * @param  reduction  Porcentaje de redución del conjunto de datos inicial tras
+   *   aplicarse un selector de instancias.
+   * @param classificationAccuracy  Porcentaje de acierto del clasificador.
+   * @param  classifierName  Nombre del clasificador de instancias.
+   * @param  isTest Indica si el resultado a almacenar es producto de una
+   *   ejecución de test para comprobar el tiempo de ejecución.
+   * @param  execTime  Tiempo tardado en ejecutar el proceso medido.
+   *   Solo útil cuando queremos almacenar una ejecución de test.
+   *
+   */
+  def storeResultsClassInFile(args: Array[String],
+                              classificationAccuracy: Double,
+                              classifierName: String,
+                              isTest: Boolean = false,
+                              execTime: Double = 0.0): Unit = {
 
     val resultDir = new File(resultPath)
     if (!resultDir.exists()) {
@@ -107,8 +155,8 @@ class ResultSaver {
     val writer = new PrintWriter(new File(fileName))
     try {
       printSummaryInFile(writer, args)
-      printResultsInFile(writer, reduction,
-        classificationAccuracy, filterName, classifierName, isTest, execTime)
+      printResultsClassInFile(writer,
+        classificationAccuracy, classifierName, isTest, execTime)
     } finally {
       writer.close()
     }
@@ -133,23 +181,39 @@ class ResultSaver {
   }
 
   /**
-   * Almacena el contenido de una estrucutra RDD en un único fichero.
+   * Escribe una serie de resultados de ejecución en un fichero.
    *
-   * @param writer  Escritor del fichero.
-   * @param rdd  Estructura RDD que vamos a almacenar en un fichero.
+   * @param  writer  Objeto dedicado a la escritura en el fichero.
+   * @param  filterTime  Tiempo medio de filtrado en la ejecución.
+   * @param  reduction  Porcentaje de reducción de instancias tras la aplicación
+   *     de un filtro.
+   * @param  classificationAccuracy  Porcentaje de acierto de la clasificación.
+   * @param  filterName  Nombre del filtro utilizado.
+   * @param  classifierName  Nombre del clasificador utilizado.
+   * @param  isTest Indica si el resultado a almacenar es producto de una
+   *   ejecución para testear tiempos de ejecución.
+   * @param  execTime  Tiempo medio en realizar la acción medida. Solo cuando
+   *   la ejecución es de tipo test.
    */
-  private def printRDDInFile(writer: PrintWriter,
-                             rdd: RDD[LabeledPoint]): Unit = {
-
-    val rddLocalCopy = rdd.collect()
-    rddLocalCopy.foreach { lp =>
-      var line = ""
-      lp.features.toArray.map { value => line += value.toString() + "," }
-      line += lp.label.toString + "\n"
-      writer.write(line)
-
+  private def printResultsFilterClassInFile(writer: PrintWriter,
+                                            reduction: Double,
+                                            classificationAccuracy: Double,
+                                            filterName: String,
+                                            classifierName: String,
+                                            isTest: Boolean = false,
+                                            execTime: Double = 0.0): Unit = {
+    val divisor = "++++++++++++++++++++++\n"
+    writer.write("Filter: " + filterName + "\n")
+    writer.write("Classifier: " + classifierName + "\n")
+    writer.write(divisor)
+    writer.write("Reduction(%) \t" + "+ " + reduction + "\n")
+    writer.write(divisor)
+    writer.write("Accuracy(%) \t" + "+ " + classificationAccuracy + "\n")
+    writer.write(divisor)
+    if (isTest) {
+      writer.write("Filter time(s) \t" + "+ " + execTime / 1000 + "\n")
+      writer.write(divisor)
     }
-
   }
 
   /**
@@ -167,18 +231,13 @@ class ResultSaver {
    * @param  execTime  Tiempo medio en realizar la acción medida. Solo cuando
    *   la ejecución es de tipo test.
    */
-  private def printResultsInFile(writer: PrintWriter,
-                                 reduction: Double,
-                                 classificationAccuracy: Double,
-                                 filterName: String,
-                                 classifierName: String,
-                                 isTest: Boolean = false,
-                                 execTime: Double = 0.0): Unit = {
+  private def printResultsClassInFile(writer: PrintWriter,
+                                      classificationAccuracy: Double,
+                                      classifierName: String,
+                                      isTest: Boolean = false,
+                                      execTime: Double = 0.0): Unit = {
     val divisor = "++++++++++++++++++++++\n"
-    writer.write("Filter: " + filterName + "\n")
     writer.write("Classifier: " + classifierName + "\n")
-    writer.write(divisor)
-    writer.write("Reduction(%) \t" + "+ " + reduction + "\n")
     writer.write(divisor)
     writer.write("Accuracy(%) \t" + "+ " + classificationAccuracy + "\n")
     writer.write(divisor)
@@ -186,5 +245,25 @@ class ResultSaver {
       writer.write("Filter time(s) \t" + "+ " + execTime / 1000 + "\n")
       writer.write(divisor)
     }
+  }
+
+  /**
+   * Almacena el contenido de una estrucutra RDD en un único fichero.
+   *
+   * @param writer  Escritor del fichero.
+   * @param rdd  Estructura RDD que vamos a almacenar en un fichero.
+   */
+  private def printRDDInFile(writer: PrintWriter,
+                             rdd: RDD[LabeledPoint]): Unit = {
+
+    val rddLocalCopy = rdd.collect()
+    rddLocalCopy.foreach { lp =>
+      var line = ""
+      lp.features.toArray.map { value => line += value.toString() + "," }
+      line += lp.label.toString + "\n"
+      writer.write(line)
+
+    }
+
   }
 }
