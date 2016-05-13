@@ -2,19 +2,17 @@ package instanceSelection.demoIS
 
 import java.util.logging.Level
 import java.util.logging.Logger
-
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
-
 import classification.knn.KNN
 import instanceSelection.abstr.TraitIS
 import instanceSelection.seq.abstr.TraitSeqIS
 import instanceSelection.seq.cnn.CNN
 import utils.partitioner.RandomPartitioner
+import scala.collection.mutable.ListBuffer
 
 /**
  * Algoritmo de selección de instancias Democratic Instance Selection.
@@ -63,33 +61,32 @@ class DemoIS extends TraitIS {
    *  las realizar las votaciones.
    */
   var numPartitions = 10
-  
-    /**
+
+  /**
    * Número de vecinos cercanos a utilizar en el KNN.
    */
   var k = 1
-  
+
   /**
    * Número de particiones en las que dividir el conjunto de entrenamiento del KNN.
    */
-   var numPartitionsKNN = 10
-   
+  var numPartitionsKNN = 10
+
   /**
    * Número de veces que se aplica la fase "reduce" en el KNN.
-  */
+   */
   var numReducesKNN = 1
-  
+
   /**
    * Número de particiones en las que dividir el conjunto de test del KNN.
    */
-  var numReducePartKNN = 1  //-1 auto-setting
-  
+  var numReducePartKNN = 1 // -1 auto-setting
+
   /**
    * Peso máximo de cada partición del conjunto de test.
    */
   var maxWeightKNN = 0.0
 
-  
   /**
    * Semilla para el generador de números aleatorios.
    */
@@ -100,17 +97,14 @@ class DemoIS extends TraitIS {
    * de las diferentes aproximaciones según el número de votos de las instancias.
    */
   var datasetPerc = 1.0
-  
-  /**
-   * Número de clases del conjunto de datos.
-   */
-  var numClasses = 0
+
   /**
    * Manera de calcular la distancia entre dos instancias.
-   * 
+   *
    * MANHATTAN = 1 ; EUCLIDEAN = 2 ; HVDM = 3
+   * TODO Actualmente no cuenta con utilidad
    */
-  var distType = 1
+  var distType = 2
 
   override def instSelection(
     sc: SparkContext,
@@ -197,9 +191,9 @@ class DemoIS extends TraitIS {
     for { i <- 1 to numRepeticiones } {
 
       // Seleccionamos todas las instancias que no superan el tresshold parcial
-      //TODO No estoy seguro de que este persist sea necesario.
+      // TODO No estoy seguro de que este persist sea necesario.
       val selectedInst = RDDconContador.filter(
-        tupla => tupla._1 < i).map(tupla => tupla._2).persist()  
+        tupla => tupla._1 < i).map(tupla => tupla._2).persist()
 
       if (selectedInst.isEmpty) {
         criterion += Double.MaxValue
@@ -215,7 +209,7 @@ class DemoIS extends TraitIS {
   /**
    * Calcula un valor fitness aplicando la fórmula de una selección basándose
    * en la fórmula: alpha * testError + (1 - alpha) * subDatasize
-   * 
+   *
    * @param  selectedInst  Subconjunto de instancias cuyo contador ha superado
    *   un número determinado
    * @param  testRDD  Conjunto de instanciasde test para pasar al KNN
@@ -231,33 +225,29 @@ class DemoIS extends TraitIS {
 
     // Calculamos la tasa de error
     val knn = new KNN()
-    //TODO
-    //Metido todo a pelo
-    val knnParameters: Array[String] = Array.ofDim(2)
-    knnParameters(0) = "-k"
-    knnParameters(1) = k.toString()
-    knnParameters(2) = "-numPart"
-    knnParameters(3) =  numPartitionsKNN.toString()
-    knnParameters(4) = "-numRed"
-    knnParameters(5) = numReducesKNN.toString()
-    knnParameters(6) = "-numRedPart"
-    knnParameters(7) = numReducePartKNN.toString()
-    knnParameters(8) = "-maxWight"
-    knnParameters(9) = maxWeightKNN.toString()
-    knnParameters(10) = "-nc"
-    knnParameters(11) = numClasses.toString()
-    knnParameters(12) = "-dt"
-    knnParameters(13) = distType.toString()
-    knn.setParameters(knnParameters)
+    // TODO
+    // Metido todo a pelo
+    val knnParameters: ListBuffer[String] = new ListBuffer[String]
+    knnParameters += "-k"
+    knnParameters += k.toString()
+    knnParameters += "-np"
+    knnParameters += numPartitionsKNN.toString()
+    knnParameters += "-nr"
+    knnParameters += numReducesKNN.toString()
+    knnParameters += "-nrp"
+    knnParameters += numReducePartKNN.toString()
+    knnParameters += "-maxW"
+    knnParameters += maxWeightKNN.toString()
+    knnParameters += "-dt"
+    knnParameters += distType.toString()
+    knn.setParameters(knnParameters.toArray)
     knn.train(selectedInst)
-    val tmp = testRDD.zipWithIndex().map(line => (line._2,line._1)).persist
-    val testFeatures = tmp.map(tuple => (tuple._1,tuple._2.features))
-    val testClasses = tmp.map(tuple => (tuple._1,tuple._2.label))
+    val tmp = testRDD.zipWithIndex().map(line => (line._2, line._1)).persist
+    val testFeatures = tmp.map(tuple => (tuple._1, tuple._2.features))
+    val testClasses = tmp.map(tuple => (tuple._1, tuple._2.label))
     val classResults = knn.classify(testFeatures)
-    
-    
+
     val failures = classResults.join(testClasses).filter(tuple => tuple._2._1 != tuple._2._2).count()
-    // TODO Trabajando aquí 
 
     val testError = failures.toDouble / testRDD.count
 
@@ -283,8 +273,8 @@ class DemoIS extends TraitIS {
     }
 
     if (numRepeticiones <= 0 || alpha < 0 || alpha > 1 || k <= 0 ||
-      numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100 ||
-      numClasses < 2 || distType < 1 || distType >3) {
+      numPartitions <= 0 || datasetPerc <= 0 || datasetPerc >= 100
+      || distType < 1 || distType > 3) {
       logger.log(Level.SEVERE, "DemoISWrongArgsValuesError")
       logger.log(Level.SEVERE, "DemoISPossibleArgs")
       throw new IllegalArgumentException()
@@ -295,18 +285,17 @@ class DemoIS extends TraitIS {
   protected override def assignValToParam(identifier: String,
                                           value: String): Unit = {
     identifier match {
-      case "-rep"    => numRepeticiones = value.toInt
-      case "-alpha"  => alpha = value.toDouble
-      case "-s"      => seed = value.toInt
-      case "-k"      => k = value.toInt
-      case "-np"     => numPartitions = value.toInt
-      case "-dsperc" => datasetPerc = value.toDouble
-      case "npknn" => numPartitionsKNN = value.toInt
-      case "nrknn" => numReducesKNN = value.toInt
-      case "nrpknn" => numReducePartKNN = value.toInt
-      case "maxWknn" => maxWeightKNN = value.toDouble
-      case "ncknn"  => numClasses = value.toInt
-      case "dtknn"  => numClasses = value.toInt
+      case "-rep"     => numRepeticiones = value.toInt
+      case "-alpha"   => alpha = value.toDouble
+      case "-s"       => seed = value.toInt
+      case "-k"       => k = value.toInt
+      case "-np"      => numPartitions = value.toInt
+      case "-dsperc"  => datasetPerc = value.toDouble
+      case "-npknn"   => numPartitionsKNN = value.toInt
+      case "-nrknn"   => numReducesKNN = value.toInt
+      case "-nrpknn"  => numReducePartKNN = value.toInt
+      case "-maxWknn" => maxWeightKNN = value.toDouble
+      case "-dtknn"   => distType = value.toInt
       case somethingElse: Any =>
         logger.log(Level.SEVERE, "DemoISWrongArgsError",
           somethingElse.toString())

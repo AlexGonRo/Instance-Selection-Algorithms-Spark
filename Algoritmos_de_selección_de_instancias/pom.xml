@@ -10,12 +10,12 @@
 	<description>Proyecto para la ejecución de algoritmos de selección de instancias de manera paralela en Spark.
 Distribución completa.
 Versión Spark: 1.6.1
-Versión Scala: 2.11.8</description>
+Versión Scala: 2.10.6</description>
 
 	<properties>
 		<encoding>UTF-8</encoding>
-		<scala.version>2.11.8</scala.version>
-		<scala.compat.version>2.11</scala.compat.version>
+		<scala.version>2.10.6</scala.version>
+		<scala.compat.version>2.10</scala.compat.version>
 	</properties>
 
 	<dependencies>
@@ -28,30 +28,22 @@ Versión Scala: 2.11.8</description>
 		<!-- Dependencias sobre Spark -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-core_2.11</artifactId>
+			<artifactId>spark-core_2.10</artifactId>
 			<version>1.6.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-mllib_2.11</artifactId>
+			<artifactId>spark-mllib_2.10</artifactId>
 			<version>1.6.1</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<!-- Componentes gráficos -->
 		<dependency>
-			<groupId>org.scala-lang.modules</groupId>
-			<artifactId>scala-swing_2.11</artifactId>
-			<version>1.0.1</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- Lector de XML -->
-		<dependency>
 			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-xml</artifactId>
-			<version>2.11.0-M4</version>
+			<artifactId>scala-swing</artifactId>
+			<version>2.10.6</version>
 		</dependency>
 
 
@@ -147,7 +139,7 @@ Versión Scala: 2.11.8</description>
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>${project.name}_2_11</finalName>
+					<finalName>${project.name}</finalName>
 					<transformers>
 						<transformer
 							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

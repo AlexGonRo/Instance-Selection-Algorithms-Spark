@@ -117,7 +117,8 @@ class KNNSeq extends TraitSeqClassifier {
    * Calcula aquellas instancias más cercanas a aquella que nos interesa.
    *
    * @param  distances  Conjunto de clase-distancia a cada elemento del conjunto
-   * @return Conjunto de K elementos con clase-distancia al vecino más cercano
+   * @return Conjunto de K elementos con clase-distancia al vecino más cercano.
+   *     Están ordenados de menor distancia a mayor.
    */
   def knearestClasses(inst: Vector): ListBuffer[(Double, Double)] = {
 
@@ -147,7 +148,7 @@ class KNNSeq extends TraitSeqClassifier {
       }
     }
 
-    closest
+    closest.sortBy(tupla => tupla._2)
   }
 
 }

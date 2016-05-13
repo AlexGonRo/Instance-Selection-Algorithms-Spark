@@ -24,7 +24,7 @@ trait TraitClassifier {
   /**
    * Realiza la clasificación de un conjunto de instancias.
    *
-   * @param instances  Identificador único de cada instancia junto con la instancias 
+   * @param instances  Identificador único de cada instancia junto con la instancias
    *     a clasificar.
    * @return Número correspondiente a la clase predicha por el clasificador.
    */
