@@ -34,34 +34,34 @@ private class VotingInNodes extends Serializable {
    *
    */
   def applyIterationPerPartition(
-    instancesIterator: Iterator[(Int, LabeledPoint)],
-    linearIS: TraitSeqIS): Iterator[(Int, LabeledPoint)] = {
+    instancesIterator: Iterator[(Long,(Int, LabeledPoint))],
+    linearIS: TraitSeqIS): Iterator[(Long,(Int, LabeledPoint))] = {
 
     // Almacenamos todos los valores en listas
     var instancias = new MutableList[LabeledPoint]
-    var contInstTuple = new MutableList[(Int, LabeledPoint)]
+    var myIterableCopy = new MutableList[(Long,(Int, LabeledPoint))]
     while (instancesIterator.hasNext) {
       var tmp = instancesIterator.next
-      contInstTuple += tmp
-      instancias += tmp._2
+      myIterableCopy += tmp
+      instancias += tmp._2._2
     }
 
     // Ejecutamos el algoritmo
     var selected = linearIS.instSelection(instancias)
 
     // Actualizamos los contadores de las instancias no seleccionadas.
-    var iter = contInstTuple.iterator
+    var iter = myIterableCopy.iterator
     var actIndex = -1
     while (iter.hasNext) {
       actIndex += 1
-      var actualInst = iter.next._2
+      var actualInst = iter.next._2._2
       if (!selected.exists { inst => inst.eq(actualInst) }) {
-        contInstTuple.update(actIndex,
-          (contInstTuple.get(actIndex).get._1 + 1,
-            contInstTuple.get(actIndex).get._2))
+        myIterableCopy.update(actIndex,
+          (myIterableCopy.get(actIndex).get._1,(myIterableCopy.get(actIndex).get._2._1 + 1,
+            myIterableCopy.get(actIndex).get._2._2)))
       }
     }
-    contInstTuple.iterator
+    myIterableCopy.iterator
   }
 
 }

@@ -13,6 +13,7 @@ import instanceSelection.seq.abstr.TraitSeqIS
 import instanceSelection.seq.cnn.CNN
 import utils.partitioner.RandomPartitioner
 import scala.collection.mutable.ListBuffer
+import org.apache.spark.storage.StorageLevel
 
 /**
  * Algoritmo de selección de instancias Democratic Instance Selection.
@@ -145,23 +146,31 @@ class DemoIS extends TraitIS {
     // Operación a realizar en cada uno de los nodos.
     val votingInNodes = new VotingInNodes()
     // RDD usada en la iteración concreta.
-    var actualRDD = RDDconContador
+    var actualRDD = RDDconContador.zipWithIndex().map(line => (line._2, line._1))
+    // Número de instancias por partición
     // Particionador para asignar nuevas particiones a las instancias.
-    val partitioner = new RandomPartitioner(numPartitions, seed)
-
+    val partitioner = new RandomPartitioner(numPartitions, actualRDD.count(),seed)
+    
     for { i <- 0 until numRepeticiones } {
-      // Redistribuimos las instancias en los nodos
-      actualRDD = actualRDD.partitionBy(
-        partitioner)
 
+      // Redistribuimos las instancias en los nodos
+      actualRDD = actualRDD.partitionBy(partitioner)
+      
       // En cada nodo aplicamos el algoritmo de selección de instancias
       actualRDD = actualRDD.mapPartitions(instancesIterator =>
         votingInNodes
-          .applyIterationPerPartition(instancesIterator, seqAlgorithm))
+          .applyIterationPerPartition(instancesIterator, seqAlgorithm)).persist
+
+      partitioner.rep += 1
+      
+      // TODO Necesario para forzar la opeación hasta este punto.
+      actualRDD.foreachPartition(x => None)
+      
     }
     actualRDD.persist()
     actualRDD.name = "InstancesAndVotes"
-    actualRDD
+    actualRDD.map(tupla => tupla._2)
+    
   }
 
   /**
@@ -295,7 +304,7 @@ class DemoIS extends TraitIS {
       case "-nrknn"   => numReducesKNN = value.toInt
       case "-nrpknn"  => numReducePartKNN = value.toInt
       case "-maxWknn" => maxWeightKNN = value.toDouble
-      case "-dtknn"   => distType = value.toInt
+      case "-d"   => distType = value.toInt
       case somethingElse: Any =>
         logger.log(Level.SEVERE, "DemoISWrongArgsError",
           somethingElse.toString())

@@ -14,17 +14,17 @@ import org.apache.spark.Partitioner
  * @constructor Crea un nuevo generador de particiones aleatorio.
  * @param  numPartitions  Número de particiones en las que subdividiremos el
  *   conjunto de datos.
- * @param  seed  Semilla para el generador de números aleatorios.
+ * @param  totalInst Número total de instancias en la estructura a particionar
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
-class RandomPartitioner(val numPartitions: Int, seed: Long) extends Partitioner {
+class RandomPartitioner(val numPartitions: Int, val totalInst:Long, val seed:Long) extends Partitioner {
 
   /**
-   * Generador de números aleatorios.
+   * Repetición actual
    */
-  val r = new Random(seed)
+  var rep = 0
 
   /**
    * Asigna una partición de manera conpletamente aleatoria.
@@ -32,8 +32,11 @@ class RandomPartitioner(val numPartitions: Int, seed: Long) extends Partitioner 
    * @param key Llave de la instancia a reasignar
    * @param Identificador de la partición asignada
    */
-  def getPartition(key: Any): Int =
+  def getPartition(key: Any): Int = {
+    val k = key.asInstanceOf[Long]
+    val finalSeed = seed + k + (rep*totalInst)
+    val r = new Random(finalSeed)
     r.nextInt(numPartitions)
-
+  }
 }
 
