@@ -162,11 +162,11 @@ class KNN extends TraitClassifier {
 
       }
 
-      // TODO El getNumPartitions es un apaño aquí para forzar la operación cada
+      // TODO El count es un apaño aquí para forzar la operación cada
       // iteración, porque de lo contrario el
       // planificador de tareas se lia con la sentencia knnInNodes.subdel = subdel
       // Buscar solución
-      result.getNumPartitions
+      result.count
 
       subdel = subdel + inc
       topdel = topdel + inc
