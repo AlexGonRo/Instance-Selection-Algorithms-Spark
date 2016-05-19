@@ -47,18 +47,19 @@ class ISClassSeqExecTest extends ISClassSeqExec {
     train.foreachPartition { x => None }
 
     // Instanciamos y utilizamos el selector de instancias
-    val start = System.currentTimeMillis
+    var start = System.currentTimeMillis
     val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
     resultInstSelector.foreachPartition { x => None }
-    executionTimes += System.currentTimeMillis - start
+    filterTimes += System.currentTimeMillis - start
 
     reduction += (1 - (resultInstSelector.count() / train.count().toDouble)) * 100
 
+    start = System.currentTimeMillis
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
+    classifierTimes += System.currentTimeMillis - start
 
     classificationResults += classifierResults
-    //        classificationResults += 0
 
   }
 
@@ -67,11 +68,13 @@ class ISClassSeqExecTest extends ISClassSeqExec {
                                      classifierName: String): Unit = {
 
     // Número de folds que hemos utilizado
-    val numFolds = executionTimes.size.toDouble
+    val numFolds = filterTimes.size.toDouble
 
     // Calculamos los resultados medios de la ejecución
     val meanInstSelectorExecTime =
-      executionTimes.reduceLeft { _ + _ } / numFolds
+      filterTimes.reduceLeft { _ + _ } / numFolds
+    val meanClassifierTime =
+      classifierTimes.reduceLeft { _ + _ } / numFolds
     val meanReduction =
       reduction.reduceLeft { _ + _ } / numFolds
     val meanAccuracy =
@@ -81,7 +84,7 @@ class ISClassSeqExecTest extends ISClassSeqExec {
     val resultSaver = new ResultSaver()
     resultSaver.storeResultsFilterClassInFile(args, meanReduction,
       meanAccuracy, instSelectorName, classifierName,
-      true, meanInstSelectorExecTime)
+      meanInstSelectorExecTime, meanClassifierTime)
   }
 
 }

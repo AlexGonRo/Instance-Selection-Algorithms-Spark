@@ -48,7 +48,13 @@ class ISClassExec extends TraitExec {
    * Tiempos de ejecucion del filtro en cada iteración de la validación
    * cruzada.
    */
-  protected val executionTimes = ArrayBuffer.empty[Long]
+  protected val filterTimes = ArrayBuffer.empty[Long]
+  
+  /**
+   * Tiempos de ejecucion del clasificador en cada iteración de la validación
+   * cruzada.
+   */
+  protected val classifierTimes = ArrayBuffer.empty[Long]
 
   /**
    * Ejecución de un clasificador tras la aplicación de un filtro.
@@ -85,7 +91,7 @@ class ISClassExec extends TraitExec {
     // Creamos un nuevo contexto de Spark
     val sc = new SparkContext()
     // Utilizarlo solo para pruebas lanzadas desde Eclipse
-    // val master = "local[2]"
+    //val master = "local[2]"
     // val sparkConf =
     //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
     // val sc = new SparkContext(sparkConf)
@@ -257,14 +263,17 @@ class ISClassExec extends TraitExec {
                                 test: RDD[LabeledPoint]): Unit = {
 
     // Instanciamos y utilizamos el selector de instancias
+    
     val trainSize = train.count
+    var start = System.currentTimeMillis
     val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
+    filterTimes += System.currentTimeMillis - start
     reduction += (1 - (resultInstSelector.count() / trainSize.toDouble)) * 100
 
-    val start = System.currentTimeMillis
+    start = System.currentTimeMillis
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
-    executionTimes += System.currentTimeMillis - start
+    classifierTimes += System.currentTimeMillis - start
     classificationResults += classifierResults
 
   }
@@ -359,13 +368,15 @@ class ISClassExec extends TraitExec {
     val meanAccuracy =
       classificationResults.reduceLeft { _ + _ } / numFolds
     // Calculamos los resultados medios de la ejecución
-    val meanExecTime =
-      executionTimes.reduceLeft { _ + _ } / numFolds
+    val meanFilterTime =
+      filterTimes.reduceLeft { _ + _ } / numFolds
+    val meanClassifierTime =
+      classifierTimes.reduceLeft { _ + _ } / numFolds
 
     // Salvamos los resultados
     val resultSaver = new ResultSaver()
     resultSaver.storeResultsFilterClassInFile(args, meanReduction,
-      meanAccuracy, instSelectorName, classifierName, true, meanExecTime)
+      meanAccuracy, instSelectorName, classifierName, meanFilterTime, meanClassifierTime)
   }
 
 }

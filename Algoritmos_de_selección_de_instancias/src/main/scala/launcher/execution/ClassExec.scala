@@ -40,10 +40,10 @@ class ClassExec extends TraitExec {
   protected val classificationResults = ArrayBuffer.empty[Double]
 
   /**
-   * Tiempos de ejecucion del filtro en cada iteración de la validación
+   * Tiempos de ejecucion del clasificador en cada iteración de la validación
    * cruzada.
    */
-  protected val executionTimes = ArrayBuffer.empty[Long]
+  protected val execTimes = ArrayBuffer.empty[Long]
 
   /**
    * Ejecución de un clasificador tras la aplicación de un filtro.
@@ -64,7 +64,7 @@ class ClassExec extends TraitExec {
    *   la relacionada con la validación cruzada
    */
   override def launchExecution(args: Array[String]): Unit = {
-
+    
     // Argumentos divididos según el objeto al que afectarán
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
@@ -231,7 +231,7 @@ class ClassExec extends TraitExec {
     val start = System.currentTimeMillis
     val classifierResults = applyClassifier(classifier,
       train, test, sc)
-    executionTimes += System.currentTimeMillis - start
+    execTimes += System.currentTimeMillis - start
     classificationResults += classifierResults
 
   }
@@ -308,13 +308,13 @@ class ClassExec extends TraitExec {
       classificationResults.reduceLeft { _ + _ } / numFolds
 
     // Calculamos los resultados medios de la ejecución
-    val meanExecTime =
-      executionTimes.reduceLeft { _ + _ } / numFolds
+    val meanClassifyTime =
+      execTimes.reduceLeft { _ + _ } / numFolds
 
     // Salvamos los resultados
     val resultSaver = new ResultSaver()
     resultSaver.storeResultsClassInFile(args,
-      meanAccuracy, classifierName, true, meanExecTime)
+      meanAccuracy, classifierName, meanClassifyTime)
   }
 
 }

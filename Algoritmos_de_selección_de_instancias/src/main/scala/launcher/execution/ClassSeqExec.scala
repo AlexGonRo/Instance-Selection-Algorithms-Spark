@@ -40,7 +40,7 @@ class ClassSeqExec extends TraitExec {
   protected val classificationResults = ArrayBuffer.empty[Double]
 
   /**
-   * Tiempos de ejecucion del filtro en cada iteración de la validación
+   * Tiempos de ejecucion del clasificador en cada iteración de la validación
    * cruzada.
    */
   protected val executionTimes = ArrayBuffer.empty[Long]
@@ -316,7 +316,7 @@ class ClassSeqExec extends TraitExec {
     // Salvamos los resultados
     val resultSaver = new ResultSaver()
     resultSaver.storeResultsClassInFile(args,
-      meanAccuracy, classifierName, true, meanExecTime)
+      meanAccuracy, classifierName, meanExecTime)
   }
 
 }
