@@ -108,19 +108,20 @@ class DemoIS extends TraitIS {
   var distType = 2
 
   override def instSelection(
-    sc: SparkContext,
-    parsedData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
+    originalData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
-    // Añadimos a las instancias un contador para llevar la cuenta del número
-    // de veces que han sido seleccionadas en el siguiente paso
-    val RDDconContador = parsedData.map(instance => (0, instance))
+    // Añadimos una clave a todas las instancias
+    val dataAndVotes = originalData.map(inst => (0, inst))
 
-    val resultIter = doIterations(RDDconContador)
-
-    val (indexBestCrit, bestCrit) = lookForBestCriterion(resultIter)
-
-    resultIter.filter(
-      tupla => tupla._1 < indexBestCrit).map(tupla => tupla._2)
+    // Operación Map
+    // Realizar votaciones
+    val ratedData = doVoting(dataAndVotes)
+        
+    // Operación Reduce
+    // Cálculo del umbral de votos y selección de resultado
+    val (indBestCrit, bestCrit) = lookForBestCriterion(ratedData)
+    ratedData.filter(
+      tuple => tuple._1 < indBestCrit).map(tuple => tuple._2)
 
   }
 
@@ -137,7 +138,7 @@ class DemoIS extends TraitIS {
    * @todo Habilitar la posibilidad de cambiar el algoritmo de selección
    * de instancias usado cuando exista más de uno implementado.
    */
-  private def doIterations(
+  private def doVoting(
     RDDconContador: RDD[(Int, LabeledPoint)]): RDD[(Int, LabeledPoint)] = {
 
     // Algoritmo secuencial a usar en cada subconjunto de datos.

@@ -65,7 +65,6 @@ class LSHIS extends TraitIS {
   var seed: Long = 1
 
   override def instSelection(
-    sc: SparkContext,
     parsedData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
     parsedData.persist()

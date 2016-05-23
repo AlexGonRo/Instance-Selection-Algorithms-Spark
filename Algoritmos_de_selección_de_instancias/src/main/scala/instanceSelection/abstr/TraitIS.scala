@@ -31,7 +31,7 @@ trait TraitIS {
    * @param  data  Conjunto inicial.
    * @return  Conjunto resultante tras aplicar el algoritmo.
    */
-  def instSelection(sc: SparkContext, data: RDD[LabeledPoint]): RDD[LabeledPoint]
+  def instSelection(data: RDD[LabeledPoint]): RDD[LabeledPoint]
 
   /**
    * Dada una lista de parámetros, este método es capaz de analizarlos e inicializar
