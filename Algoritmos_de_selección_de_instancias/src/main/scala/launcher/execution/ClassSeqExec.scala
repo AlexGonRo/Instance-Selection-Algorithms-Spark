@@ -81,23 +81,28 @@ class ClassSeqExec extends TraitExec {
     //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
     // val sc = new SparkContext(sparkConf)
 
+    val resultSaver = new ResultSaver(args, classifierName)
+
     try {
 
       val originalData = readDataset(readerArgs, sc).persist
       originalData.name = "OriginalData"
 
       val cvfolds = createCVFolds(originalData, cvArgs)
-
+      resultSaver.writeHeaderInFile()
+      var counter = 0
       cvfolds.map {
         // Por cada par de entrenamiento-test
         case (train, test) => {
           executeExperiment(sc, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
+          resultSaver.storeResultsClassInFile(counter, classificationResults(counter), executionTimes(counter))
+          counter += 1
         }
       }
 
       logger.log(Level.INFO, "Saving")
-      saveResults(args, classifierName)
+      saveResults(resultSaver)
       logger.log(Level.INFO, "Done")
 
     } finally {
@@ -188,8 +193,7 @@ class ClassSeqExec extends TraitExec {
    * @return pares entrenamiento-test
    */
   protected def createCVFolds(originalData: RDD[LabeledPoint],
-                              crossValidationArgs: Array[String]):
-                              Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
+                              crossValidationArgs: Array[String]): Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
     var cvFolds = 1
     var cvSeed = 1
     // Vemos si existe validación cruzada
@@ -202,11 +206,10 @@ class ClassSeqExec extends TraitExec {
 
     if (cvFolds > 1) {
       MLUtils.kFold(originalData, cvFolds, cvSeed)
-    }
-    else {
-      val cv:Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = new Array(1)
+    } else {
+      val cv: Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = new Array(1)
       val tmp = originalData.randomSplit(Array(0.9, 0.1), cvSeed)
-      cv(0) = (tmp(0),tmp(1))
+      cv(0) = (tmp(0), tmp(1))
       cv
     }
   }
@@ -299,8 +302,7 @@ class ClassSeqExec extends TraitExec {
    * @param  instSelectorName Nombre del selector de instancias
    * @param  classifierName  Nombre del clasificador de instancias
    */
-  protected def saveResults(args: Array[String],
-                            classifierName: String): Unit = {
+  protected def saveResults(resultSaver: ResultSaver): Unit = {
 
     // Número de folds que hemos utilizado
     val numFolds = classificationResults.size.toDouble
@@ -314,9 +316,7 @@ class ClassSeqExec extends TraitExec {
       executionTimes.reduceLeft { _ + _ } / numFolds
 
     // Salvamos los resultados
-    val resultSaver = new ResultSaver()
-    resultSaver.storeResultsClassInFile(args,
-      meanAccuracy, classifierName, meanExecTime)
+    resultSaver.storeResultsClassInFile(-1,meanAccuracy, meanExecTime)
   }
 
 }

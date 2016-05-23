@@ -82,6 +82,7 @@ class ISClassSeqExec extends ISClassExec {
     //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
     // val sc = new SparkContext(sparkConf)
 
+    val resultSaver = new ResultSaver(args, classifierName, instSelectorName)
     try {
 
       val originalData = readDataset(readerArgs, sc).persist
@@ -89,16 +90,20 @@ class ISClassSeqExec extends ISClassExec {
 
       val cvfolds = createCVFolds(originalData, cvArgs)
 
+      var counter = 0
+      resultSaver.writeHeaderInFile()
       cvfolds.map {
         // Por cada par de entrenamiento-test
         case (train, test) => {
           executeExperiment(sc, instSelector, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
+          resultSaver.storeResultsFilterClassInFile(counter, reduction(counter), classificationResults(counter), 0, 0)
+          counter += 1
         }
       }
 
       logger.log(Level.INFO, "Saving")
-      saveResults(args, instSelectorName, classifierName)
+      saveResults(resultSaver)
       logger.log(Level.INFO, "Done")
 
     } finally {
@@ -124,7 +129,7 @@ class ISClassSeqExec extends ISClassExec {
 
     // Instanciamos y utilizamos el selector de instancias
     val trainSize = train.count
-    val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
+    val resultInstSelector = applyInstSelector(instSelector, train).persist
     reduction += (1 - (resultInstSelector.count() / trainSize.toDouble)) * 100
 
     val classifierResults = applyClassifier(classifier,
@@ -183,6 +188,31 @@ class ISClassSeqExec extends ISClassExec {
       }
     }
     (hits.toDouble / testLabels.size) * 100
+
+  }
+  
+    /**
+   * Almacena todos los datos recogidos de la ejecución en un fichero de texto.
+   *
+   * Otro, contendrá un resumen de la ejecución.
+   *
+   * @param  args  argumentos de llamada de la ejecución
+   * @param  instSelectorName Nombre del selector de instancias
+   * @param  classifierName  Nombre del clasificador de instancias
+   */
+  override protected def saveResults(resultSaver: ResultSaver): Unit = {
+
+    // Número de folds que hemos utilizado
+    val numFolds = reduction.size.toDouble
+
+    // Calculamos los resultados medios de la ejecución
+    val meanReduction =
+      reduction.reduceLeft { _ + _ } / numFolds
+    val meanAccuracy =
+      classificationResults.reduceLeft { _ + _ } / numFolds
+
+    // Salvamos los resultados
+    resultSaver.storeResultsFilterClassInFile(-1,meanReduction, meanAccuracy, 0, 0)
 
   }
 

@@ -49,7 +49,7 @@ class ISClassExec extends TraitExec {
    * cruzada.
    */
   protected val filterTimes = ArrayBuffer.empty[Long]
-  
+
   /**
    * Tiempos de ejecucion del clasificador en cada iteración de la validación
    * cruzada.
@@ -96,23 +96,27 @@ class ISClassExec extends TraitExec {
     //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
     // val sc = new SparkContext(sparkConf)
 
+    val resultSaver = new ResultSaver(args, classifierName,instSelectorName)
     try {
 
       val originalData = readDataset(readerArgs, sc).persist
       originalData.name = "OriginalData"
 
       val cvfolds = createCVFolds(originalData, cvArgs)
-
+      var counter = 0
+      resultSaver.writeHeaderInFile()
       cvfolds.map {
         // Por cada par de entrenamiento-test
         case (train, test) => {
           executeExperiment(sc, instSelector, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
+          resultSaver.storeResultsFilterClassInFile(counter, reduction(counter), classificationResults(counter), filterTimes(counter), classifierTimes(counter))
+          counter += 1
         }
       }
 
       logger.log(Level.INFO, "Saving")
-      saveResults(args, instSelectorName, classifierName)
+      saveResults(resultSaver)
       logger.log(Level.INFO, "Done")
 
     } finally {
@@ -203,8 +207,7 @@ class ISClassExec extends TraitExec {
    * @return pares entrenamiento-test
    */
   protected def createCVFolds(originalData: RDD[LabeledPoint],
-                              crossValidationArgs: Array[String]):
-                              Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
+                              crossValidationArgs: Array[String]): Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
 
     var cvFolds = 1
     var cvSeed = 1
@@ -218,11 +221,10 @@ class ISClassExec extends TraitExec {
 
     if (cvFolds > 1) {
       MLUtils.kFold(originalData, cvFolds, cvSeed)
-    }
-    else {
-      val cv:Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = new Array(1)
+    } else {
+      val cv: Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = new Array(1)
       val tmp = originalData.randomSplit(Array(0.9, 0.1), cvSeed)
-      cv(0) = (tmp(0),tmp(1))
+      cv(0) = (tmp(0), tmp(1))
       cv
     }
 
@@ -263,10 +265,10 @@ class ISClassExec extends TraitExec {
                                 test: RDD[LabeledPoint]): Unit = {
 
     // Instanciamos y utilizamos el selector de instancias
-    
+
     val trainSize = train.count
     var start = System.currentTimeMillis
-    val resultInstSelector = applyInstSelector(instSelector, train, sc).persist
+    val resultInstSelector = applyInstSelector(instSelector, train).persist
     filterTimes += System.currentTimeMillis - start
     reduction += (1 - (resultInstSelector.count() / trainSize.toDouble)) * 100
 
@@ -300,14 +302,12 @@ class ISClassExec extends TraitExec {
    *
    * @param  InstSelector  Selector de isntancias
    * @param originalData  Conjunto de datos inicial
-   * @param  sc  Contexto Spark
    * @return Conjunto de instancias resultado
    */
   protected def applyInstSelector(instSelector: TraitIS,
-                                  originalData: RDD[LabeledPoint],
-                                  sc: SparkContext): RDD[LabeledPoint] = {
+                                  originalData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
     logger.log(Level.INFO, "ApplyingIS")
-    instSelector.instSelection(sc, originalData)
+    instSelector.instSelection(originalData)
   }
 
   /**
@@ -355,9 +355,7 @@ class ISClassExec extends TraitExec {
    * @param  instSelectorName Nombre del selector de instancias
    * @param  classifierName  Nombre del clasificador de instancias
    */
-  protected def saveResults(args: Array[String],
-                            instSelectorName: String,
-                            classifierName: String): Unit = {
+  protected def saveResults(resultSaver: ResultSaver): Unit = {
 
     // Número de folds que hemos utilizado
     val numFolds = reduction.size.toDouble
@@ -374,9 +372,8 @@ class ISClassExec extends TraitExec {
       classifierTimes.reduceLeft { _ + _ } / numFolds
 
     // Salvamos los resultados
-    val resultSaver = new ResultSaver()
-    resultSaver.storeResultsFilterClassInFile(args, meanReduction,
-      meanAccuracy, instSelectorName, classifierName, meanFilterTime, meanClassifierTime)
+    resultSaver.storeResultsFilterClassInFile(-1,meanReduction, meanAccuracy, meanFilterTime, meanClassifierTime)
+
   }
 
 }

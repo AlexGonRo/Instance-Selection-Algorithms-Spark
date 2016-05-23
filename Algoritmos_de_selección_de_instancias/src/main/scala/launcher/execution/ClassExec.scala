@@ -64,7 +64,7 @@ class ClassExec extends TraitExec {
    *   la relacionada con la validación cruzada
    */
   override def launchExecution(args: Array[String]): Unit = {
-    
+
     // Argumentos divididos según el objeto al que afectarán
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
@@ -81,23 +81,29 @@ class ClassExec extends TraitExec {
     //      new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
     //      val sc = new SparkContext(sparkConf)
 
+    // Objeto encargado de guardar los resultados de las ejecuciones.
+
+    val resultSaver = new ResultSaver(args,classifierName)
     try {
 
       val originalData = readDataset(readerArgs, sc).persist
       originalData.name = "OriginalData"
 
       val cvfolds = createCVFolds(originalData, cvArgs)
-
+      var counter = 0
+      resultSaver.writeHeaderInFile()
       cvfolds.map {
         // Por cada par de entrenamiento-test
         case (train, test) => {
           executeExperiment(sc, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
+          resultSaver.storeResultsClassInFile(counter,classificationResults(counter), execTimes(counter))
+          counter+=1
         }
       }
 
       logger.log(Level.INFO, "Saving")
-      saveResults(args, classifierName)
+      saveResults(resultSaver)
       logger.log(Level.INFO, "Done")
 
     } finally {
@@ -188,8 +194,7 @@ class ClassExec extends TraitExec {
    * @return pares entrenamiento-test
    */
   protected def createCVFolds(originalData: RDD[LabeledPoint],
-                              crossValidationArgs: Array[String]):
-                              Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
+                              crossValidationArgs: Array[String]): Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = {
 
     var cvFolds = 1
     var cvSeed = 1
@@ -203,11 +208,10 @@ class ClassExec extends TraitExec {
 
     if (cvFolds > 1) {
       MLUtils.kFold(originalData, cvFolds, cvSeed)
-    }
-    else {
-      val cv:Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = new Array(1)
+    } else {
+      val cv: Array[(RDD[LabeledPoint], RDD[LabeledPoint])] = new Array(1)
       val tmp = originalData.randomSplit(Array(0.9, 0.1), cvSeed)
-      cv(0) = (tmp(0),tmp(1))
+      cv(0) = (tmp(0), tmp(1))
       cv
     }
   }
@@ -297,8 +301,7 @@ class ClassExec extends TraitExec {
    * @param  instSelectorName Nombre del selector de instancias
    * @param  classifierName  Nombre del clasificador de instancias
    */
-  protected def saveResults(args: Array[String],
-                            classifierName: String): Unit = {
+  protected def saveResults(resultSaver: ResultSaver): Unit = {
 
     // Número de folds que hemos utilizado
     val numFolds = classificationResults.size.toDouble
@@ -312,9 +315,7 @@ class ClassExec extends TraitExec {
       execTimes.reduceLeft { _ + _ } / numFolds
 
     // Salvamos los resultados
-    val resultSaver = new ResultSaver()
-    resultSaver.storeResultsClassInFile(args,
-      meanAccuracy, classifierName, meanClassifyTime)
+    resultSaver.storeResultsClassInFile(-1,meanAccuracy, meanClassifyTime)
   }
 
 }
