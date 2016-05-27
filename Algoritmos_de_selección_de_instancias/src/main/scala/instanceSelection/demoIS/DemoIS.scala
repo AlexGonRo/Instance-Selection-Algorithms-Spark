@@ -156,7 +156,6 @@ class DemoIS extends TraitIS {
 
       // Redistribuimos las instancias en los nodos
       actualRDD = actualRDD.partitionBy(partitioner)
-      
       // En cada nodo aplicamos el algoritmo de selección de instancias
       actualRDD = actualRDD.mapPartitions(instancesIterator =>
         votingInNodes

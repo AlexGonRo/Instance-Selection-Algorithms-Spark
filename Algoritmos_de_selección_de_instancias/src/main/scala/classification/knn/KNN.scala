@@ -15,8 +15,11 @@ import java.util.Scanner
 import org.apache.hadoop.conf.Configuration
 import classification.abstr.TraitClassifier
 import org.apache.spark.rdd.RDD
+import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.linalg.Vector
+import utils.partitioner.RandomPartitioner
+import java.util.Random
 
 /**
  * Clasificador KNN.
@@ -96,7 +99,20 @@ class KNN extends TraitClassifier {
   override def train(trainingSet: RDD[LabeledPoint]): Unit = {
 
     if (numPartitions != trainingSet.getNumPartitions) {
-      trainingData = trainingSet.repartition(numPartitions)
+
+      var tmpRDD = trainingSet.mapPartitionsWithIndex((i, iter) => {
+        var tmp = iter.toArray;
+        var tmp2 = new Array[(Long, LabeledPoint)](tmp.size)
+        var r = new Random(i)
+        for (j <- 0 until tmp.size) {
+          tmp2.update(j, (r.nextInt, tmp(j)))
+        }
+        tmp2.toIterator
+      })
+
+      // TODO Seed grabada a fuego
+      val partitioner = new RandomPartitioner(numPartitions, tmpRDD.count(), 1000)
+      trainingData = tmpRDD.partitionBy(partitioner).map(tupla => tupla._2)
     } else {
       trainingData = trainingSet
     }
@@ -210,7 +226,7 @@ class KNN extends TraitClassifier {
 
     // Si las variables no han sido asignadas con un valor correcto.
     if (k <= 0 || numPartitions <= 0 || numReduces <= 0 || numReducePartitions <= -1
-      || maxWeight < 0  || distType < 1 || distType > 3) {
+      || maxWeight < 0 || distType < 1 || distType > 3) {
       logger.log(Level.SEVERE, "KNNWrongArgsValuesError")
       logger.log(Level.SEVERE, "KNNPossibleArgs")
       throw new IllegalArgumentException()
