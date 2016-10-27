@@ -27,10 +27,10 @@ class RandomPartitioner(val numPartitions: Int, val totalInst:Long, val seed:Lon
   var rep = 0
 
   /**
-   * Asigna una partición de manera conpletamente aleatoria.
+   * Asigna una partición a una instancia de manera aleatoria.
    *
    * @param key Llave de la instancia a reasignar
-   * @param Identificador de la partición asignada
+   * @return Identificador de la partición asignada
    */
   def getPartition(key: Any): Int = {
     val k = key.asInstanceOf[Long]

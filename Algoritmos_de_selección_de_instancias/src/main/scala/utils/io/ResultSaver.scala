@@ -32,7 +32,7 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
    * Ruta donde se almacenarán los ficheros resultado.
    *
    * Puede ser una ruta relativa.
-Nt   */
+  */
   val resultPath = "results"
 
   /**

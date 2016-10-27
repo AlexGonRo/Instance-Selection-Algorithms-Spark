@@ -14,6 +14,11 @@ import instanceSelection.seq.cnn.CNN
 import utils.partitioner.RandomPartitioner
 import scala.collection.mutable.ListBuffer
 import org.apache.spark.storage.StorageLevel
+import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.io.File
+import java.io.IOException
+import java.io.FileWriter
 
 /**
  * Algoritmo de selección de instancias Democratic Instance Selection.
@@ -107,6 +112,16 @@ class DemoIS extends TraitIS {
    */
   var distType = 2
 
+  /**
+   * Semilla aleatoria para la distribución de instancias en el KNN
+   */
+  var sknn: Long = 1
+
+  /**
+   * Si se debería guardar información adicional sobre la ejecución.
+   */
+  var xtraInfo = false
+
   override def instSelection(
     originalData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
@@ -116,10 +131,17 @@ class DemoIS extends TraitIS {
     // Operación Map
     // Realizar votaciones
     val ratedData = doVoting(dataAndVotes)
-        
+
     // Operación Reduce
     // Cálculo del umbral de votos y selección de resultado
-    val (indBestCrit, bestCrit) = lookForBestCriterion(ratedData)
+    val (criterions, extraData) = lookForBestCriterion(ratedData)
+    val indBestCrit = criterions.indexOf(criterions.min) + 1
+
+    // Si se ha pedido, se guarda información adicional sobre la ejecución.
+    if (xtraInfo) {
+      writeExtraInfo(criterions, extraData)
+    }
+
     ratedData.filter(
       tuple => tuple._1 < indBestCrit).map(tuple => tuple._2)
 
@@ -150,8 +172,8 @@ class DemoIS extends TraitIS {
     var actualRDD = RDDconContador.zipWithIndex().map(line => (line._2, line._1))
     // Número de instancias por partición
     // Particionador para asignar nuevas particiones a las instancias.
-    val partitioner = new RandomPartitioner(numPartitions, actualRDD.count(),seed)
-    
+    val partitioner = new RandomPartitioner(numPartitions, actualRDD.count(), seed)
+
     for { i <- 0 until numRepeticiones } {
 
       // Redistribuimos las instancias en los nodos
@@ -162,15 +184,15 @@ class DemoIS extends TraitIS {
           .applyIterationPerPartition(instancesIterator, seqAlgorithm)).persist
 
       partitioner.rep += 1
-      
+
       // TODO Necesario para forzar la opeación hasta este punto.
       actualRDD.foreachPartition(x => None)
-      
+
     }
     actualRDD.persist()
     actualRDD.name = "InstancesAndVotes"
     actualRDD.map(tupla => tupla._2)
-    
+
   }
 
   /**
@@ -187,11 +209,14 @@ class DemoIS extends TraitIS {
    *
    */
   private def lookForBestCriterion(
-    RDDconContador: RDD[(Int, LabeledPoint)]): (Int, Double) = {
+    RDDconContador: RDD[(Int, LabeledPoint)]): (MutableList[Double], MutableList[Array[Double]]) = {
 
     // Donde almacenar los valores del criterion de cada número de votos.
-    var criterion = new MutableList[Double]
-    // Creamos un conjunto de test
+    var criterions = new MutableList[Double]
+    // Donde almacenar los valores de parámetros en cada iteración en busca
+    // del mejor criterio.
+    var extraData = new MutableList[Array[Double]]
+    // Creamos un conjunto de test.
     val testRDD =
       RDDconContador.sample(false, datasetPerc / 100, seed).map(tupla => tupla._2)
 
@@ -205,14 +230,16 @@ class DemoIS extends TraitIS {
         tupla => tupla._1 < i).map(tupla => tupla._2).persist()
 
       if (selectedInst.isEmpty) {
-        criterion += Double.MaxValue
+        criterions += Double.MaxValue
       } else {
-        criterion += calcCriterion(selectedInst, testRDD,
+        var tmp = calcCriterion(selectedInst, testRDD,
           originalDatasetSize)
+        criterions += tmp._1
+        extraData += tmp._2
       }
     }
 
-    (criterion.indexOf(criterion.min) + 1, criterion.min)
+    (criterions, extraData)
   }
 
   /**
@@ -224,13 +251,15 @@ class DemoIS extends TraitIS {
    * @param  testRDD  Conjunto de instanciasde test para pasar al KNN
    * @param  dataSetSize  Tamaño del conjunto original de datos.
    * @return Resultado numérico del criterio de selección.
+   *         Información adicional sobre las variables usadas.
    */
   private def calcCriterion(selectedInst: RDD[LabeledPoint],
                             testRDD: RDD[LabeledPoint],
-                            dataSetSize: Long): Double = {
+                            dataSetSize: Long): (Double, Array[Double]) = {
 
     // Calculamos el porcentaje del tamaño que corresponde al subconjunto
-    val subDatasize = selectedInst.count.toDouble / dataSetSize
+    val subSetSize = selectedInst.count.toDouble
+    val subSetPerc = subSetSize / dataSetSize
 
     // Calculamos la tasa de error
     val knn = new KNN()
@@ -249,6 +278,8 @@ class DemoIS extends TraitIS {
     knnParameters += maxWeightKNN.toString()
     knnParameters += "-dt"
     knnParameters += distType.toString()
+    knnParameters += "-s"
+    knnParameters += sknn.toString()
     knn.setParameters(knnParameters.toArray)
     knn.train(selectedInst)
     val tmp = testRDD.zipWithIndex().map(line => (line._2, line._1)).persist
@@ -260,8 +291,67 @@ class DemoIS extends TraitIS {
 
     val testError = failures.toDouble / testRDD.count
 
+    // Esta información solo será usada si el parámetro xtraInfo es verdadero.
+    var info = Array(dataSetSize, subSetSize, subSetPerc, failures, testError)
+
     // Calculamos el criterio de selección.
-    alpha * testError + (1 - alpha) * subDatasize
+    (alpha * testError + (1 - alpha) * subSetPerc, info)
+
+  }
+
+  /**
+   * Almacena en un archivo .csv información adicional sobre la ejecución
+   * del algoritmo.
+   *
+   * La información guardada corresponde a los valores de diferentes parámetros
+   * durante el cálculo de los diferentes umbrales durante la selección del
+   * threshold.
+   * @param  criterion  Lista con todos los posibles umbrales calculados.
+   * @param  extraData  Datos sobre los valores de los parámetros durante el cálculo
+   *             de los diferentes umbrales. Los datos almacenados corresponden a:
+   *             totalDataSize, subDataSize, Reduction, failures, testError,
+   *             finalCriterion
+   */
+  private def writeExtraInfo(criterion: MutableList[Double],
+                             extraData: MutableList[Array[Double]]): Unit = {
+
+    val fileSeparator = System.getProperty("file.separator")
+
+    val resultPath = "results" + fileSeparator + "extra_info"
+
+    val myDateFormat = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+
+    val now = Calendar.getInstance().getTime()
+
+    val fileName = resultPath + fileSeparator + "info_criterion_demoIS" +
+      "_" + myDateFormat.format(now) + ".csv"
+
+    val resultDir = new File(resultPath)
+    if (!resultDir.exists()) {
+      resultDir.mkdir()
+    }
+
+    val file = new File(fileName)
+
+    val writer = new FileWriter(file)
+    try {
+      writer.write("n (#),totalDataSize (#),subDataSize (#),Reduction (%)," +
+        "failures (#),testError (%), finalCriterion\n")
+      for { i <- 0 until extraData.size } {
+        writer.write(i.toString() + ',' + extraData.get(i).get(0) + "," +
+          extraData.get(i).get(1) + "," + (100 - extraData.get(i).get(2) * 100) +
+          "," + extraData.get(i).get(3) + "," + extraData.get(i).get(4) + "," +
+          criterion(i) + "\n")
+      }
+      writer.write("Best criterion:" + "," + criterion.indexOf(criterion.min) +
+        "," + criterion.min + "\n")
+    } catch {
+      case e: IOException => None
+      // TODO Añadir mensaje de error
+    } finally {
+      writer.close()
+    }
+
   }
 
   override def setParameters(args: Array[String]): Unit = {
@@ -304,7 +394,9 @@ class DemoIS extends TraitIS {
       case "-nrknn"   => numReducesKNN = value.toInt
       case "-nrpknn"  => numReducePartKNN = value.toInt
       case "-maxWknn" => maxWeightKNN = value.toDouble
-      case "-d"   => distType = value.toInt
+      case "-d"       => distType = value.toInt
+      case "-sknn"    => sknn = value.toLong
+      case "-ei"      => if (value.toLong > 0) xtraInfo = true
       case somethingElse: Any =>
         logger.log(Level.SEVERE, "DemoISWrongArgsError",
           somethingElse.toString())
