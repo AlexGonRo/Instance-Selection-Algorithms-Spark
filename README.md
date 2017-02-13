@@ -83,3 +83,26 @@ $SPARK_HOME/bin/spark-submit --master "URL" ["otros_argumentos_Spark"] \
 * Álvar Arnaiz González
 
 * Carlos López Nozal
+
+##Cite
+When citing this implementation, please use:
+
+* BibTeX:
+
+> `@Article`{Arnaiz-Gonzalez2017,
+
+> > author="Arnaiz-Gonz{\'a}lez, {\'A}lvar and Gonz{\'a}lez-Rogel, Alejandro and D{\'i}ez Pastor, Jos{\'e}-Francisco and L{\'o}pez-Nozal, Carlos",
+
+> > title="MR-DIS: democratic instance selection for big data by MapReduce",
+
+> > journal="Progress in Artificial Intelligence",
+
+> > year="2017",
+
+> > pages="1--9",
+
+> >  issn="2192-6360",
+
+> > doi="10.1007/s13748-017-0117-5"
+
+> > }
