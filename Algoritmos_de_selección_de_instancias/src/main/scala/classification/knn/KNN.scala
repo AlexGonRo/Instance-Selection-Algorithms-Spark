@@ -92,12 +92,19 @@ class KNN extends TraitClassifier {
   var distType = 2
 
   /**
+   * Semilla utilizada para la distribución aleatoria de instancias en el número de
+   * particiones que se pida.
+   */
+  var seed:Long = 1
+
+  /**
    * Contexto Spark en el que se ejecuta el algoritmo.
    */
   private var sc: SparkContext = null
 
   override def train(trainingSet: RDD[LabeledPoint]): Unit = {
-
+  // TODO Evaluar cuánto de bueno es este método de distribuir las instancias.
+    
     if (numPartitions != trainingSet.getNumPartitions) {
 
       var tmpRDD = trainingSet.mapPartitionsWithIndex((i, iter) => {
@@ -110,8 +117,7 @@ class KNN extends TraitClassifier {
         tmp2.toIterator
       })
 
-      // TODO Seed grabada a fuego
-      val partitioner = new RandomPartitioner(numPartitions, tmpRDD.count(), 1000)
+      val partitioner = new RandomPartitioner(numPartitions, tmpRDD.count(), 1)
       trainingData = tmpRDD.partitionBy(partitioner).map(tupla => tupla._2)
     } else {
       trainingData = trainingSet
@@ -122,7 +128,7 @@ class KNN extends TraitClassifier {
 
   override def classify(instances: RDD[(Long, Vector)]): RDD[(Long, Double)] = {
 
-    //Count the samples of each data set and the number of classes
+    // Count the samples of each data set and the number of classes
     val numSamplesTrain = trainingData.count()
     instances.persist
     val numSamplesTest = instances.count()
@@ -131,7 +137,7 @@ class KNN extends TraitClassifier {
     var numIterations = numReducePartitions
     // Número de instancias de test por cada iteración.
     var inc = (numSamplesTest / numIterations).toInt
-    //top delimitador y sub delitmirador¿?
+    // top delimitador y sub delitmirador¿?
     var subdel = 0
     var topdel = inc - 1
     if (numIterations == 1) { // If only one partition
@@ -212,6 +218,7 @@ class KNN extends TraitClassifier {
           case "-nrp"  => numReducePartitions = args(i + 1).toInt
           case "-maxW" => maxWeight = args(i + 1).toDouble
           case "-dt"   => distType = args(i + 1).toInt
+          case "-s"    => seed = args(i + 1).toLong
           case somethingElse: Any =>
             logger.log(Level.SEVERE, "KNNWrongArgsError", somethingElse.toString())
             logger.log(Level.SEVERE, "KNNISPossibleArgs")

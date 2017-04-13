@@ -13,7 +13,7 @@ Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingen
 
 ##DISTRIBUCIONES
 
-* **ISAlgorithms**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
+* **ISAlgorithms_2_10**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
 
     * Versión Scala: 2.10
 
@@ -75,6 +75,9 @@ $SPARK_HOME/bin/spark-submit --master "URL" ["otros_argumentos_Spark"] \
 
 * *-r "ruta_dataset" ["otros_arguentos_lector"] -f "ruta_algoritmo_selector" "argumentos_algoritmo" -c "ruta_algoritmo_classificación" "argumentos_algoritmo" [-cv "argumentos_validación_cruzada"]*: Argumentos del programa.
 
+##Publicaciones
+* [ERCIM] (http://ercim-news.ercim.eu/en108/r-i/mr-dis-a-scalable-instance-selection-algorithm-using-mapreduce-on-spark) 
+
 
 ##Autor
 * Alejandro González Rogel
@@ -83,3 +86,26 @@ $SPARK_HOME/bin/spark-submit --master "URL" ["otros_argumentos_Spark"] \
 * Álvar Arnaiz González
 
 * Carlos López Nozal
+
+##Cite
+When citing this implementation, please use:
+
+* BibTeX:
+
+> `@Article`{Arnaiz-Gonzalez2017,
+
+> > author="Arnaiz-Gonz{\'a}lez, {\'A}lvar and Gonz{\'a}lez-Rogel, Alejandro and D{\'i}ez Pastor, Jos{\'e}-Francisco and L{\'o}pez-Nozal, Carlos",
+
+> > title="MR-DIS: democratic instance selection for big data by MapReduce",
+
+> > journal="Progress in Artificial Intelligence",
+
+> > year="2017",
+
+> > pages="1--9",
+
+> >  issn="2192-6360",
+
+> > doi="10.1007/s13748-017-0117-5"
+
+> > }
