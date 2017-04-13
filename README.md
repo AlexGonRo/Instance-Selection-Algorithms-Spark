@@ -13,7 +13,7 @@ Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingen
 
 ##DISTRIBUCIONES
 
-* **ISAlgorithms**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
+* **ISAlgorithms_2_10**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
 
     * Versión Scala: 2.10
 
