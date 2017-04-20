@@ -4,88 +4,94 @@
 
 This repository offers a variety of **parallel** data mining techniques using the Apache Spark™ and its RDD structures.
 
-Although at the time of its creation the mayor concern of the library was the implementation of instance selection algorithms, the structure of the library still allows for the implementation and use of any other data mining tasks. 
-
-In the current version, the most remarkable content this repository gives access to are the instance selection algorithms *Locality Sensitive Hashing Instance Selection* (LSHIS) and *Democratic Instance Selection* (DemoIS) and the classifier *k*nn.
-
-*The first version of this work was presented in February 2016 as a Computer Science bachelor's thesis at the University of Burgos (http://www.ubu.es/english-version). The old repository can still be found here: https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark
-
-## DISTRIBUCIONES
-
-* **ISAlgorithms_2_10**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
-
-    * Versión Scala: 2.10
-
-    * Versión Java: 1.7
-
-    * Versión Spark: 1.6.1
-
-* **ISAlgorithms_2_11**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
-
-    * Versión Scala: 2.11
-
-    * Versión Java: 1.8
-
-    * Versión Spark: 1.6.1
-
-* **ISAlgorithms_gui**: Distribución con únicamente la interfaz gráfica.
-
-    * Versión Scala: 2.11
-
-    * Versión Java: 1.8
+This library offers the possibility to easily setup a data mining pipeline and run it in a parallel enviroment. We recommend the use of the console user interface when launching a task. However, in an effort to make the use of our work easier, we also offer a basic GUI that offers the basic functionalities.
 
 ![full_interface.png](https://bitbucket.org/repo/B6d96X/images/463284299-full_interface.png)
 
+Although at the time of its creation the mayor concern of the library was the implementation of instance selection algorithms, the structure of the library still allows for the implementation and use of any other data mining tasks.
 
-* **ISAlgorithms_cluster**: Distribución con únicamente la librería de algoritmos de minería.
+Rigth now, the most remarkable content this repository gives access to are the instance selection algorithms *Locality Sensitive Hashing Instance Selection* (LSHIS) and *Democratic Instance Selection* (DemoIS) and the classifier *k*nn.
 
-    * Versión Scala: 2.10
+*The first version of this work was presented in February 2016 as a Computer Science bachelor's thesis at [University of Burgos](http://www.ubu.es/english-version)*. The old repository can still be found here: https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark
 
-    * Versión Java: 1.7
+## Before running
 
-    * Versión Spark: 1.6.1
+Please, check that your system fulfill all the following requirements. We do not guarantee that this library will work under a different configuation.
 
-## USO
+ * Scala version: 2.11
 
-Actualmente, el programa únicamente permite lanzar experimentos que consten de un algoritmo de selección de instancias y un algoritmo de clasificación que se ejecute posterior al filtrado.
+ * Java version: 1.8
 
-A continuación se presenta un ejemplo de uso mediante consola de comandos:
+ * Spark version: 1.6.1
 
+ * Maven version (if you need to build the library yourself): 3.3.3
+
+
+## Releases
+
+You can find the newest version of the library (already built) in our [Releases](https://github.com/AlexGonRo/Instance-Selection-Algorithms-Spark/releases) section.
+
+Two different files are provided:
+
+ * **ISAlgorithms:** Contains all the algorithms but not the graphical interface.
+ 
+ * **ISAlgorithms_gui:** Contains all the algorithms and the graphical interface.
+
+## Build it yourself
+
+If you need an older version of this program or want to build it using a different configuration, we provide the possibility to do so.
+
+Open a command window and locate the root directory. Modify the POM XML file if needed and execute the following line:
+
+```
+$ mvn clean package
+```
+
+## Execution
+
+Right now, the program only allows for the execution of the following types of pipelines:
+
+* Instance selection algorithm + classifier
+* Classifier alone
+
+
+You can have a look to the squeleton of the execution command:  
+
+```
+$SPARK_HOME/bin/spark-submit --master "URL" ["OTHER_SPARK_ARGS"] \
+--class "launcher.ExperimentLauncher" "PATH_JAR" ISClassExec \
+-r "PATH_DATASET" ["OTHER_LOADING_ARGS"] -f "PATH_INSTANCE_SELECTION_ALG"\
+ "ALGORITHM_ARGS" -c "PATH_CLASSIFIER" \
+"CLASSIFIER_ARGS" [-cv "CV_ARGS"]
+
+```
+In the command above:
+
+* *$SPARK_HOME/bin/spark-submit*: Path to the *spark-submit* script
+
+* *"URL"*: Path to master or *local[n]* if it is a local execution (where *n* refers to the number of threads).
+
+* *"OTHER_SPARK_ARGS"*: Spark arguments.
+
+* *--class launcher.ExperimentLauncher "PATH_JAR"*: Path to our JAR library.
+
+* *ISClassExec*: Pipeline type
+
+* *-r "PATH_DATASET" ["OTHER_LOADING_ARGS"] -f "PATH_INSTANCE_SELECTION_ALG" "ALGORITHM_ARGS" -c "PATH_CLASSIFIER" "CLASSIFIER_ARGS" [-cv "CV_ARGS"]*: Job arguments.
+
+## Example
 
 ```
 
-$SPARK_HOME/bin/spark-submit --master "URL" ["otros_argumentos_Spark"] \
---class "launcher.ExperimentLauncher" "ruta_jar" ISClassExec \
--r "ruta_dataset" ["otros_arguentos_lector"] -f "ruta_algoritmo_selector"\
- "argumentos_algoritmo" -c "ruta_algoritmo_classificación" \
-"argumentos_algoritmo" [-cv "argumentos_validación_cruzada"]
-
 ```
 
-* *$SPARK_HOME/bin/spark-submit*: Ruta al script spark-submit
+## Additional notes
 
-* *"URL"*: Ruta a la máquina maestra o local[n] en caso de ejecución local, siendo 'n' el número de hilos a utilizar.
 
-* *"otros_argumentos_Spark"*: Otros argumentos de configuración para Spark.
+## Articles
 
-* *--class launcher.ExperimentLauncher "ruta_jar"*: Archivo jar y clase a utilizar.
-
-* *ISClassExec*: Tipo de experimento.
-
-* *-r "ruta_dataset" ["otros_arguentos_lector"] -f "ruta_algoritmo_selector" "argumentos_algoritmo" -c "ruta_algoritmo_classificación" "argumentos_algoritmo" [-cv "argumentos_validación_cruzada"]*: Argumentos del programa.
-
-## Publicaciones
 * [ERCIM] (http://ercim-news.ercim.eu/en108/r-i/mr-dis-a-scalable-instance-selection-algorithm-using-mapreduce-on-spark) 
 * [PRAI]  (http://link.springer.com/article/10.1007/s13748-017-0117-5)
-
-
-## Autor
-* Alejandro González Rogel
-
-## Tutores
-* Álvar Arnaiz-González
-
-* Carlos López-Nozal
 
 ## Cite
 When citing this implementation, please use:
