@@ -8,8 +8,7 @@ El área concreta en la que está centrado este trabajo es la implementación de
 
 Actualmente, su contenido más destacable es la existencia de dos algoritmos de selección de instancias: *Locality Sensitive Hashing Instance Selection* (LSHIS) y *Democratic Instance Selection* (DemoIS).
 
-**
-Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingeniería Informática por la Universidad de Burgos en la convocatoria de Febrero 2016.** Cualquier modificación realizada posteriormente no corresponde al trabajo realizado durante el curso, sino a la evolución del proyecto fuera del ámbito de evaluación.
+** Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingeniería Informática por la Universidad de Burgos en la convocatoria de Febrero 2016. ** Cualquier modificación realizada posteriormente no corresponde al trabajo realizado durante el curso, sino a la evolución del proyecto fuera del ámbito de evaluación.
 
 ## DISTRIBUCIONES
 
@@ -77,6 +76,7 @@ $SPARK_HOME/bin/spark-submit --master "URL" ["otros_argumentos_Spark"] \
 
 ## Publicaciones
 * [ERCIM] (http://ercim-news.ercim.eu/en108/r-i/mr-dis-a-scalable-instance-selection-algorithm-using-mapreduce-on-spark) 
+* [PRAI]  (http://link.springer.com/article/10.1007/s13748-017-0117-5)
 
 
 ## Autor
@@ -92,15 +92,14 @@ When citing this implementation, please use:
 
 * BibTeX:
 ```
-
-> @Article{Arnaiz-Gonzalez2017,
-> > author="Arnaiz-Gonz{\'a}lez, {\'A}lvar and Gonz{\'a}lez-Rogel, Alejandro and D{\'i}ez Pastor, Jos{\'e}-Francisco and L{\'o}pez-Nozal, Carlos",
-> > title="MR-DIS: democratic instance selection for big data by MapReduce",
-> > journal="Progress in Artificial Intelligence",
-> > year="2017",
-> > pages="1--9",
-> >  issn="2192-6360",
-> > doi="10.1007/s13748-017-0117-5"
-> > }
-
+@Article{Arnaiz-Gonzalez2017,
+   author="Arnaiz-Gonz{\'a}lez, {\'A}lvar and Gonz{\'a}lez-Rogel, Alejandro and 
+           D{\'i}ez Pastor, Jos{\'e}-Francisco and L{\'o}pez-Nozal, Carlos",
+   title="MR-DIS: democratic instance selection for big data by MapReduce",
+   journal="Progress in Artificial Intelligence",
+   year="2017",
+   pages="1--9",
+   issn="2192-6360",
+   doi="10.1007/s13748-017-0117-5"
+}
 ```
