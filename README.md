@@ -1,14 +1,14 @@
-# Paralelización de algoritmos de selección de instancias con la arquitectura Spark
+# Parallel instance selection algorithms using Spark framework
 
-## Descripción
+## Description
 
-Este proyecto software ofrece una herramienta capaz de aplicar técnicas de minería de datos **de manera paralela** apoyándose en Apache Spark™ y sus estructuras RDD. 
+This repository offers a variety of **parallel** data mining techniques using the Apache Spark™ and its RDD structures.
 
-El área concreta en la que está centrado este trabajo es la implementación de algoritmos de selección de instancias. Sin embargo, su estructua no impide la creación y utilización de cualquier otro tipo de técnicas de minería, como algoritmos de clasificación (implementado el *K*NN secuencial).
+Although at the time of its creation the mayor concern of the library was the implementation of instance selection algorithms, the structure of the library still allows for the implementation and use of any other data mining tasks. 
 
-Actualmente, su contenido más destacable es la existencia de dos algoritmos de selección de instancias: *Locality Sensitive Hashing Instance Selection* (LSHIS) y *Democratic Instance Selection* (DemoIS).
+In the current version, the most remarkable content this repository gives access to are the instance selection algorithms *Locality Sensitive Hashing Instance Selection* (LSHIS) and *Democratic Instance Selection* (DemoIS) and the classifier *k*nn.
 
-** Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingeniería Informática por la Universidad de Burgos en la convocatoria de Febrero 2016. ** Cualquier modificación realizada posteriormente no corresponde al trabajo realizado durante el curso, sino a la evolución del proyecto fuera del ámbito de evaluación.
+*The first version of this work was presented in February 2016 as a Computer Science bachelor's thesis at the University of Burgos (http://www.ubu.es/english-version). The old repository can still be found here: https://bitbucket.org/agr00095/tfg-alg.-seleccion-instancias-spark
 
 ## DISTRIBUCIONES
 
