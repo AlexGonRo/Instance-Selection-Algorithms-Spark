@@ -1,6 +1,6 @@
 # Paralelización de algoritmos de selección de instancias con la arquitectura Spark
 
-##Descripción
+## Descripción
 
 Este proyecto software ofrece una herramienta capaz de aplicar técnicas de minería de datos **de manera paralela** apoyándose en Apache Spark™ y sus estructuras RDD. 
 
@@ -11,7 +11,7 @@ Actualmente, su contenido más destacable es la existencia de dos algoritmos de 
 **
 Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingeniería Informática por la Universidad de Burgos en la convocatoria de Febrero 2016.** Cualquier modificación realizada posteriormente no corresponde al trabajo realizado durante el curso, sino a la evolución del proyecto fuera del ámbito de evaluación.
 
-##DISTRIBUCIONES
+## DISTRIBUCIONES
 
 * **ISAlgorithms_2_10**: Distribución general con todos los algoritmos de la librería e interfaz gráfica.
 
@@ -46,7 +46,7 @@ Este trabajo ha sido presentado como proyecto de fin de grado del Grado en Ingen
 
     * Versión Spark: 1.6.1
 
-##USO
+## USO
 
 Actualmente, el programa únicamente permite lanzar experimentos que consten de un algoritmo de selección de instancias y un algoritmo de clasificación que se ejecute posterior al filtrado.
 
@@ -75,37 +75,32 @@ $SPARK_HOME/bin/spark-submit --master "URL" ["otros_argumentos_Spark"] \
 
 * *-r "ruta_dataset" ["otros_arguentos_lector"] -f "ruta_algoritmo_selector" "argumentos_algoritmo" -c "ruta_algoritmo_classificación" "argumentos_algoritmo" [-cv "argumentos_validación_cruzada"]*: Argumentos del programa.
 
-##Publicaciones
+## Publicaciones
 * [ERCIM] (http://ercim-news.ercim.eu/en108/r-i/mr-dis-a-scalable-instance-selection-algorithm-using-mapreduce-on-spark) 
 
 
-##Autor
+## Autor
 * Alejandro González Rogel
 
-##Tutores
-* Álvar Arnaiz González
+## Tutores
+* Álvar Arnaiz-González
 
-* Carlos López Nozal
+* Carlos López-Nozal
 
-##Cite
+## Cite
 When citing this implementation, please use:
 
 * BibTeX:
+```
 
-> `@Article`{Arnaiz-Gonzalez2017,
-
+> @Article{Arnaiz-Gonzalez2017,
 > > author="Arnaiz-Gonz{\'a}lez, {\'A}lvar and Gonz{\'a}lez-Rogel, Alejandro and D{\'i}ez Pastor, Jos{\'e}-Francisco and L{\'o}pez-Nozal, Carlos",
-
 > > title="MR-DIS: democratic instance selection for big data by MapReduce",
-
 > > journal="Progress in Artificial Intelligence",
-
 > > year="2017",
-
 > > pages="1--9",
-
 > >  issn="2192-6360",
-
 > > doi="10.1007/s13748-017-0117-5"
-
 > > }
+
+```
