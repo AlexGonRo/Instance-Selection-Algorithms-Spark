@@ -81,20 +81,23 @@ In the command above:
 
 ## Example
 
-```
+The following code shows an example command:
 
 ```
+$SPARK_HOME/bin/spark-submit --master spark://alejandro:7077
+--class "launcher.ExperimentLauncher" "./ISAlgorithms.jar" ISClassExec \
+-r ./Data/dataset1 \
+-f instanceSelection.demoIS.DemoIS \
+-c classification.seq.knn.KNN\
+-cv 10
+```
+
+This command will run in master node *spark://alejandro:7077*. The dataset is called *dataset1* and will be our input to a *Democratic Instance Selection* algorithm and a classifier *k*nn with the default parameters. A 10-fold cross-validation will be performed.
 
 ## Additional notes
 
-
-## Articles
-
-* [ERCIM] (http://ercim-news.ercim.eu/en108/r-i/mr-dis-a-scalable-instance-selection-algorithm-using-mapreduce-on-spark) 
-* [PRAI]  (http://link.springer.com/article/10.1007/s13748-017-0117-5)
-
-## Cite
-When citing this implementation, please use:
+### Cite
+When citing this implementation, please refer to:
 
 * BibTeX:
 ```
@@ -109,3 +112,8 @@ When citing this implementation, please use:
    doi="10.1007/s13748-017-0117-5"
 }
 ```
+
+### Articles
+
+* [ERCIM] (http://ercim-news.ercim.eu/en108/r-i/mr-dis-a-scalable-instance-selection-algorithm-using-mapreduce-on-spark) 
+* [PRAI]  (http://link.springer.com/article/10.1007/s13748-017-0117-5)
