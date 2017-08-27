@@ -9,12 +9,9 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
 /**
- * Proporciona métodos para la lectura de conjuntos de datos almacenados
- * en ficheros y realiza su conversión a estructuras
- * [[org.apache.spark.rdd.RDD]].
+ * Reads CSV files and generate a [[org.apache.spark.rdd.RDD]] out of it.
  *
- *
- * @constructor Genera un nuevo lector de ficheros
+ * @constructor Create a new file reader.
  *
  * @version 1.0.0
  * @author Alejandro González Rogel
@@ -22,7 +19,7 @@ import org.apache.spark.rdd.RDD
 class FileReader {
 
   /**
-   * Ruta al fichero que almacena los mensajes de log.
+   * Path to the file that contains the log messages.
    */
   private val bundleName = "resources.loggerStrings.stringsUtils";
   /**
@@ -31,54 +28,58 @@ class FileReader {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Indica si el atributo de clase es el primero de los atributos de una
-   * instancia.
+   * The first attribute of an instance is the class attribute.
    *
-   * Por defecto, el atributo de clase es el último de los atributos.
+   * If this value is "false", the class attribute is the last one.
    */
   var first = false
 
   /**
-   * Indica si el fichero contiene unas lineas descriptivas antes de los datos.
-   *
-   * Por defecto, se asume que un fichero no tiene cabecera.
+   * The first lines of the file are a header, i.e they are not part of the dataset.
+   * 
+   * This value is "False" by default.
    */
   var header = false
 
   /**
-   * Número de lineas que tiene la cabecera.
+   * Number of header lines.
+   *
+   * Unused if attribute header==false. 
    */
   var headerLines = 0
 
   /**
-   * Realiza la lectura de un fichero en formato CSV y genera una RDD con ellos.
+   * Reads from a CSV file and transforms the dataset into a [[org.apache.spark.rdd.RDD]]
+   * structure.
+   * 
+   * TODO Allow the user to specify the separator of the file.
+   * 
+   * Attributes must be separated by commas.
    *
-   * Los atributos han de estar separados por comas.
-   *
-   * @param  sc  Contexto Spark.
-   * @param  filePath  Ruta al fichero.
-   * @return  RDD generada.
+   * @param  sc  Spark context.
+   * @param  filePath  File path.
+   * @return  Generated RDD.
    */
   def readCSV(sc: SparkContext, filePath: String): RDD[LabeledPoint] = {
 
     var data = sc.textFile(filePath)
 
-    // En el caso de que el fichero contenga una cabezera lo eliminamos
+    // Remove header if necessary.
     if (header) {
       val broadcastVar = sc.broadcast(headerLines)
       data = data.zipWithIndex().filter(_._2 >= broadcastVar.value).map(_._1)
     }
 
-    // Transformación sobre la RDD para almacenar las instancias en LabeledPoints
+    // Store all the instances as [[org.apache.spark.mllib.regression.LabeledPoint]].
     if (!first) {
-      // Si el atributo de clase es el último
+      // If the class attribute is the last one.
       data.map { line =>
         val features = line.split(',')
         LabeledPoint(features.last.toDouble,
           Vectors.dense(features.dropRight(1).map(_.toDouble)))
       }
     } else {
-      // Si el atributo de clase es el primero
+      // If the first attribute is the class attribute.
       data.map { line =>
         val features = line.split(',')
         LabeledPoint(features(0).toDouble, Vectors.dense(features.tail
@@ -90,15 +91,14 @@ class FileReader {
   }
 
   /**
-   * Lee una cadena de argumentos para actualizar los valores de los
-   * atributos de la clase.
+   * Reads a string of arguments and sets this class attributes according to it.
    *
-   * Este método está pensado para actualizar aquellos atributos relacionados
-   * con la lectura de ficheros en formato CSV.
-   *
-   * @param  args  Serie de argumentos.
-   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
-   *   no es correcto.
+   * In the current version, this method only sets the attributes required to
+   * read CSV files.
+   * 
+   * @param  args  Set of arguments in the form "-nameAttribute [Value]".
+   * @throws IllegalArgumentException If one of the arguments does not exist
+   *  or has an illegal value.
    */
   @throws(classOf[IllegalArgumentException])
   def setCSVParam(args: Array[String]): Unit = {
@@ -109,7 +109,7 @@ class FileReader {
         try {
           headerLines = args(i).toInt
         } catch {
-          // Si el siguiente parámetro no es numérico o directamente no existe
+          // If the following value is a number or does not exist
           case e @ (_: IllegalStateException | _: NumberFormatException) =>
             printErrorReadingCSVArgs
         }
@@ -129,11 +129,12 @@ class FileReader {
   }
 
   /**
-   * Emite mensajes de error por la salida estándar, generados por un error
-   * durante la lectura de argumentos para el lector.
+   * Outputs an error message if an error has occured when setting up the attributes
+   * of this class.
    *
-   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
-   *   no es correcto.
+   * It uses the standard error output.
+   *
+   * @throws IllegalArgumentException If one of the arguments is not correct.
    */
   @throws(classOf[IllegalArgumentException])
   private def printErrorReadingCSVArgs(): Unit = {

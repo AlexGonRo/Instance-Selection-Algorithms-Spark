@@ -8,20 +8,19 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import java.io.IOException
 
-//TODO REVISAR TODA LA DOCUMENTACIÓN DE ESTA CLASE
+//TODO Check the documentation of this class.
 
 /**
- * Proporciona métodos para almacenar el resultado obtenido tras la ejecución de
- * un algoritmo de selección de instancias.
+ * Stores the results obtained after the classification proccess.
  *
  *
- * @constructor Crea una nueva clase encargada de guardar resultados.
- *     Además, se creará un fichero .csv en la ruta especificada en la variable
- *     ''resultPath'' que será el que guarde la información que deseamos almacenar.
- *     Esta variable, de momento, no es configurable.
- * @param  args Argumentos de la ejecución de la cual vamos a guardar los resultados.
- * @param  classifierName Nombre del clasificador usado durante la ejecución.
- * @param  filterName Nombre del filtro utilizado durante la ejecución
+ * @constructor Creates a new object to save date.
+ * 		It also creates an empty CSV file in the path idicated by
+ * 		''resultPath''. This file stores all the information that will be safed.
+ *     
+ * @param  args Arguments for this class attributes.
+ * @param  classifierName Name of the classifier used during this execution.
+ * @param  filterName Name of the filter algorithm used during this execution.
  * @version 1.0.0
  * @author Alejandro González Rogel
  *
@@ -29,34 +28,38 @@ import java.io.IOException
 class ResultSaver(val args: Array[String], val classifierName: String, val filterName: String = "NoFilter") {
 
   /**
-   * Ruta donde se almacenarán los ficheros resultado.
+   * Folder where all the data will be safed.
    *
-   * Puede ser una ruta relativa.
+   * It can contain a relative path. In the current version, this variable cannot be changed.
+   * TODO Allow for the configuration of this attribute.
   */
   val resultPath = "results"
 
   /**
-   * Separador de ficheros el sistema operativo.
+   * File separator of the operative system.
    */
   final private val fileSeparator = System.getProperty("file.separator")
 
   /**
-   * Formato de escritura de la fecha y hora actual
+   * Date format.
    */
   val myDateFormat = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
 
   /**
-   * Nombre del conjunto de datos utilizado
+   * Name of the file containing the dataset.
    */
-  // TODO ese 1 está metido a pelo
+  // TODO That ''1'' there is hrdcoded.
   val datasetName = new File(args(1)).getName
 
+  /*
+  * Actual time and date.
+  */
   private val now = Calendar.getInstance().getTime()
+  
   /**
-   * Nombre del fichero donde guardaremos el resultado, incluyengo la ruta a dicho
-   * fichero.
+   * Path (path to folder + file name) where the data will be safed.
    */
-  val fileName = resultPath + fileSeparator + filterName + "_" +
+  val path = resultPath + fileSeparator + filterName + "_" +
     classifierName + "_" + myDateFormat.format(now) + ".csv"
 
   val resultDir = new File(resultPath)
@@ -64,18 +67,18 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
     resultDir.mkdir()
   }
   /**
-   * Fichero que almacena los resultados a guardar.
+   * File that stores the results.
    */
-  val file = new File(fileName)
+  val file = new File(path)
 
   /**
-   * Guarda una RDD en un único fichero en la máquina principal.
+   * Saves a whole RDD in one single file in the master node.
+   * 
+   * This file will be located in a folder called ''RDD''. This
+   * folder will be created if necessary.
    *
-   * El fichero será almacenado en una carpeta definida llamada RDDs (de no existir
-   * será creada).
-   *
-   * @param  args  Argumentos utilizados en el lanzamiento de la aplicación.
-   * @param  fileId  Nombre identificativo a incluir en el nombre del fichero
+   * @param  args  Arguments used during the execution of the data mining task.
+   * @param  fileId  Name of the file.
    *   resultante.
    * @param  rdd  RDD a almacenar.
    */
@@ -91,10 +94,10 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
     }
 
     val now = Calendar.getInstance().getTime()
-    val fileName = path + fileSeparator + fileId + "_" +
+    val path = path + fileSeparator + fileId + "_" +
       myDateFormat.format(now)
 
-    val writer = new FileWriter(new File(fileName))
+    val writer = new FileWriter(new File(path))
     try {
       printRDDInFile(writer, rdd)
     } catch {
@@ -108,18 +111,17 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
   }
 
   /**
-   * Almacena información sobre los resultados de una ejecución.
+   * Stores information about the execution.
    *
-   * Debe ser utilizado cuando la ejecución ha constado de un filtro y un
-   * clasificador.
+   * Must be used when the execution consisted in a filter and a classifier.
    *
-   * @param  iter Iteración de la validación cruzada. Si el valor es <0, indica
-   *   que estamos tratando de imprimir la media de los resultados de la ejecución.
-   * @param  reduction  Porcentaje de redución del conjunto de datos inicial tras
-   *   aplicarse un selector de instancias.
-   * @param classificationAccuracy  Porcentaje de acierto del clasificador.
-   * @param  filterTime  Tiempo medio utilizado por la etapa de filtrado.
-   * @param  classifierTime Tiempo medio utilizado por la etapa de clasificación.
+   * @param  iter Cross-validation iteration. If the value <0, the information refers
+   *   to the mean value of the execution.
+   * @param  reduction  Percentaje of the instances of the original dataset that
+   *   still remain after the instance selection process.	TODO Check this definition.
+   * @param classificationAccuracy  Accuracy(%) of the classifier.
+   * @param  filterTime  Time(seconds) spent during the preprocessing phase.
+   * @param  classifierTime Time(seconds) spent during the classification phase.
    *
    */
   def storeResultsFilterClassInFile(iter: Int, reduction: Double,
@@ -131,15 +133,16 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
   }
 
   /**
-   * Almacena información sobre los resultados de una ejecución.
+   * Stores information about the execution
    *
-   * Debe ser utilizado cuando la ejecución ha sido una labor únicamente de
-   * clasificación, sin filtrado previo.
+   * Must be used when only a classification phase has been performed.
    *
-   * @param  iter Iteración de la validación cruzada. Si el valor es <0, indica
-   *   que estamos tratando de imprimir la media de los resultados de la ejecución.
-   * @param classificationAccuracy  Porcentaje de acierto del clasificador.
-   * @param  execTime  Tiempo tardado en ejecutar el proceso medido.
+   * @param  iter Cross-validation iteration. If the value <0, the information refers
+   *   to the mean value of the execution.
+   * @param  reduction  Percentaje of the instances of the original dataset that
+   *   still remain after the instance selection process.	TODO Check this definition.
+   * @param classificationAccuracy  Accuracy(%) of the classifier.
+   * @param  execTime Time(seconds) spent during the classification phase.
    *
    */
   def storeResultsClassInFile(iter: Int, classificationAccuracy: Double,
@@ -150,13 +153,13 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
   }
 
   /**
-   * Imprime la cabecera del fichero.
+   * Print the header of the results file.
    *
-   * Esta linea contiene el nombre de los posibles parámetros a medir durante
-   * el experimento. Por orden, estos parámetros son: Iteración validación cruzada,
-   * argumentos del programa, nombre del conjunto de datos, nombre filtro,
-   * nombre clasificador, reducción, tasa de acierto, tiempo de filtrado y
-   * tiempo de clasificación.
+   * This header consists of just one line. It presents the name of the parameters
+   * that have been meassured during the execution. These parameters are, in order,
+   * iteration of the cross-validation, execution arguments, name of the dataset file,
+   * name of he filter algorithm, name of the classifier, reduction rate, accuracy,
+   * filtering time and classification time.
    *
    */
   def writeHeaderInFile(): Unit = {
@@ -167,7 +170,7 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
         "Accuracy(%),Filter time(s),Classification time(s)\n")
     } catch {
       case e: IOException => None
-      // TODO Añadir mensaje de error
+      // TODO Add an error message.
     } finally {
 
       writer.close()
@@ -175,15 +178,15 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
   }
 
   /**
-   * Escribe en el fichero una nueva linea con datos sobre la ejecución.
+   * Writes a new line to the file. It contains the values meassured during the
+   * execution of one interation of the cross-validation.
    *
-   * @param  iter Iteración de la validación cruzada. Si el valor es <0, indica
-   *   que estamos tratando de imprimir la media de los resultados de la ejecución.
-   * @param  reduction  Porcentaje de redución del conjunto de datos inicial tras
-   *   aplicarse un selector de instancias.
-   * @param classificationAccuracy  Porcentaje de acierto del clasificador.
-   * @param  filterTime  Tiempo medio utilizado por la etapa de filtrado.
-   * @param  classifierTime Tiempo medio utilizado por la etapa de clasificación.
+   * @param  iter Cross-validation iteration. If the value <0, the information refers
+   *   to the mean value of the execution.
+   * @param  reduction  Percentaje of the instances of the original dataset that
+   *   still remain after the instance selection process.	TODO Check this definition.
+   * @param classificationAccuracy  Accuracy(%) of the classifier.
+   * @param  execTime Time(seconds) spent during the classification phase.
    */
   private def printIterResultsInFile(iter: Int,
                                      reduction: Double,
@@ -202,7 +205,7 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
       }
     } catch {
       case e: IOException => None
-      // TODO Añadir mensaje de error
+      // TODO Add error message.
     } finally {
 
       writer.close()
@@ -211,10 +214,10 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
   }
 
   /**
-   * Almacena el contenido de una estrucutra RDD en un único fichero.
+   * Stores a RDD structure in a single file in the master node.
    *
-   * @param writer  Escritor del fichero.
-   * @param rdd  Estructura RDD que vamos a almacenar en un fichero.
+   * @param writer  file writer.
+   * @param rdd  Data we want to store.
    */
   private def printRDDInFile(writer: FileWriter,
                              rdd: RDD[LabeledPoint]): Unit = {
@@ -230,8 +233,8 @@ class ResultSaver(val args: Array[String], val classifierName: String, val filte
   }
 
   /**
-   * Convierte un array de Strings en un único valor String con los valores
-   * separados por un espacio.
+   * Given a strings array, it creates a single string where the individual strings
+   * are separated by empty spaces.
    */
   private def argsToString(args: Array[String]): String = {
     var result: String = ""

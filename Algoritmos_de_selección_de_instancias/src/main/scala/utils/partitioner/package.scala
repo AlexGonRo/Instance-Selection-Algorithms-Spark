@@ -1,7 +1,6 @@
 package utils
 
 /**
- * Clases relacionadas con la ubicación y repartición de las instancias dentro de
- * una RDD.
+ * Classes used to define the partitioning of the data between all the working nodes.
  */
 package object partitioner

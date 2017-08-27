@@ -2,8 +2,7 @@ package utils
 
 
 /**
- * Clases dedicadas a labores de lectura/escritura de
- * conjuntos de datos o resultados.
+ * Classes used during the reading/writing processes.
  */
 
 package object io

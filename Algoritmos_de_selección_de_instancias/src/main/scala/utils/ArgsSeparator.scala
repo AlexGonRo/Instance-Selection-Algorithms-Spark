@@ -1,30 +1,30 @@
 package utils
 
 /**
- * Conjunto de divisores que, en un comando de ejecución, marcan el principio
- * de los argumentos para un determinado elemento del programa.
- *
- * Actualmente se cuentan con cuatro divisores.
+ * Set of flags that, introduced as a command argument, indicate the program
+ * to which part of the execution the following values belongs to.
+ * There are currently 4 flags.
  *
  */
 object ArgsSeparator extends Enumeration {
 
   type ArgsDividers = Value
+  
   /**
-   * Indica el inicio de los valores destinados al lector de conjuntos de datos.
+   * The following values will modify file reader attributes.
    */
   final val READER_SEPARATOR = Value("-r")
   /**
-   * Indica el inicio de los valores destinados al filtro o selector de
-   * instancias.
+   * The following values will modify the attributes of a data filter
+   or an instance selector.
    */
   final val FILTER_SEPARATOR = Value("-f")
   /**
-   * Indica el inicio de los valores destinados al clasificador.
+   * The following values will modify the attributes of a classifier.
    */
   final val CLASSIFIER_SEPARATOR = Value("-c")
   /**
-   * Indica el inicio de los valores destinados a la validación cruzada
+   * The following values will modify cross validation attributes.
    */
   final val CROSSVALIDATION_SEPARATOR = Value("-cv")
 

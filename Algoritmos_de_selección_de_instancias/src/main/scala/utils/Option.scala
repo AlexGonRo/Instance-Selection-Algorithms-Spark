@@ -1,18 +1,17 @@
 package utils
 
 /**
- * Almacena toda la información necesaria sobre una opción configurable de un
- * clasificador o selector de instancias.
+ * Stores information about a configurable parameter of the execution.
  *
- * @param  name  Nombre formal.
- * @param  description  Descripción de la función de la opción.
- * @param  command  Comando de consola para configuar la opción.
- * @param  default  Valor por defecto.
- * @param  optionType  Tipo de opción:
+ * @param  name  Complete name.
+ * @param  description  Description.
+ * @param  command  Command associated to this option.
+ * @param  default  Default value.
+ * @param  optionType  Option type:
  *
- *   0 indica atributo booleano.
+ *   0 if the Option is a boolean Option.
  *
- *   1 indica atributo numérico.
+ *   1 otherwise.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0

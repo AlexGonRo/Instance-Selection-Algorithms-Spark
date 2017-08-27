@@ -1,10 +1,10 @@
 package utils
 
 /**
- * Clase que ofrece diferentes opciones de cálculo de distancias
- * entre dos o más puntos.
+ * Distance meassurement between points.
  *
- * @constructor Crea una nueva calculadora de distancias.
+ * @constructor Creates an instance with different algorithms to calculate the distanc
+ *    between two given points.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -12,13 +12,13 @@ package utils
 class DistCalculator extends Serializable {
 
   /**
-   * Calcula la distancia euclidea entre dos vectores de datos numéricos.
+   * Calculates the euclidean distance between two points.
    *
-   * El cálculo de esta distancia no es completo, se suprime la operación de la
-   * raiz cuadrada con la intención de ahorrar operaciones.
+   * This algorithm does not apply the exact euclidean formula in
+   * order to save computational resources.
    *
-   * @param point1  Un punto de la medición.
-   * @param point2  Segundo punto.
+   * @param point1  First point.
+   * @param point2  Second point.
    */
   def euclideanDistance(point1: Array[Double],
                         point2: Array[Double]): Double = {

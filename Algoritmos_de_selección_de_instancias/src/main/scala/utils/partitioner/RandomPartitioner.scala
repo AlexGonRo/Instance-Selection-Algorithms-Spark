@@ -5,16 +5,14 @@ import java.util.Random
 import org.apache.spark.Partitioner
 
 /**
- * Particionador completamente aleatorio de los objetos de una estructura
- * [[org.apache.spark.rdd.RDD]].
+ * Random partitioner for the objects that form a [[org.apache.spark.rdd.RDD]].
  *
- * Las posibles particiones que pudiesen generarse con esta clase no tienen
- * garantizado el mismo número de instancias entre ellas.
- *
- * @constructor Crea un nuevo generador de particiones aleatorio.
- * @param  numPartitions  Número de particiones en las que subdividiremos el
- *   conjunto de datos.
- * @param  totalInst Número total de instancias en la estructura a particionar
+ * The generated partitions might not have the same number of objects, but the
+ * size of all of them should be similar.
+ 
+ * @constructor Creates a new random partitioner.
+ * @param  numPartitions  Number of partitions in which the dataset will be divided.
+ * @param  totalInst Total number of instances of our dataset.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -22,15 +20,15 @@ import org.apache.spark.Partitioner
 class RandomPartitioner(val numPartitions: Int, val totalInst:Long, val seed:Long) extends Partitioner {
 
   /**
-   * Repetición actual
+   * Current repetition.
    */
   var rep = 0
 
   /**
-   * Asigna una partición a una instancia de manera aleatoria.
+   * Gives a random partition to a given instance.
    *
-   * @param key Llave de la instancia a reasignar
-   * @return Identificador de la partición asignada
+   * @param key Key of the instance to distribute.
+   * @return Id of the selected partition.
    */
   def getPartition(key: Any): Int = {
     val k = key.asInstanceOf[Long]
