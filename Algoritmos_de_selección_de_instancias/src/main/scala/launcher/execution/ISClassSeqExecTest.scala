@@ -11,13 +11,10 @@ import utils.io.ResultSaver
 import java.util.logging.Level
 
 /**
- * Ejecuta de una labor de minería de datos que contenga un
- * selector de instancias y un classificador, utilizado tras el filtrado.
+ * Executes a data mining job with only one instance selection task and
+ * a posterior classification task.
  *
- * Además, realiza la medición del tiempo de filtrado.
- *
- * Participa en un patrón "Strategy" de la misma manera y en el
- * mismo rol que la clase [[launcher.execution.ISClassExec]] de la que hereda.
+ * It does also meassure instance selection execution time.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -25,7 +22,7 @@ import java.util.logging.Level
 class ISClassSeqExecTest extends ISClassSeqExec {
 
   /**
-   * Ruta del fichero donde se almacenan los mensajes de log.
+   * Path to the file that contains the logger strings.
    */
   private val bundleName = "resources.loggerStrings.stringsExec";
   /**
@@ -34,40 +31,37 @@ class ISClassSeqExecTest extends ISClassSeqExec {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Ejecución de un clasificador tras la aplicación de un filtro.
+   * Data mining job launcher for those executions with one sequential classifier.
+   * 
+   * This class does not only generate the instances of the required algorithms, but
+   * it also reads the data set and stores the results of the job.
    *
-   * Este algoritmo, además de instancias los algoritmos deseados, también es
-   * el encargado de ordenar la lectura de conjunto de datos y el almacenamiento
-   * de los resultados.
+   * It allows for cross-validation if specified by the input arguments.
    *
-   * Se pueden indicar opciones en la cadena de entrada para realizar la
-   * ejecución bajo una validación cruzada.
+   * @param  args	String of arguments for the configuration of all the tasks
+   *   executed by this class.
    *
-   * @param  args  Cadena de argumentos que se traducen en la configuración
-   *   de la ejecución.
-   *
-   *   Esta cadena deberá estar subdividida en cuatro partes: información para
-   *   el lector, para el filtr o selector de instancias, para el clasificador y
-   *   para la validación cruzada. La única partición que puede no aparecer será
-   *   la relacionada con la validación cruzada
+   *   This string contains 4 diferenciable subdivisions: arguments for the dataset
+   *   reader, for the filter, for the classifier and for the cross-validation.
+   *   This last subdivision is not mandatory.
    */
   override def launchExecution(args: Array[String]): Unit = {
 
-    // Argumentos divididos según el objeto al que afectarán
+    // Arguments divided according to the task they refer to.
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
 
-    // Creamos el selector de instancias
+    // Create a new instance selector.
     val instSelector = createInstSelector(instSelectorArgs)
     val instSelectorName = instSelectorArgs(0).split("\\.").last
 
-    // Creamos el classificador
+    // Create a new filter.
     val classifier = createClassifier(classiArgs)
     val classifierName = classiArgs(0).split("\\.").last
 
-    // Creamos un nuevo contexto de Spark
+    // Create a new Spark context.
     val sc = new SparkContext()
-    // Utilizarlo solo para pruebas lanzadas desde Eclipse
+    // Used for debugging purposes.
     // val master = "local[2]"
     // val sparkConf =
     //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
@@ -84,7 +78,7 @@ class ISClassSeqExecTest extends ISClassSeqExec {
       var counter = 0
       resultSaver.writeHeaderInFile()
       cvfolds.map {
-        // Por cada par de entrenamiento-test
+        // For each train-test set.
         case (train, test) => {
           executeExperiment(sc, instSelector, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
@@ -112,7 +106,7 @@ class ISClassSeqExecTest extends ISClassSeqExec {
     train.name = "TrainData"
     train.foreachPartition { x => None }
 
-    // Instanciamos y utilizamos el selector de instancias
+    // Use instance selector
     var start = System.currentTimeMillis
     val resultInstSelector = applyInstSelector(instSelector, train).persist
     resultInstSelector.foreachPartition { x => None }
@@ -120,6 +114,7 @@ class ISClassSeqExecTest extends ISClassSeqExec {
 
     reduction += (1 - (resultInstSelector.count() / train.count().toDouble)) * 100
 
+	// Use classifier
     start = System.currentTimeMillis
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
@@ -129,12 +124,19 @@ class ISClassSeqExecTest extends ISClassSeqExec {
 
   }
 
+  /**
+   * Stores information and results of the job execution.
+   *
+   * This method does not store a detailed report of the execution.
+   *
+   * @param  resultSaver	Object that saves the results.
+   */
   override protected def saveResults(resultSaver: ResultSaver): Unit = {
 
-    // Número de folds que hemos utilizado
     val numFolds = filterTimes.size.toDouble
 
-    // Calculamos los resultados medios de la ejecución
+    // Get mean execution times, dataset reduction and accuracy of the
+	// classifier.
     val meanInstSelectorExecTime =
       filterTimes.reduceLeft { _ + _ } / numFolds
     val meanClassifierTime =
@@ -144,7 +146,7 @@ class ISClassSeqExecTest extends ISClassSeqExec {
     val meanAccuracy =
       classificationResults.reduceLeft { _ + _ } / numFolds
 
-    // Salvamos los resultados
+    // Save results
     resultSaver.storeResultsFilterClassInFile(-1,meanReduction, meanAccuracy, meanInstSelectorExecTime, meanClassifierTime)
   }
 

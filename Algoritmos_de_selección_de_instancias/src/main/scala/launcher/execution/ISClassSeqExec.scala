@@ -14,19 +14,8 @@ import java.util.logging.Level
 import org.apache.spark.SparkConf
 
 /**
- * Ejecuta una labor de minería de datos que contenga un
- * selector de instancias y un classificador secuencial, utilizado tras el filtrado.
- *
- * Participante en el patrón de diseño "Strategy" en el que actúa con el
- * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
- * actua como estrategia ("Strategy") [[launcher.execution.TraitExec]] y que
- * será usada por [[launcher.ExperimentLauncher]] en la aplicación de este
- * patrón.
- *
- * También es participante de su propio patrón "Strategy", donde actua como
- * contexto de dos estrategias diferentes: [[instanceSelection.abstr.TraitIS]]
- * y [[classification.seq.abstr.TraitSeqClassifier]].
- *
+ * Executes a data mining job with only one instance selection task and
+ * a posterior sequential classification task.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -34,7 +23,7 @@ import org.apache.spark.SparkConf
 class ISClassSeqExec extends ISClassExec {
 
   /**
-   * Ruta del fichero donde se almacenan los mensajes de log.
+   * Path to the file that contains the logger strings.
    */
   private val bundleName = "resources.loggerStrings.stringsExec";
   /**
@@ -43,40 +32,37 @@ class ISClassSeqExec extends ISClassExec {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Ejecución de un clasificador tras la aplicación de un filtro.
+   * Data mining job launcher for those executions with one sequential classifier.
+   * 
+   * This class does not only generate the instances of the required algorithms, but
+   * it also reads the data set and stores the results of the job.
    *
-   * Este algoritmo, además de instancias los algoritmos deseados, también es
-   * el encargado de ordenar la lectura de conjunto de datos y el almacenamiento
-   * de los resultados.
+   * It allows for cross-validation if specified by the input arguments.
    *
-   * Se pueden indicar opciones en la cadena de entrada para realizar la
-   * ejecución bajo una validación cruzada.
+   * @param  args	String of arguments for the configuration of all the tasks
+   *   executed by this class.
    *
-   * @param  args  Cadena de argumentos que se traducen en la configuración
-   *   de la ejecución.
-   *
-   *   Esta cadena deberá estar subdividida en cuatro partes: información para
-   *   el lector, para el filtr o selector de instancias, para el clasificador y
-   *   para la validación cruzada. La única partición que puede no aparecer será
-   *   la relacionada con la validación cruzada
+   *   This string contains 4 diferenciable subdivisions: arguments for the dataset
+   *   reader, for the filter, for the classifier and for the cross-validation.
+   *   This last subdivision is not mandatory.
    */
   override def launchExecution(args: Array[String]): Unit = {
 
-    // Argumentos divididos según el objeto al que afectarán
+    // Arguments divided according to the task they refer to.
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
 
-    // Creamos el selector de instancias
+    // Get a new instance selector
     val instSelector = createInstSelector(instSelectorArgs)
     val instSelectorName = instSelectorArgs(0).split("\\.").last
 
-    // Creamos el classificador
+    // Get a new classifier.
     val classifier = createClassifier(classiArgs)
     val classifierName = classiArgs(0).split("\\.").last
 
-    // Creamos un nuevo contexto de Spark
+    // Get a new Spark context
     val sc = new SparkContext()
-    // Utilizarlo solo para pruebas lanzadas desde Eclipse
+    // Used for debugging purposes.
     // val master = "local[2]"
     // val sparkConf =
     //  new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
@@ -93,7 +79,7 @@ class ISClassSeqExec extends ISClassExec {
       var counter = 0
       resultSaver.writeHeaderInFile()
       cvfolds.map {
-        // Por cada par de entrenamiento-test
+        // For each train-test pair.
         case (train, test) => {
           executeExperiment(sc, instSelector, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
@@ -112,13 +98,13 @@ class ISClassSeqExec extends ISClassExec {
   }
 
   /**
-   * Realiza las labores de filtrado y clasificación.
+   * Main method. Performs the instance selection and classification tasks.
    *
-   * @param sc Contexto Spark
-   * @param instSelector Selector de instancias
-   * @param classifier Clasificado
-   * @param train Conjunto de entrenamiento
-   * @param test Conjunto de test
+   * @param sc Spark context.
+   * @param instSelector Filter.
+   * @param classifier Classifier.
+   * @param train Training set.
+   * @param test Test set.
    *
    */
   protected def executeExperiment(sc: SparkContext,
@@ -127,11 +113,12 @@ class ISClassSeqExec extends ISClassExec {
                                   train: RDD[LabeledPoint],
                                   test: RDD[LabeledPoint]): Unit = {
 
-    // Instanciamos y utilizamos el selector de instancias
+    // Use instance selector
     val trainSize = train.count
     val resultInstSelector = applyInstSelector(instSelector, train).persist
     reduction += (1 - (resultInstSelector.count() / trainSize.toDouble)) * 100
-
+	
+	// Classify
     val classifierResults = applyClassifier(classifier,
       resultInstSelector, test, sc)
     classificationResults += classifierResults
@@ -139,13 +126,13 @@ class ISClassSeqExec extends ISClassExec {
   }
 
   /**
-   * Intancia y configura un clasificador.
+   * Creates and configures the classifier.
    *
-   * @param classifierArgs  Argumentos de configuración del clasificador.
+   * @param classifierArgs  Arguments for the classifier.
    */
   protected def createClassifier(
     classifierArgs: Array[String]): TraitSeqClassifier = {
-    // Seleccionamos el nombre del algoritmo
+
     val classifierName = classifierArgs.head
     val argsWithoutClassiName = classifierArgs.drop(1)
     val classifier =
@@ -155,32 +142,32 @@ class ISClassSeqExec extends ISClassExec {
   }
 
   /**
-   * Aplica el algoritmo de classificación sobre un conjunto de datos.
+   * Applies the classifier to the given dataset.
    *
-   * De indicarse mediante parámetro, se ejecutará una validación cruzada utilizando
-   * como conjunto de test instancias del conjunto de datos inicial que no
-   * necesariamente se encontrarán en el conjunto de instancias tras el filtrado.
+   * It both trains and tests the classifier.
    *
-   * @param  classifierArgs  Argumentos para el ajuste de los parámetros del
-   *   clasificador
-   * @param trainData  Conjunto de datos de entrenamiento
-   * @param postFilterData  Conjunto de datos de test
-   * @param  sc  Contexto Spark
+   * @param  classifierArgs  Arguments for the classifier.
+   * @param trainData  Training dataset.
+   * @param postFilterData  Test dataset.
+   * @param  sc  Spark context.
+   *
+   * @return accuracy results
    */
   protected def applyClassifier(classifier: TraitSeqClassifier,
                                 trainData: RDD[LabeledPoint],
                                 testData: RDD[LabeledPoint],
                                 sc: SparkContext): Double = {
-    // Iniciamos el clasficicador
-    logger.log(Level.INFO, "ApplyingClassifier")
 
-    // Entrenamos
+	logger.log(Level.INFO, "ApplyingClassifier")
+
+    // Train
     classifier.train(trainData.collect())
-    // Clasificamos el test
+    // Test
     val testFeatures = testData.map(instance => instance.features).collect()
     val testLabels = testData.map(instance => instance.label).collect()
     val prediction = classifier.classify(testFeatures)
-    // Comprobamos que porcentaje de aciertos hemos tenido.
+	
+    
     var hits = 0;
     for { i <- 0 until testLabels.size } {
       if (testLabels(i) == prediction(i)) {
@@ -191,27 +178,26 @@ class ISClassSeqExec extends ISClassExec {
 
   }
   
-    /**
-   * Almacena todos los datos recogidos de la ejecución en un fichero de texto.
+  /**
+   * Stores information and results of the job execution.
    *
-   * Otro, contendrá un resumen de la ejecución.
+   * This method does not store a detailed report of the execution.
    *
-   * @param  args  argumentos de llamada de la ejecución
-   * @param  instSelectorName Nombre del selector de instancias
-   * @param  classifierName  Nombre del clasificador de instancias
+   * @param  resultSaver	Object that saves the results.
    */
   override protected def saveResults(resultSaver: ResultSaver): Unit = {
 
-    // Número de folds que hemos utilizado
+    
     val numFolds = reduction.size.toDouble
 
-    // Calculamos los resultados medios de la ejecución
+    // Get mean dataset reduction and accuracy of the
+	// classifier.
     val meanReduction =
       reduction.reduceLeft { _ + _ } / numFolds
     val meanAccuracy =
       classificationResults.reduceLeft { _ + _ } / numFolds
 
-    // Salvamos los resultados
+    // Save results
     resultSaver.storeResultsFilterClassInFile(-1,meanReduction, meanAccuracy, 0, 0)
 
   }

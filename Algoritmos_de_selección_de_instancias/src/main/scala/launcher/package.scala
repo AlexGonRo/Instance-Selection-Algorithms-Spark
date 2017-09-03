@@ -1,7 +1,7 @@
 
 /**
  *
- * Clases encargadas de lanzar las ejecuciones de experimentos.
+ * Execution launcher related classes.
  *
  */
 package object launcher

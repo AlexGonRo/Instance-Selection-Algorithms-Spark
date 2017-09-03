@@ -8,11 +8,9 @@ import launcher.execution.ISClassSeqExecTest
 import launcher.execution.ClassSeqExec
 
 /**
- * Pone en marcha la ejecución de una labor de minería de datos.
- *
- * Participante en el patrón de diseño "Strategy" en el que actúa con el
- * rol de contexto ("context"). Se relaciona directamente con la clase
- * [[launcher.execution.TraitExec]] para el uso de este patrón.
+ * It starts any data mining job.
+ * 
+ * One job could contain zero or more filters and at least one classifier.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -20,11 +18,11 @@ import launcher.execution.ClassSeqExec
 object ExperimentLauncher {
 
   /**
-   * Ejecuta una nueva tarea de minería de datos.
+   * Executes a data mining job.
    *
-   * @param args Argumentos para la configuración de la ejecución.
-   *   El primer argumento define el tipo de ejecución que se realizará y no
-   *   pertenece a la configuración delos componentes del experimento.
+   * @param args Execution parameters.
+   *   The first parameter states the execution type and does not condition any of
+   *   the individual properties of the tasks that form the job.
    */
   @throws(classOf[IllegalArgumentException])
   def main(args: Array[String]): Unit = {

@@ -15,17 +15,16 @@ import classification.abstr.TraitClassifier
 import org.apache.spark.mllib.util.MLUtils
 
 /**
- * Ejecuta una labor de minería de datos que contenga un
- * selector de instancias y un classificador, utilizado tras el filtrado.
+ * Executes a data mining job with only a classification task.
  *
- * ¡
+ *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
 class ClassExec extends TraitExec {
 
   /**
-   * Ruta del fichero donde se almacenan los mensajes de log.
+   * Path to the file that contains the logger strings.
    */
   private val bundleName = "resources.loggerStrings.stringsExec";
   /**
@@ -34,54 +33,47 @@ class ClassExec extends TraitExec {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Porcentajes de acierto en test del clasificador en cada iteración
-   * de la validación cruzada.
+   * Accuracy rate of the classifier in each cross-validation iteration
    */
   protected val classificationResults = ArrayBuffer.empty[Double]
 
   /**
-   * Tiempos de ejecucion del clasificador en cada iteración de la validación
-   * cruzada.
+   * Time taken by the classifier in each iteration of the cross-validation
    */
   protected val execTimes = ArrayBuffer.empty[Long]
 
   /**
-   * Ejecución de un clasificador tras la aplicación de un filtro.
+   * Data mining job launcher for those executions with one sequential classifier.
+   * 
+   * This class does not only generate the instances of the required algorithms, but
+   * it also reads the data set and stores the results of the job.
    *
-   * Este algoritmo, además de instancias los algoritmos deseados, también es
-   * el encargado de ordenar la lectura de conjunto de datos y el almacenamiento
-   * de los resultados.
+   * It allows for cross-validation if specified by the input arguments.
    *
-   * Se pueden indicar opciones en la cadena de entrada para realizar la
-   * ejecución bajo una validación cruzada.
+   * @param  args	String of arguments for the configuration of all the tasks
+   *   executed by this class.
    *
-   * @param  args  Cadena de argumentos que se traducen en la configuración
-   *   de la ejecución.
-   *
-   *   Esta cadena deberá estar subdividida en cuatro partes: información para
-   *   el lector, para el filtr o selector de instancias, para el clasificador y
-   *   para la validación cruzada. La única partición que puede no aparecer será
-   *   la relacionada con la validación cruzada
+   *   This string contains 4 diferenciable subdivisions: arguments for the dataset
+   *   reader, for the filter, for the classifier and for the cross-validation.
+   *   This last subdivision is not mandatory.
    */
   override def launchExecution(args: Array[String]): Unit = {
 
-    // Argumentos divididos según el objeto al que afectarán
+    // Arguments divided according to the task they refer to.
     val Array(readerArgs, instSelectorArgs, classiArgs, cvArgs) =
       divideArgs(args)
 
-    // Creamos el classificador
+    // Get the classifier
     val classifier = createClassifier(classiArgs)
     val classifierName = classiArgs(0).split("\\.").last
 
-    // Creamos un nuevo contexto de Spark
+    // Get a new Spark context
     val sc = new SparkContext()
-    // Utilizarlo solo para pruebas lanzadas desde Eclipse
+    // Used for debugging purposes
     //    val master = "local[2]"
     //    val sparkConf =
     //      new SparkConf().setMaster(master).setAppName("Prueba_Eclipse")
     //      val sc = new SparkContext(sparkConf)
-
-    // Objeto encargado de guardar los resultados de las ejecuciones.
 
     val resultSaver = new ResultSaver(args,classifierName)
     try {
@@ -93,7 +85,7 @@ class ClassExec extends TraitExec {
       var counter = 0
       resultSaver.writeHeaderInFile()
       cvfolds.map {
-        // Por cada par de entrenamiento-test
+        // For each train-test pair.
         case (train, test) => {
           executeExperiment(sc, classifier, train, test)
           logger.log(Level.INFO, "iterationDone")
@@ -112,15 +104,13 @@ class ClassExec extends TraitExec {
   }
 
   /**
-   * Divide los argumentos de entrada según sean para el lector, selector de
-   * instancias, clasificador o la validación cruzada
+   * Divide the arguments according to the task they influence. 
    *
-   * @param  args Argumentos de entrada al programa
+   * @param  args Arguments of the data mining job.
    *
-   * @return Cadenas de argumentos divididas según su objetivo.
+   * @return Divided arguments.
    *
-   * @throws IllegalArgumentException  Si el formato de los argumentos es
-   * erroneo.
+   * @throws IllegalArgumentException  If the arguments format is incorrect.
    *
    */
   protected def divideArgs(args: Array[String]): Array[Array[String]] = {
@@ -144,9 +134,9 @@ class ClassExec extends TraitExec {
         step += 1
       }
     }
-    // Comprobamos que se cumplen los requisitos mínimos:
-    // Debe existir al menos un atributo para el el lector
-    // Debe haber opciones para el selector o para un clasificador
+    // Check the minimum requirements are fulfilled:
+    // There must be at least one argument for the reader
+    // There must be arguments for at least one filter or one classifier.
     if (optionsArrays(0).isEmpty) {
       logger.log(Level.SEVERE, "NoCommonParameters")
       throw new IllegalArgumentException()
@@ -156,7 +146,7 @@ class ClassExec extends TraitExec {
       throw new IllegalArgumentException()
     }
 
-    // Convertimos los ArrayBuffer en Arrays normales
+    // Change the datatype ArrayBuffer for normal Arrays
     var result: Array[Array[String]] = Array.ofDim(optionsArrays.size)
     for { i <- 0 until result.size } {
       result(i) = optionsArrays(i).toArray
@@ -166,12 +156,12 @@ class ClassExec extends TraitExec {
   }
 
   /**
-   * Lee un conjunto de datos desde un fichero de texto.
+   * Reads a dataset from a file.
    *
-   * @param readerArgs  Argumentos para la correcta lectura del fichero.
-   * @param sc Contexto Spark
+   * @param readerArgs  Arguments for the reader class.
+   * @param sc Spark context.
    *
-   * @return Conjunto de datos resultante de la lectura.
+   * @return Dataset.
    */
   protected def readDataset(readerArgs: Array[String],
                             sc: SparkContext): RDD[LabeledPoint] = {
@@ -181,15 +171,14 @@ class ClassExec extends TraitExec {
     reader.readCSV(sc, readerArgs.head)
   }
 
+  
   /**
-   * Genera tantos pares de conjuntos entrenamiento-test como se hayan requerido
-   * por parámetro.
+   * Creates train-test subsets from the dataset.
    *
-   * De no indicarse nada mediante parámetro, se generará un conjunto de test
-   * con el 10% de las instancias.
+   * By default, only 10% of the instances are used for the test set.
    *
-   * @param  originalData  Conjunto de datos inicial
-   * @param  crossValidationArgs  Argumentos para la validación cruzada
+   * @param  originalData  Given dataset.
+   * @param  crossValidationArgs  Cross-validation arguments.
    *
    * @return pares entrenamiento-test
    */
@@ -198,7 +187,7 @@ class ClassExec extends TraitExec {
 
     var cvFolds = 1
     var cvSeed = 1
-    // Vemos si existe validación cruzada
+    // Check for cross-validation
     if (!crossValidationArgs.isEmpty) {
       cvFolds = crossValidationArgs.head.toInt
       if (crossValidationArgs.size == 2) {
@@ -217,13 +206,13 @@ class ClassExec extends TraitExec {
   }
 
   /**
-   * Realiza las labores de filtrado y clasificación.
+   * Main method. Performs the classification task.
    *
-   * @param sc Contexto Spark
-   * @param instSelector Selector de instancias
-   * @param classifier Clasificado
-   * @param train Conjunto de entrenamiento
-   * @param test Conjunto de test
+   * @param sc Spark context.
+   * @param instSelector Filter.
+   * @param classifier Classifier.
+   * @param train Training set.
+   * @param test Test set.
    *
    */
   private def executeExperiment(sc: SparkContext,
@@ -231,7 +220,7 @@ class ClassExec extends TraitExec {
                                 train: RDD[LabeledPoint],
                                 test: RDD[LabeledPoint]): Unit = {
 
-    // Instanciamos y utilizamos el clasificador
+    // Use the classifier
     val start = System.currentTimeMillis
     val classifierResults = applyClassifier(classifier,
       train, test, sc)
@@ -241,13 +230,13 @@ class ClassExec extends TraitExec {
   }
 
   /**
-   * Intancia y configura un clasificador.
+   * Creates and configures the classifier.
    *
-   * @param classifierArgs  Argumentos de configuración del clasificador.
+   * @param classifierArgs  Arguments for the classifier.
    */
   private def createClassifier(
     classifierArgs: Array[String]): TraitClassifier = {
-    // Seleccionamos el nombre del algoritmo
+
     val classifierName = classifierArgs.head
     val argsWithoutClassiName = classifierArgs.drop(1)
     val classifier =
@@ -257,28 +246,27 @@ class ClassExec extends TraitExec {
   }
 
   /**
-   * Aplica el algoritmo de classificación sobre un conjunto de datos.
+   * Applies the classifier to the given dataset.
    *
-   * De indicarse mediante parámetro, se ejecutará una validación cruzada utilizando
-   * como conjunto de test instancias del conjunto de datos inicial que no
-   * necesariamente se encontrarán en el conjunto de instancias tras el filtrado.
+   * It both trains and tests the classifier.
    *
-   * @param  classifierArgs  Argumentos para el ajuste de los parámetros del
-   *   clasificador
-   * @param trainData  Conjunto de datos de entrenamiento
-   * @param postFilterData  Conjunto de datos de test
-   * @param  sc  Contexto Spark
+   * @param  classifierArgs  Arguments for the classifier.
+   * @param trainData  Training dataset.
+   * @param postFilterData  Test dataset.
+   * @param  sc  Spark context.
+   *
+   * @return accuracy results
    */
   protected def applyClassifier(classifier: TraitClassifier,
                                 trainData: RDD[LabeledPoint],
                                 testData: RDD[LabeledPoint],
                                 sc: SparkContext): Double = {
-    // Iniciamos el clasficicador
+
     logger.log(Level.INFO, "ApplyingClassifier")
 
-    // Entrenamos
+    // Train
     classifier.train(trainData)
-    // Clasificamos el test
+    // Test
     val tmp = testData.zipWithIndex().map(line => (line._2, line._1)).persist
     val testFeatures = tmp.map(tuple => (tuple._1, tuple._2.features))
     val testClasses = tmp.map(tuple => (tuple._1, tuple._2.label))
@@ -293,17 +281,15 @@ class ClassExec extends TraitExec {
   }
 
   /**
-   * Almacena todos los datos recogidos de la ejecución en un fichero de texto.
+   * Stores information and results of the job execution.
    *
-   * Otro, contendrá un resumen de la ejecución.
+   * This method does not store a detailed report of the execution.
    *
-   * @param  args  argumentos de llamada de la ejecución
-   * @param  instSelectorName Nombre del selector de instancias
-   * @param  classifierName  Nombre del clasificador de instancias
+   * @param  resultSaver	Object that saves the results.
    */
   protected def saveResults(resultSaver: ResultSaver): Unit = {
 
-    // Número de folds que hemos utilizado
+    // Number of folds
     val numFolds = classificationResults.size.toDouble
 
     // Calculamos los resultados medios de la ejecución
@@ -314,7 +300,7 @@ class ClassExec extends TraitExec {
     val meanClassifyTime =
       execTimes.reduceLeft { _ + _ } / numFolds
 
-    // Salvamos los resultados
+    // Save results
     resultSaver.storeResultsClassInFile(-1,meanAccuracy, meanClassifyTime)
   }
 
