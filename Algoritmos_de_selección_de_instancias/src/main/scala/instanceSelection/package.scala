@@ -1,11 +1,10 @@
 
 /**
- * Algoritmos de selección de instancias.
+ * Filters and instance selection algorithms.
  *
- * Los algoritmos de selección de instancias son aquellos destinados a
- * eliminar, de un conjunto de instancias, aquellas que puedan tener un
- * efecto negativo sobre futuras acciones de minería.
+ * Instance selection algorithms aim to delete, from a dataset, all those
+ * instances that might have a negative impact (or no impact) during the classification task.
  *
- * Puede contener tanto implementaciones secuenciales como paralelas.
+ * This package can contain both parallel and sequential algorithms.
  */
 package object instanceSelection

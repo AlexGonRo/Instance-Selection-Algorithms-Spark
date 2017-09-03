@@ -1,11 +1,9 @@
 package instanceSelection
 
 /**
- * Clases abstractas de las que se valdrá la biblioteca para implementar
- * algoritmos de selección de instancias paralelos en Spark.
+ * Abstract classes and traits that define the structure of the filer and instance
+ * selection classes.
  *
- * Aquí se encontrarán tanto "traits" como "clases abstractas" que cualquier
- * algoritmo existente en el paquete [[instanceSelection]] (o cualquiera de
- * sus subpaquetes) necesite.
+ * Every algorithm in the [[instanceSelection]] package needs to inherit from any of these classes. 
  */
 package object abstr

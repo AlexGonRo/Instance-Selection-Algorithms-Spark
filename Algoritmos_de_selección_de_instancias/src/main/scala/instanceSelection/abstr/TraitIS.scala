@@ -5,16 +5,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
 /**
- * Abstracción que incluye todos los métodos que deberán ser implementados por
- * un algoritmo de selección de instancias.
- *
- * Participa en el patrón de diseño "Strategy" actuando como estrategia
- * ("Strategy"). Las clases que hereden de esta interfaz participarán en este
- * mismo patrón como estrategias concretas("concrete strategy") y su
- * participante contexto podría ser alguna clase que herede de
- * [[launcher.execution.executionTraitExec]] (no necesariamente todas).
- * En la versión actual [[launcher.execution.ISClassExec]] y
- * [[launcher.execution.ISClassExecTest]] podrían actuar como contexto.
+ * Defines all the methods that an instance selection algorithm must implement.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -23,36 +14,34 @@ trait TraitIS {
 
   /**
    *
-   * Dado un conjunto de datos inicial devuelve un conjunto de tamaño igual (en el
-   * peor de los casos) o menor, resultante de aplicar el algoritmo de selección
-   * de instancias.
+   * Given an initial dataset, return a similar (in the worst case scenario) or smaller
+   * dataset obtained by applying an instance selection algorithm.
    *
-   * @param  sc  Contexto Spark en el que se ejecuta la aplicación.
-   * @param  data  Conjunto inicial.
-   * @return  Conjunto resultante tras aplicar el algoritmo.
+   * @param  sc  Spark context of the application.
+   * @param  data  Initial dataset.
+   * @return  Remaining instances after the algorithm has been executed.
    */
   def instSelection(data: RDD[LabeledPoint]): RDD[LabeledPoint]
 
   /**
-   * Dada una lista de parámetros, este método es capaz de analizarlos e inicializar
-   * con ellos los valores iniciales del algoritmo.
+   * Given a list of parameters, this method reads them and uses them to modify the
+   * default values of the algorithm.
    *
-   * @param  args  Argumentos para inicializar el algoritmo.
-   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
-   *   no es correcto.
+   * @param  args  Arguments of the algorithm.
+   * @throws IllegalArgumentException If any of the parameters is not correct.
    */
   @throws(classOf[IllegalArgumentException])
   def setParameters(args: Array[String]): Unit
 
   /**
-   * Dado una cadena identificativa de un parámetro y un valor,
-   * intenta asignar dicho valor al parámetro concreto.
+   * Given a parameter-value pair, assigns the mentioned value to the class attribute
+   * the parameter refers to.
    *
-   * @param  identifier Identificador del parámetro en un comando de consola.
-   * @param  value  Valor a asignar.
+   * @param  identifier Attribute id.
+   * @param  value  Value
    *
-   * @throws IllegalArgumentException Si alguno de los parámetros
-   *   no es correcto: el identificador no existe o el valor no es el esperado.
+   * @throws IllegalArgumentException If any of the input values is not correct:
+   * The id does not exist or the type of the value is not the expected one.
    */
   @throws(classOf[IllegalArgumentException])
   protected def assignValToParam(identifier: String, value: String): Unit
