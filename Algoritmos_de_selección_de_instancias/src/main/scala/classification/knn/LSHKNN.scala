@@ -28,7 +28,8 @@ import utils.partitioner.RandomPartitioner
 import classification.seq.knn.KNNSequential
 
 /**
- * Approximate kNN classifier by using the LSH.
+ * kNN approximation using local sensitive hashing (LSH).
+ *
  * The classifier uses the locality sensitive hashing technique for finding out
  * approximate nearest neighbours in a fast way.
  *
@@ -53,7 +54,7 @@ class LSHKNN extends TraitClassifier {
   var k = 1
 
   /**
-   * Conjunto de datos almacenado tras la etapa de entrenamiento.
+   * Training data.
    */
   var trainingData: RDD[LabeledPoint] = null
 

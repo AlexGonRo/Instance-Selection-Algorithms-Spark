@@ -22,53 +22,53 @@ import utils.partitioner.RandomPartitioner
 import java.util.Random
 
 /**
- * Clasificador KNN.
+ * Parallel kNN classifier.
  *
- * Este algoritmo de clasificación basa sus predicciones en las distancias
- * entre la instancia a clasificar y el resto del conjunto de datos, siendo
- * las instancias más próximas a la que nos interesa las que tendremos en cuenta
- * a la hora de predecir una clasificación.
- *
- * La implementación se ha basado en el resultado propuesto en el siguiente trabajo,
- * que ha sido adaptando para satisfacer las necesidades de esta librería:
+ * This classifier assigns a class to an instance by checking the most common class
+ * between the K closest points of the training dataset.
+ * 
+ * This implementation is based on the work made by:
  *
  * Jesús Maillo, Isaac Triguero and Francisco Herrera. "Un enfoque MapReduce del algoritmo
  * k-vecinos más cercanos para Big Data" In Actas de la XVI Edición Conferencia de la
  * Asociación Española para la Inteligencia Artificial CAEPIA 2015
- * Repositorio del algoritmo: https://github.com/JMailloH/kNN_IS
+ * Online repository: https://github.com/JMailloH/kNN_IS
+ *
  */
 
 class KNN extends TraitClassifier {
 
   /**
-   * Ruta donde se encuentran las cadenas a mostrar por el logger.
+   * Path to the logger strings.
    */
   private val bundleName = "resources.loggerStrings.stringsKNN";
   /**
-   * Logger del clasificador.
+   * Logger.
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Número de vecinos cercanos.
+   * Number of nearest neighbours.
    */
   var k = 1
 
   /**
-   * Conjunto de datos almacenado tras la etapa de entrenamiento.
+   * Training set.
    */
   var trainingData: RDD[LabeledPoint] = null
 
   /**
-   * Número de particiones del conjunto de entrenamiento
+   * Number of partitions on which the training set will be divided.
    */
   var numPartitions = 2
+
   /**
-   * Número de particiones en las que presentar el resultado del reduce.
+   * Number of partition on which we will perform the reduce operation.
    */
   var numReduces = 1
+
   /**
-   * Número de particiones en las que dividir el conjunto de test.
+   * Number of partitions on which we will divide the test set.
    *
    * -1 para automáticamente calcular el número de acuerdo al peso máximo que
    * indiquemos de cada partición ("auto-setting")
@@ -76,6 +76,7 @@ class KNN extends TraitClassifier {
    * TODO Actualmente no existe modo "auto-setting" implementado.
    */
   var numReducePartitions = 1
+
   /**
    * Tamaño máximo de una partición del conjunto de datos test.
    * Únicamente tiene utilidad en el modo "auto-setting" del cálculo del número de

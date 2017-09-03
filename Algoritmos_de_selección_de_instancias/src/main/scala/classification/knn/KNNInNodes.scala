@@ -10,17 +10,19 @@ import java.util.ArrayList
 
 /**
  *
- * Conjunto de operaciones que son necesarias para el algoritmo [[classification.knn.KNN]]
- * pero que necesitan ser serializables entre la red de nodos.
+ * Set of serializable methods that are used by the [[classification.knn.KNN]] algorithm.
  *
- * La implementación se ha basado en el resultado propuesto en el siguiente trabajo,
- * que ha sido adaptando para satisfacer las necesidades de esta librería:
+ * This methods have been implemented in a different class in order to reduce the number 
+ * of methods that need to be shared between all the working nodes.
+ *
+ * This implementation is based on the work made by Maillo et al., that was adapted to
+ * fulfil al the requirements needed to be run by this library.
+ * 
  * Jesús Maillo, Isaac Triguero and Francisco Herrera. "Un enfoque MapReduce del algoritmo
  * k-vecinos más cercanos para Big Data" In Actas de la XVI Edición Conferencia de la
  * Asociación Española para la Inteligencia Artificial CAEPIA 2015
- * Repositorio del algoritmo: https://github.com/JMailloH/kNN_IS
+ * Repository: https://github.com/JMailloH/kNN_IS
  *
- * @constructor
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
@@ -33,15 +35,15 @@ private class KNNInNodes extends Serializable {
   var subdel = 0
 
   /**
-   * Dado un conjunto de entrenamiento y otro de test, devuelve el resultado de aplicar
-   * el algoritmo KNN.
+   * Given a training and dataset and a test set, it returns the classes of the K
+   * nearest neighbours of each test point.
    *
-   * @param iter Iterador sobre el conjunto de entrenamiento
-   * @param testSet Conjunto de test
+   * @param iter Training set iterator. It reads instances one at a time.
+   * @param testSet Test set.
    *
-   * @return Iterador sobre un nuevo conjunto formado por id de la instancia
-   *   correspondiente y una lista ordenada de clase-distancia con los K vecinos
-   *   más cercanos.
+   * @return Iterator for the returned data. This new data is composed by pairs of the following values:
+   *   ID of the instance that was classified.
+   *   Ordered list of the K nearest neighbours.
    */
   def knn(iter: Iterator[LabeledPoint], testSet: Broadcast[Array[Vector]]): Iterator[(Long, ListBuffer[(Double, Double)])] = { 
 
@@ -67,15 +69,15 @@ private class KNNInNodes extends Serializable {
   }
 
   /**
-   * Dadas dos listas con distancias a instancias más cercanas.
+   * Given two ordered distance lists, it merges them and returns the K nearest
+   * points.
    *
-   * Las listas han de estar ordenadas según la distancia, siendo el primer registro
-   * la distancia más cercana y el último la más alejada.
+   * Input lists must be ordered: first element must be the closes one.
    *
-   * @param mapOut1 Una lista con elementos clase-distancia ordenada por la distancia.
-   * @param mapOut2 Una lista con elementos clase-distancia ordenada por la distancia.
-   * @result Una lista con elementos clase-distancia ordenada por la distancia con los
-   *    elementos más cercanos de las dos listas introducidas por parámetro.
+   * @param mapOut1 An ordered list of pairs class-distance.
+   * @param mapOut2 An ordered list of pairs class-distance.
+   * @result An ordered list of pairs class-distance with the closest elements of
+   * both inputs.
    */
 
   def combine(mapOut1: ListBuffer[(Double, Double)], mapOut2: ListBuffer[(Double, Double)]): ListBuffer[(Double, Double)] = {
@@ -94,10 +96,11 @@ private class KNNInNodes extends Serializable {
   }
 
   /**
-   * Dado un conjunto de instancias cercanas, evalúa y devuelve cual es la más común.
-   * @param tupla id de la instancia clasificada junto con una lista de
-   *     clase-distancia de las instancias más cercanas.
-   * @return tupla con id de la instancia clasificada y la clase predicha.
+   * Given a set of close instances, it returns the most common class.
+   *
+   * @param Tuple with an instance ID and a list of class-distance of the
+   *    closest neighbours
+   * @return Tuple with the instance ID and its predicted class.
    */
   def calcPredictedClass(tupla: (Long, ListBuffer[(Double, Double)])): (Long, Double) = {
 
