@@ -2,7 +2,7 @@ package gui
 
 /**
  *
- * Clase lanzadora de la interfaz gráfica.
+ * Grafical user interface (GUI) launcher
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -10,7 +10,7 @@ package gui
 object SparkISGUI extends App {
 
   /**
-   * Ventana principal de la aplicación.
+   * Launches the main window of the application.
    */
   val ui = new UI
   ui.visible = true

@@ -20,14 +20,12 @@ import utils.ArgsSeparator.FILTER_SEPARATOR
 import utils.ArgsSeparator.READER_SEPARATOR
 
 /**
- * Ventana principal de la interfaz gráfica.
+ * Main window of the user grafical interface (GUI).
  *
- * Esta ventana proporciona una serie de elementos que permitan al usuario
- * de la aplicación configurar adecuadamente experimentos para nuestra
- * biblioteca.
+ * This window allows the user to launch or plan different experiments.
  *
  *
- * @constructor Genera la ventana principal de nuestra aplicación.
+ * @constructor Draws the main window.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -35,37 +33,42 @@ import utils.ArgsSeparator.READER_SEPARATOR
 class UI extends MainFrame {
 
   /**
-   * Indica si estamos ejecutando actualmente alguna operación.
+   * We are already executing a data mining job.
    */
   var working = false
   /**
-   * Clase principal para el lanzamiento de ejecuciones.
+   * Class of this library that launches the data mining jobs.
    *
-   * Actualmente este parámetro no es configurable.
+   * This parameter should not be changed.
    */
   val execClass = "launcher.ExperimentLauncher"
 
   /**
-   * Tipo de ejecución.
+   * Execution time.
+   * 
+   * The only supported execution is the one that contains
+   * an filter task and a classification task.
    *
-   * Actualmente este parámetro no es configurable.
+   * This parameter should not be changed
+   * TODO We need to create a grafical interface that
+   *    will allow for different data mining jobs.
    */
   val execType = "ISClassExec"
 
   /**
-   * Anchura de la ventana.
+   * Main window width.
    */
   private val xDim = 800
   /**
-   * Largo de la ventana.
+   * Main window height
    */
   private val yDim = 460
   /**
-   * Espacio superior de la interfaz.
+   * Header.
    */
   val upMenuPanel = new UpMenuPanel(this)
   /**
-   * Espacio inferior de la interfaz.
+   * Panel at the bottom of the window.
    */
   val downMenuPanel = new DownMenuPanel(this)
   /**
