@@ -1,8 +1,7 @@
 package instanceSelection.seq
 
 /**
- * Paquete que contiene el algoritmo de selección de instancias CNN
- * (Condensed Nearest Neighbor)
+ * Condensed Nearest Neighbor (CNN) algorithm.
  *
  */
 package cnn

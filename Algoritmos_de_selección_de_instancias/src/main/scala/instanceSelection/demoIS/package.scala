@@ -5,7 +5,7 @@ package instanceSelection
  *
  * Democratic Instance Selection is an instance selection algorithm that 
  * applies, for several rounds and over disjoint subsets of the original dataset,
- * simplier instance selection algorithms. Once this phase is over, is uses the obtained
+ * simpler instance selection algorithms. Once this phase is over, is uses the obtained
  * results to decide which instances should be eliminated.
  *
  * García-Osorio, César, Aida de Haro-García, and Nicolás García-Pedrajas.

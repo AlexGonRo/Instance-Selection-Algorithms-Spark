@@ -7,37 +7,34 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import instanceSelection.seq.abstr.TraitSeqIS
 
 /**
- * Algoritmo encargado de asignar "votos" a instancias en función de si han
- * sido seleccionadas o no.
+ * Intructions involved in the voting process in each individual node.
  *
- * Forma parte del algoritmo [[instanceSelection.demoIS.DemoIS]] pero, a
- * diferencia de los otros componentes de dicho algoritmo, estas operaciones
- * requieren ser serializables entre la red de nodos.
+ * Instances will receive a vote if they have not been selected by the
+ * instance selector algorithm.
+ *
  */
 @SerialVersionUID(1L)
 private class VotingInNodes extends Serializable {
 
   /**
-   * Algoritmo de votación.
+   * Voting algorithm.
    *
-   * Partiendo de un conjunto de instancias inicial, aplica un algoritmo de
-   * selección de instancias. Posteriormente, y utilizando el resultado de esta
-   * última operación, aumenta el contador de la instancia en un punto si no ha
-   * sido seleccionada durante el filtrado.
+   * It applies an instance selection algorithm to the given dataset. Then, all
+   * those instances that were not selected by the instance selector will receive a vote.
    *
-   * @param  instancesIterator  Iterador sobre el conjunto de instancias inicial,
-   *   donde cada una de las instancias lleva asociado un contador
+   * @param  instancesIterator  Iterator over the initial dataset. Each element is a
+   *   tuple instance - number of votes.
    *   (número de votos).
-   * @param  linearIS  Algoritmo de selección de instancias secuencial
-   * @return Iterador sobre un conjunto de (votos,instancia) una vez se han
-   *   actualizado los valores de votación.
+   * @param  linearIS  Sequential instance selection algorithm.
+   * @return Iterator over the dataset after the votes has been updated. Each element is a
+   *   tuple instance - number of votes.
    *
    */
   def applyIterationPerPartition(
     instancesIterator: Iterator[(Long,(Int, LabeledPoint))],
     linearIS: TraitSeqIS): Iterator[(Long,(Int, LabeledPoint))] = {
 
-    // Almacenamos todos los valores en listas
+    // Store all the values in lists.
     var instancias = new MutableList[LabeledPoint]
     var myIterableCopy = new MutableList[(Long,(Int, LabeledPoint))]
     while (instancesIterator.hasNext) {
@@ -46,10 +43,10 @@ private class VotingInNodes extends Serializable {
       instancias += tmp._2._2
     }
 
-    // Ejecutamos el algoritmo
+    // Run instance selection algorithm.
     var selected = linearIS.instSelection(instancias)
 
-    // Actualizamos los contadores de las instancias no seleccionadas.
+    // Update the voting count.
     var iter = myIterableCopy.iterator
     var actIndex = -1
     while (iter.hasNext) {

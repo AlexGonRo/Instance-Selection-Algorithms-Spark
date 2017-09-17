@@ -3,8 +3,7 @@ package instanceSelection.seq.abstr
 import org.apache.spark.mllib.regression.LabeledPoint
 
 /**
- * Interfaz que proporciona todos los métodos requeridos para la implementación
- * de algoritmos lineales de selección de instancias.
+ * Trait that defines all the necessary methods for this library to run the algorith.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -15,23 +14,23 @@ trait TraitSeqIS extends Serializable {
 
   /**
    *
-   * Dado un conjunto inicial, devuelve un conjunto de tamaño igual o menor
-   * resultante de aplicar el algoritmo de selección de instancias.
+   * Given a dataset, it return an smaller or equal dataset resulting of the application
+   * of an instance selection algorithm.
+   * 
+   * @param  data  Original dataset.
+   * @return  Final dataset.
    *
-   * @param  data  Conjunto inicial.
-   * @return  Conjunto resultante tras aplicar el algoritmo.
-   *
-   * @throws IllegalArgumentException Si alguno de los parámetros introducidos
-   *   no es correcto.
+   * @throws IllegalArgumentException If any of the parameters given to the
+   * algorithm is not correct.
    */
   @throws(classOf[IllegalArgumentException])
   def instSelection(data: Iterable[LabeledPoint]): Iterable[LabeledPoint]
 
   /**
-   * Dada una lista de parametros, este método es capaz de analizarlos y
-   * modificar los atributos del algoritmo de acuerdo a esos datos.
+   * Given a list of parameters, it analyses them and updates the class
+   * attribute values.
    *
-   * @param  args  Argumentos para inicializar el algoritmo.
+   * @param  args  New arguments for the algorithm.
    */
   def setParameters(args: Array[String]): Unit
 

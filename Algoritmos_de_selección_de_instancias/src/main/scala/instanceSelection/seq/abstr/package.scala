@@ -1,8 +1,8 @@
 package instanceSelection.seq
 
 /**
- * Contiene las clases abstractas de las que se valdrá la biblioteca para implementar
- * algoritmos de selección de instancias lineales para Spark.
+ * Abstract classes that define all the necessary component that a sequential instance
+ * selecciona algorithm must have in order to be run by this library.
  *
  */
 

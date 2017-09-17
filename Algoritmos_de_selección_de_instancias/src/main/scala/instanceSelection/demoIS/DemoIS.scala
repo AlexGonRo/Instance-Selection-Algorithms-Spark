@@ -21,22 +21,19 @@ import java.io.IOException
 import java.io.FileWriter
 
 /**
- * Algoritmo de selección de instancias Democratic Instance Selection.
+ * Democratic Instance Selection algorithm.
  *
- * Este algoritmo se basa en dividir el conjunto original en múltiples
- * subconjuntos y aplicar sobre cada uno de ellos un algoritmo de selección
- * de instancias más simple. Con la salida de este proceso, repetido durante
- * un número indicado de veces, calcularemos la verdadera salida del algoritmo
- * en base a un criterio que busca adecuar precisión y tamaño del conjunto
- * final.
+ * Democratic Instance Selection is an instance selection algorithm that 
+ * applies, for several rounds and over disjoint subsets of the original dataset,
+ * simpler instance selection algorithms. Once this phase is over, is uses the obtained
+ * results to decide which instances should be eliminated.
  *
- * Participante en el patrón de diseño "Strategy" en el que actúa con el
- * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
- * participa como estrategia ("Strategy")
- * [[instanceSelection.abstr.TraitIS]].
+ * García-Osorio, César, Aida de Haro-García, and Nicolás García-Pedrajas.
+ * "Democratic instance selection: a linear complexity instance selection
+ * algorithm based on classifier ensemble concepts." Artificial Intelligence
+ * 174.5 (2010): 410-441.
  *
- * @constructor Crea un nuevo selector de instancias con los parámetros por
- *   defecto.
+ * @constructor Create a new instance selector with by default attribute values.
  *
  * @author  Alejandro González Rogel
  * @version 1.0.0
@@ -44,7 +41,7 @@ import java.io.FileWriter
 class DemoIS extends TraitIS {
 
   /**
-   * Ruta al fichero que guarda los mensajes de log.
+   * Path to the log strings.
    */
   private val bundleName = "resources.loggerStrings.stringsDemoIS"
   /**
@@ -53,59 +50,61 @@ class DemoIS extends TraitIS {
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName)
 
   /**
-   * Número de repeticiones que se realizará la votación.
+   * Number of voting phases.
    */
   var numRepeticiones = 10
 
   /**
-   *  Peso de la precisión sobre el tamaño al calcular el criterio de selección.
+   *  Weight for the accuracy when computing the fitness function.
    */
   var alpha = 0.75
 
   /**
-   *  Número de paticiones en las que dividiremos el conjunto de datos para
-   *  las realizar las votaciones.
+   *  Number of partitions on which the dataset will be divided after we performed
+   * the voting.
    */
   var numPartitions = 10
 
   /**
-   * Número de vecinos cercanos a utilizar en el KNN.
+   * Number of nearest neighbours to use in the kNN.
    */
   var k = 1
 
   /**
-   * Número de particiones en las que dividir el conjunto de entrenamiento del KNN.
+   * Number of partitions in which the training set will be divided for the kNN.
    */
   var numPartitionsKNN = 10
 
   /**
-   * Número de veces que se aplica la fase "reduce" en el KNN.
+   * Number of times we apply a reduction in the kNN.
    */
   var numReducesKNN = 1
 
   /**
-   * Número de particiones en las que dividir el conjunto de test del KNN.
+   * Number of partitions in which the test set will be divided during the kNN.
    */
   var numReducePartKNN = 1 // -1 auto-setting
 
   /**
-   * Peso máximo de cada partición del conjunto de test.
+   * Maximum weight of each partition in the test set.
    */
   var maxWeightKNN = 0.0
 
   /**
-   * Semilla para el generador de números aleatorios.
+   * Seed for random number generation.
    */
   var seed: Long = 1
 
   /**
-   * Porcentaje del conjunto de datos inicial usado para calcular la precisión
-   * de las diferentes aproximaciones según el número de votos de las instancias.
+   * Subset of the original dataset that will be used to calculate the fitness value
+   *
+   * It is a percentage.
+   *
    */
   var datasetPerc = 1.0
 
   /**
-   * Manera de calcular la distancia entre dos instancias.
+   * Distance measurement formula.
    *
    * MANHATTAN = 1 ; EUCLIDEAN = 2 ; HVDM = 3
    * TODO Actualmente no cuenta con utilidad
@@ -113,79 +112,75 @@ class DemoIS extends TraitIS {
   var distType = 2
 
   /**
-   * Semilla aleatoria para la distribución de instancias en el KNN
+   * Seed for the kNN.
    */
   var sknn: Long = 1
 
   /**
-   * Si se debería guardar información adicional sobre la ejecución.
+   * If extra information about the execution should be stored.
    */
   var xtraInfo = false
 
   override def instSelection(
     originalData: RDD[LabeledPoint]): RDD[LabeledPoint] = {
 
-    // Añadimos una clave a todas las instancias
+    // Add a key to every instance.
     val dataAndVotes = originalData.map(inst => (0, inst))
 
-    // Operación Map
-    // Realizar votaciones
+    // Map operation - voting
     val ratedData = doVoting(dataAndVotes)
 
-    // Operación Reduce
-    // Cálculo del umbral de votos y selección de resultado
+    // Reduce operation - Get fitness value and select instances.
     val (criterions, extraData) = lookForBestCriterion(ratedData)
     val indBestCrit = criterions.indexOf(criterions.min) + 1
 
-    // Si se ha pedido, se guarda información adicional sobre la ejecución.
+    // Store information
     if (xtraInfo) {
       writeExtraInfo(criterions, extraData)
     }
-
     ratedData.filter(
       tuple => tuple._1 < indBestCrit).map(tuple => tuple._2)
 
   }
 
   /**
-   * Durante un número fijado de veces, reparticionará el conjunto original
-   * y aplicará sobre cada subconjunto un algoritmo de selección de instancias,
-   * actualizando los votos de aquellas instancias que han sido no seleccionadas.
+   * It will, for a predefined number of times, distribute the original dataset
+   * between the nodes and apply an instance selection algorithm individually for
+   * each partition, updating the number of votes of the non-selected instances.
    *
-   * @param RDDconContador Conjunto de datos original y donde cada instancia
-   *   tiene un contador asociado que indica el número de veces que ha sido
-   *   seleccionada.
-   * @return Conjunto de datos original con los contadores actualizados.
+   * @param RDDconContador Original dataset where entry is a tuple with the instance
+   *   and the number of votes that such instance has received so far.
    *
-   * @todo Habilitar la posibilidad de cambiar el algoritmo de selección
-   * de instancias usado cuando exista más de uno implementado.
+   * @return Tuples with an instance and the total number of votes that it has received.
+   *
+   * @todo Allow the user to choose which algorithm he wants to apply in the nodes.
    */
   private def doVoting(
     RDDconContador: RDD[(Int, LabeledPoint)]): RDD[(Int, LabeledPoint)] = {
 
-    // Algoritmo secuencial a usar en cada subconjunto de datos.
+    // Instance selector that will be used for computing the votes.
     val seqAlgorithm: TraitSeqIS = new CNN()
 
-    // Operación a realizar en cada uno de los nodos.
+    // Instructions to apply individually on each partition.
     val votingInNodes = new VotingInNodes()
-    // RDD usada en la iteración concreta.
+    
     var actualRDD = RDDconContador.zipWithIndex().map(line => (line._2, line._1))
-    // Número de instancias por partición
-    // Particionador para asignar nuevas particiones a las instancias.
+
+    // Partitioner that will distribute the instances.
     val partitioner = new RandomPartitioner(numPartitions, actualRDD.count(), seed)
 
     for { i <- 0 until numRepeticiones } {
 
-      // Redistribuimos las instancias en los nodos
+      // Redistribute the instances between the nodes.
       actualRDD = actualRDD.partitionBy(partitioner)
-      // En cada nodo aplicamos el algoritmo de selección de instancias
+      // Apply the voting.
       actualRDD = actualRDD.mapPartitions(instancesIterator =>
         votingInNodes
           .applyIterationPerPartition(instancesIterator, seqAlgorithm)).persist
 
       partitioner.rep += 1
 
-      // TODO Necesario para forzar la opeación hasta este punto.
+      // TODO It was necessary to force the execution up until this point.
       actualRDD.foreachPartition(x => None)
 
     }
@@ -196,16 +191,13 @@ class DemoIS extends TraitIS {
   }
 
   /**
-   * Calcula la adecuación de cada una de las posibles soluciones y encuentra
-   * aquella cuyo valor sea más bajo.
+   * Gets the fitness value for each one of the possible reduction values and chooses
+   * the one with the lowest value.
    *
-   * @param  RDDconContador Conjunto de datos original. Cada instancia
-   *   tiene un contador asociado que indica el número de veces que ha sido
-   *   seleccionada.
+   * @param  RDDconContador Dataset with tuples instance-votes
    *
-   * @return Tupla con el número máximo de veces que la instancia no ha
-   *   sido seleccionada y que conduce al criterio más bajo y el propio valor de
-   *   dicho criterio.
+   * @return Tuple with the number of votes that produces the lowest fitness and the
+   * value of such fitness.
    *
    */
   private def lookForBestCriterion(
@@ -224,8 +216,8 @@ class DemoIS extends TraitIS {
 
     for { i <- 1 to numRepeticiones } {
 
-      // Seleccionamos todas las instancias que no superan el tresshold parcial
-      // TODO No estoy seguro de que este persist sea necesario.
+      // Select all the instances which votes are above the partial threshold.
+      // TODO I’m not sure if this persist() is really necessary.
       val selectedInst = RDDconContador.filter(
         tupla => tupla._1 < i).map(tupla => tupla._2).persist()
 
@@ -243,28 +235,28 @@ class DemoIS extends TraitIS {
   }
 
   /**
-   * Calcula un valor fitness aplicando la fórmula de una selección basándose
-   * en la fórmula: alpha * testError + (1 - alpha) * subDatasize
+   * Calculates the fitness value.
+   * 
+   * It uses the formula: alpha * testError + (1 - alpha) * subDatasize
    *
-   * @param  selectedInst  Subconjunto de instancias cuyo contador ha superado
-   *   un número determinado
-   * @param  testRDD  Conjunto de instanciasde test para pasar al KNN
-   * @param  dataSetSize  Tamaño del conjunto original de datos.
-   * @return Resultado numérico del criterio de selección.
-   *         Información adicional sobre las variables usadas.
+   * @param  selectedInst  Subset of instances above the threshold value.
+   * @param  testRDD  Test set for the classifier.
+   * @param  dataSetSize  Size of the original dataset.
+   *
+   * @return Fitness value and information about the other variables values.
+   *
    */
   private def calcCriterion(selectedInst: RDD[LabeledPoint],
                             testRDD: RDD[LabeledPoint],
                             dataSetSize: Long): (Double, Array[Double]) = {
 
-    // Calculamos el porcentaje del tamaño que corresponde al subconjunto
+    // Get the reduction percentage of the subset with respect to the original dataset.
     val subSetSize = selectedInst.count.toDouble
     val subSetPerc = subSetSize / dataSetSize
 
-    // Calculamos la tasa de error
+
     val knn = new KNN()
-    // TODO
-    // Metido todo a pelo
+    // TODO Hardcoded
     val knnParameters: ListBuffer[String] = new ListBuffer[String]
     knnParameters += "-k"
     knnParameters += k.toString()
@@ -291,24 +283,25 @@ class DemoIS extends TraitIS {
 
     val testError = failures.toDouble / testRDD.count
 
-    // Esta información solo será usada si el parámetro xtraInfo es verdadero.
+    // Extra information about the execution.
+    // It will be stored if the user asked for it.
     var info = Array(dataSetSize, subSetSize, subSetPerc, failures, testError)
 
-    // Calculamos el criterio de selección.
+    // Calculate fitness function.
     (alpha * testError + (1 - alpha) * subSetPerc, info)
 
   }
 
   /**
-   * Almacena en un archivo .csv información adicional sobre la ejecución
-   * del algoritmo.
+   * Stores in a .csv file all the information about the execution.
    *
-   * La información guardada corresponde a los valores de diferentes parámetros
-   * durante el cálculo de los diferentes umbrales durante la selección del
-   * threshold.
-   * @param  criterion  Lista con todos los posibles umbrales calculados.
-   * @param  extraData  Datos sobre los valores de los parámetros durante el cálculo
-   *             de los diferentes umbrales. Los datos almacenados corresponden a:
+   * This information contains the different values of all the important
+   * parameters that have been used during the computation of the fitness values.
+   *
+   *
+   * @param  criterion  List with all the computed fitness values.
+   * @param  extraData  Values for the different attributes that contributed to this
+   *    calculation. These attributes are:
    *             totalDataSize, subDataSize, Reduction, failures, testError,
    *             finalCriterion
    */
@@ -347,7 +340,7 @@ class DemoIS extends TraitIS {
         "," + criterion.min + "\n")
     } catch {
       case e: IOException => None
-      // TODO Añadir mensaje de error
+      // TODO Add error message.
     } finally {
       writer.close()
     }
@@ -356,7 +349,7 @@ class DemoIS extends TraitIS {
 
   override def setParameters(args: Array[String]): Unit = {
 
-    // Comprobamos si tenemos el número de atributos correcto.
+    // Check for the correct number of arguments.
     checkIfCorrectNumber(args.size)
 
     for { i <- 0 until args.size by 2 } {
@@ -406,13 +399,12 @@ class DemoIS extends TraitIS {
   }
 
   /**
-   * Comprueba si el número de parámetros introducido puede corresponder a
-   * al de una configuración válida.
+   * Check if the number of parameters that has been introduced is correct.
    *
-   * @param Número de parametros y valores introducidos al configurar.
+   * @param argsNumber Number of parameters.
    *
-   * @throws IllegalArgumentException si el número de parametros no es
-   *   correcto
+   * @throws IllegalArgumentException If the number of parameters is not the
+   * expected one.
    */
   @throws(classOf[IllegalArgumentException])
   def checkIfCorrectNumber(argsNumber: Int): Unit = {

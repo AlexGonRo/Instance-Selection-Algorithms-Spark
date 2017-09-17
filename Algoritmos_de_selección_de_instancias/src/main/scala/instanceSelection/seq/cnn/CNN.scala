@@ -10,7 +10,7 @@ import instanceSelection.seq.abstr.TraitSeqIS
 import utils.DistCalculator
 
 /**
- * Algoritmo de selección de instancias Condensed Nearest Neighbor (CNN).
+ * Condensed Nearest Neighbor (CNN) instance selection algorithm.
  *
  * CNN construye un conjunto resultado S de un conjunto original T
  * tal que todo ejemplo de T está más cerca a un ejemplo de S de la misma

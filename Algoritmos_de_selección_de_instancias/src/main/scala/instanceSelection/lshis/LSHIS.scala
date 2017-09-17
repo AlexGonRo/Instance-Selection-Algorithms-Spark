@@ -15,23 +15,18 @@ import instanceSelection.abstr.TraitIS
 
 /**
  *
- * Implementación del algoritmo Locality Sensitive Hashing Instance Selection
- * (LSH IS).
+ * Locality Sensitive Hashing Instance Selection (LSH IS).
  *
- * LSH-IS es un algoritmo de selección de instancias apoyado en el uso de LSH.
- * La idea es aplicar un  algoritmo de LSH sobre el conjunto de instancias
- * inicial, de manera que podamos agrupar en un mismo bucket
- * aquellas instancias con un alto grado de similitud.
- * Posteriormente, de cada uno de esos buckets seleccionaremos una
- * instancia de cada clase, que pasará a formar parte del conjunto
- * de instancias final.
+ * It uses a Local Sensitive Hashing (LSH) algorithm on the initial dataset
+ * in order to distribute the different instances into buckets of similar instances.
+ * After that, we select, from each bucket, one instance of each class. This instance
+ * will then be considered part of the filtered dataset.
  *
- * Participante en el patrón de diseño "Strategy" en el que actúa con el
- * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
- * participa como estrategia ("Strategy")
- * [[instanceSelection.abstr.TraitIS]].
+ * Arnaiz-González, Á., Díez-Pastor, J. F., Rodríguez, J. J., & García-Osorio,
+ * C. (2016). Instance selection of linear complexity for big data. Knowledge-Based
+ * Systems, 107, 83-95.
  *
- * @constructor Crea un nuevo algoritmo LSHIS con los parámetros por defecto.
+ * @constructor Creates a new LSHISinstance selector with the attribute values by default.
  *
  * @author Alejandro González Rogel
  * @version 1.1.0
@@ -39,28 +34,28 @@ import instanceSelection.abstr.TraitIS
 class LSHIS extends TraitIS {
 
   /**
-   * Archivo que contiene la frases de log.
+   * Path to the file with log strings.
    */
   private val bundleName = "resources.loggerStrings.stringsLSHIS";
   /**
-   * Logger del algoritmo.
+   * Logger.
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
 
   /**
-   * Número de funciones-AND.
+   * Number of AND operations.
    */
   var ANDs: Int = 10
   /**
-   * Número de funciones-OR.
+   * Number of OR operations.
    */
   var ORs: Int = 1
   /**
-   * Tamaño de los "buckets".
+   * Bucket size.
    */
   var width: Double = 1
   /**
-   * Semilla para los números aleatorios.
+   * Seed.
    */
   var seed: Long = 1
 
@@ -75,38 +70,35 @@ class LSHIS extends TraitIS {
 
     val andTables = createANDTables(parsedData.first().features.size, r)
 
-    // Variable para almacenar el resultado final
+    // Stores the final result.
     var finalResult: RDD[LabeledPoint] = null
 
     for { i <- 0 until ORs } {
       val andTable = andTables(i)
 
-      // Transformamos la RDD para generar tuplas de (bucket asignado, clase)
-      // e instancia
+      // Transform the original dataset into tuples
+      // (assigned bucket, pair)-instance
       val keyInstRDD = parsedData.map { instancia =>
         ((andTable.hash(instancia), instancia.label), instancia)
       }
-      // Seleccionamos una instancia por cada par (bucket,clase)
+      // Choose one instance from each (bucket, class) pair.
       val partialResult = keyInstRDD.reduceByKey { (inst1, inst2) => inst1 }
 
-      if (i == 0) { // Si es la primera iteración del bucle for
+      if (i == 0) { // If it is the first iteration of the ‘for’ loop.
         finalResult = partialResult.values.persist
         finalResult.name = "PartialResult"
       } else {
-        // Recalculamos los buckets para las instancias ya seleccionadas
-        // en otras iteraciones.
+        // Compute again the assigned bucket for the already selected instances.
         val alreadySelectedInst = finalResult.map { instancia =>
           ((andTable.hash(instancia), instancia.label), instancia)
         }
-        // Sobre la RDD de la iteración, seleccionamos aquellas las instancia
-        // cuya key no esté repetida en el resultado final.
+        // Select those instances which key is not yet in the final subset.
         val keyClassRDDGroupBy = partialResult.subtractByKey(alreadySelectedInst)
         val selectedInstances = keyClassRDDGroupBy.map[LabeledPoint] {
           case (tupla, instancia) => instancia
         }
 
-        // Unimos el resultado de la iteración con el resultado parcial ya
-        // almacenado
+        // Merge the partial final result with the result of this iteration.
         finalResult = finalResult.union(selectedInstances).persist
       }
     }
@@ -115,16 +107,18 @@ class LSHIS extends TraitIS {
   } // end instSelection
 
   /**
-   * Genera un array de tablas AND, cada una de ellas con funciones hash de
-   * dimensión indicada por parametro.
+   * Create an array made of AND operations.
    *
-   * @param  dim  Dimensión de las funciones hash
-   * @param  r  Generador de números aleatorios.
-   * @return Array con todas las tablas instanciadas
+   * Each one of these operations contains as many hash functions as stipulated by
+   * by the input parameter.
+   *
+   * @param  dim  Hash functions dimension.
+   * @param  r  Random number generator.
+   * @return Array with all the tables.
    */
   private def createANDTables(dim: Int, r: Random): ArrayBuffer[ANDsTable] = {
 
-    // Creamos tantos componentes AND como sean requeridos.
+    // Create as many AND operation as required.
     var andTables: ArrayBuffer[ANDsTable] = new ArrayBuffer[ANDsTable]
     for { i <- 0 until ORs } {
       andTables += new ANDsTable(ANDs, dim, width, r.nextInt)
@@ -134,7 +128,7 @@ class LSHIS extends TraitIS {
 
   override def setParameters(args: Array[String]): Unit = {
 
-    // Comprobamos primero si tenemos el número de atributos correcto.
+    // Check if we have the correct number of attributes.
     if (args.size % 2 != 0) {
       logger.log(Level.SEVERE, "LSHISPairNumberParamError",
         this.getClass.getName)
@@ -154,7 +148,7 @@ class LSHIS extends TraitIS {
       }
     }
 
-    // Si las variables no han sido asignadas con un valor correcto.
+    // If any variable does not have the correct value.
     if (ANDs <= 0 || ORs <= 0 || width <= 0) {
       logger.log(Level.SEVERE, "LSHISWrongArgsValuesError")
       logger.log(Level.SEVERE, "LSHISPossibleArgs")
