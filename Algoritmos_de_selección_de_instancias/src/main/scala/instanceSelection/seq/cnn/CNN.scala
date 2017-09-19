@@ -12,11 +12,10 @@ import utils.DistCalculator
 /**
  * Condensed Nearest Neighbor (CNN) instance selection algorithm.
  *
- * CNN construye un conjunto resultado S de un conjunto original T
- * tal que todo ejemplo de T está más cerca a un ejemplo de S de la misma
- * clase que a otro de S de clase distinta.
+ * Builds a set S from an original set T such that every datapoint of T is closer to a
+ * point of S of the same class than to a point of S of a different class.
  *
- * @constructor Genera un nuevo selector de instancias basado en el algoritmo.
+ * @constructor Create a new CNN instance.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -24,7 +23,7 @@ import utils.DistCalculator
 class CNN extends TraitSeqIS {
 
   /**
-   * Calculadora de distancias entre puntos.
+   * Distance calculator.
    */
   val distCalc = new DistCalculator
 
@@ -32,11 +31,10 @@ class CNN extends TraitSeqIS {
 
     var s = new MutableList[LabeledPoint]
 
-    // Comenzamos el conjunto S con únicamente una instancia
+    // Start subset S with one instance
     s += data.head
 
-    // Incrementamos iterativamente el conjunto S en base a la aplicación
-    // del algoritmo
+    // Apply CNN
     var keepGoing = true
     while (keepGoing) {
       doTheLogic(s, data) match {
@@ -51,15 +49,15 @@ class CNN extends TraitSeqIS {
   }
 
   /**
-   * Dados dos conjuntos de datos, recorre el segundo asegurandose de que toda
-   * instancia existente en él posee un vecino más cercano de la misma clase
-   * en el primer conjunto. En caso de no ser así, devuelve la instancia donde
-   * no se ha complido la premisa
+   * Given two datasets, checks that, for every instance in the second dataset, there
+   * exists an instance of the same class in the first dataset that is the closest to the
+   * first datapoint.
    *
-   * @param  s  Subconjunto de data
-   * @param  data Conjunto inicial de datos
-   * @return Instancia a añadir en el subconjunto S o el booleano "false" para
-   *   indicar la finalización del algoritmo
+   * If the above is not true, returns the instance of the second dataset which closest 
+   * neighbour is not of the same class.
+   * @param  s  Dataset 1
+   * @param  data Dataset 2
+   * @return Instance of the second dataset which closest neighbour in the first one is not of the same class or “False”.
    */
   private def doTheLogic(
     s: Iterable[LabeledPoint],
@@ -71,11 +69,10 @@ class CNN extends TraitSeqIS {
 
     while (iter.hasNext && !nextInstanceFound) {
       val actualInst = iter.next()
-      // Calculamos la instancia o instancias más cercanas
+      // Get the closest instance(s)
       val closestInst = closestInstances(s, actualInst)
 
-      // Comprobamos si alguna de las instancias más cercanas es de la misma
-      // clase
+      // Check if one of the closest instances belongs to the same class.
       var addToS = true
       for { instance <- closestInst } {
         if (instance.label == actualInst.label) {
@@ -83,8 +80,8 @@ class CNN extends TraitSeqIS {
         }
       }
 
-      // Si no hay instancia cercana de la misma clase, devolvemos la
-      // instancia problemática
+      // Return instance if all the closest instances belong to a different
+      // class.
       if (addToS) {
         nextInstanceFound = true
         nextInstance = actualInst
@@ -94,7 +91,7 @@ class CNN extends TraitSeqIS {
     if (nextInstanceFound) {
       Left(nextInstance)
     } else {
-      // Fin del algoritmo
+      // End of the algorithm.
       Right(false)
 
     }
@@ -102,11 +99,11 @@ class CNN extends TraitSeqIS {
   }
 
   /**
-   * Calcula la instancia más cercana a un elemento dado.
+   * Gets the closest instance(s) to a given element.
    *
-   * @param  s  Conjunto de datos sobre el que buscar el vecino más cercano.
-   * @param  inst  Instancia a comparar
-   * @return  Instancia más cercana
+   * @param  s  Total dataset.
+   * @param  inst  Datapoint.
+   * @return  Closest datapoint.
    */
   private def closestInstances(s: Iterable[LabeledPoint],
                                inst: LabeledPoint): Iterable[LabeledPoint] = {
@@ -132,11 +129,10 @@ class CNN extends TraitSeqIS {
 
   /**
    *
-   * CNN no necesita ningún parámetro para su funcionamiento.
+   * CNN do not require any parameter.
    *
-   * Método vacío.
+   * Unused method.
    *
-   * @param args Cadena de texto con argumentos.
    */
   override def setParameters(args: Array[String]): Unit = {
   }

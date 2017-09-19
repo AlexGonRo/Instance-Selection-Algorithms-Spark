@@ -4,16 +4,8 @@ import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.mllib.regression.LabeledPoint
 
 /**
- * Interfaz que define los métodos básicos que deberá contener un clasificador
- * secuencial.
- *
- * Participa en el patrón de diseño "Strategy" actuando como estrategia
- * ("Strategy"). Las clases que hereden de esta interfaz participarán en este
- * mismo patrón como estrategias concretas("concrete strategy") y su
- * participante contexto podría ser alguna clase que herede de
- * [[launcher.execution.executionTraitExec]] (no necesariamente todas).
- * En la versión actual [[launcher.execution.ISClassExec]] y
- * [[launcher.execution.ISClassExecTest]] podrían actuar como contexto.
+ * Defines all the basic methods that a sequential classifier needs to include
+ * in order to be executed by this library.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -21,34 +13,32 @@ import org.apache.spark.mllib.regression.LabeledPoint
 trait TraitSeqClassifier {
 
   /**
-   * Dado un conjunto de entrenamiento realiza el entrenamiento del clasificador
-   * en base a dicho conjunto.
+   * Train the classifier.
    *
-   * @param  trainingSet  Conjunto de entrenamiento.
+   * @param  trainingSet  Training set.
    */
   def train(trainingSet: Iterable[LabeledPoint]): Unit
 
   /**
-   * Realiza la clasificación de una determinada instancia.
+   * Classify one instance.
    *
-   * @param inst  Instancia a clasificar.
-   * @return Número correspondiente a la clase predicha por el clasificador.
+   * @param inst  Instance
+   * @return Class predicted by the classifier.
    */
   def classify(inst: Vector): Double
 
   /**
-   * Realiza la clasificación de un conjunto de instancias.
+   * Classify a set of instances.
    *
-   * @param instances  Instancias a clasificar.
-   * @return Número correspondiente a la clase predicha por el clasificador.
+   * @param instances  Instances to classify.
+   * @return Class predicted for each instance.
    */
   def classify(instances: Iterable[Vector]): Array[Double]
 
   /**
-   * Dada una lista de parámetos, este método es capaz de analizarlos e inicializar
-   * con ellos los valores iniciales del algoritmo.
+   * Given a list of parameters, update the attributes of the classifier.
    *
-   * @param  args  Argumentos para inicializar el algoritmo.
+   * @param  args  List of parameters.
    */
   def setParameters(args: Array[String]): Unit
 

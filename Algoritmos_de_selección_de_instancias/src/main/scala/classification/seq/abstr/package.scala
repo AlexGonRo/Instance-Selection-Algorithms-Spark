@@ -1,9 +1,7 @@
 package classification.seq
 
 /**
- * Traits y clases abstractas que definirán las
- * características de los clasificadores secuenciales.
- *
-
+ * Traits and abstract classes that define the main features and methods of the
+ * sequential classifiers.
  */
 package object abstr

@@ -10,20 +10,13 @@ import org.apache.spark.mllib.linalg.Vector
 import scala.collection.mutable.ListBuffer
 
 /**
- * Clasificador KNN secuencial.
+ * Sequential kNN classifier.
  *
- * Este algoritmo de clasificación basa sus predicciones en las distancias
- * entre la instancia a clasificar y el resto del conjunto de datos, siendo
- * las instancias más próximas a la que nos interesa las que tendremos en cuenta
- * a la hora de predecir una clasificación.
+ * KNN is a classification algorithm where the instance we wish to classify is
+ * compared with all the data points of the training set and given the most common
+ * class among the k nearest points.
  *
- * Participante en el patrón de diseño "Strategy" en el que actúa con el
- * rol de estrategia concreta ("concrete strategies"). Hereda de la clase que
- * participa como estrategia ("Strategy")
- * [[classification.seq.abstr.TraitSeqClassifier]].
- *
- * @constructor Genera un nuevo clasificador con los atributos por defecto
- *   y sin entrenar.
+ * @constructor Creates a new classifier.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -31,31 +24,31 @@ import scala.collection.mutable.ListBuffer
 class KNNSeq extends TraitSeqClassifier {
 
   /**
-   * Ruta donde se encuentran las cadenas a mostrar por el logger.
+   * Path to the logger strings.
    */
   private val bundleName = "resources.loggerStrings.stringsKNNSeq";
   /**
-   * Logger del clasificador.
+   * Logger.
    */
   private val logger = Logger.getLogger(this.getClass.getName(), bundleName);
   /**
-   * Calculadora de distancias entre puntos.
+   * Distance calculator (between data points).
    */
   val distCalc = new DistCalculator
 
   /**
-   * Número de vecinos cercanos.
+   * Number of nearest neighbours.
    */
   var k = 1
 
   /**
-   * Conjunto de datos almacenado tras la etapa de entrenamiento.
+   * Training dataset.
    */
   var trainingData: Iterable[LabeledPoint] = Iterable.empty[LabeledPoint]
 
   override def setParameters(args: Array[String]): Unit = {
 
-    // Comprobamos si tenemos el número de atributos correcto.
+    // Check if we have the correct number of parameters.
     if (args.size % 2 != 0) {
       logger.log(Level.SEVERE, "KNNPairNumberParamError",
         this.getClass.getName)
@@ -77,7 +70,7 @@ class KNNSeq extends TraitSeqClassifier {
       }
     }
 
-    // Si las variables no han sido asignadas con un valor correcto.
+    // If ‘k’ has an incorrect value.
     if (k <= 0) {
       logger.log(Level.SEVERE, "KNNWrongArgsValuesError")
       logger.log(Level.SEVERE, "KNNPossibleArgs")
@@ -93,7 +86,7 @@ class KNNSeq extends TraitSeqClassifier {
 
     val closest = knearestClasses(inst)
 
-    // Calculamos cuál es la clase predominante y la devolvemos.
+    // Compute the most common class among the closest neighbours.
     val classification = closest.groupBy(t => t._1).maxBy(t => t._2.length)
 
     classification._1
@@ -114,16 +107,16 @@ class KNNSeq extends TraitSeqClassifier {
   }
 
   /**
-   * Calcula aquellas instancias más cercanas a aquella que nos interesa.
+   * Gets the closer instances to a given data point.
    *
-   * @param  distances  Conjunto de clase-distancia a cada elemento del conjunto
-   * @return Conjunto de K elementos con clase-distancia al vecino más cercano.
-   *     Están ordenados de menor distancia a mayor.
+   * @param  distances  List with tuples (class, distance)
+   * @return Vector with the k tuples (class, distance) of the closest instances.
+   *     They are sorted in ascending order according to their distance to the point we
+   *     we are evaluating.
    */
   def knearestClasses(inst: Vector): ListBuffer[(Double, Double)] = {
 
-    // Calculamos la distancia a cada una de las instancias del conjunto de
-    // datos
+    // Compute distance to each datapoint.
     val distances = for { actualInst <- trainingData }
       yield (actualInst.label, distCalc.euclideanDistance(
       inst.toArray, actualInst.features.toArray))
@@ -132,16 +125,15 @@ class KNNSeq extends TraitSeqClassifier {
     var iter = distances.iterator
     closest += iter.next()
 
-    // Recorremos todas las distancias a las diferentes instancias
+    // For each data point
     while (iter.hasNext) {
       var actualInst = iter.next
-      // Si no tenemos todavía K vecinos almacenados
+      // If we have not selected more than k instances.
       if (closest.size < k) {
         closest += actualInst
       } else {
         var maxDist = closest.maxBy((t) => t._2)._2
-        // Si la distancia a una instancia es menor de lo encontrado hasta el
-        // momento
+        // If the distance is shorter than the maximum distance found so far.
         if (actualInst._2 < maxDist) {
           closest(closest.indexOf(closest.maxBy((t) => t._2))) = actualInst
         }

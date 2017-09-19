@@ -72,20 +72,20 @@ class UI extends MainFrame {
    */
   val downMenuPanel = new DownMenuPanel(this)
   /**
-   * Espacio dedicado a la selección de conjuntos de datos.
+   * Panel for selecting the dataset.
    */
   val datasetPanel = new DatasetPanel(true, "Conjunto de Datos")
   /**
-   * Espacio dedicado a la selección de filtros.
+   * Panel for selecting the filtering techniques.
    */
   val filterPanel = new FilterPanel(true, "Filtro")
   /**
-   * Espacio dedicado a la selección de clasificador y a los parámetros
-   * de la validación cruzada.
+   * Panel for selecting the classification algorithm and the
+   * cross-validation parameters.
    */
   val classifierPanel = new ClassifierPanel(this, Orientation.Vertical)
   /**
-   * Espacio dedicado a la selección las opciones de Spark.
+   * Panel with Spark options.
    */
   val sparkPanel = new SparkPanel(this, Orientation.Vertical)
 
@@ -108,15 +108,14 @@ class UI extends MainFrame {
   }
 
   /**
-   * Recolecta toda la información contenida en los diferentes paneles de la
-   * aplicación y genera con ella todos los comandos de ejecución posibles.
-   *
-   * @return Secuencia con todos los comandos de ejecución.
+   * Collect information from all the panels of the interface and generates all possible 
+   * execution commands for launching those data mining tasks.
+   * 
+   * @return Secuence with all the commands.
    */
   def getAllExecutionCommands(): IndexedSeq[String] = {
 
-    // Seleccionamos todas las opciones existentes en cada uno de los paneles
-    // de la aplicación
+    // Collect all the information from the panels.
     val sparkCommonOptions = sparkPanel.getCommonSparkOptions()
     val sparkHome = sparkCommonOptions(0)
     val sparkMaster = sparkCommonOptions(1)
@@ -126,10 +125,10 @@ class UI extends MainFrame {
     var classifierOptions = classifierPanel.getClassifierOptions()
     var crossValidationOptions =
       classifierPanel.getCrossValidationOptions()
-    // Variable resultado donde almacenaremos todas las opciones.
+    // Stores all the execution commands.
     var commands: ArrayBuffer[String] = ArrayBuffer.empty[String]
 
-    // Generamos todas las combinaciones de configuraciones posibles
+    // Generate all possible executions.
     sparkOptions.foreach { sparkOption =>
       var partialCommand = sparkOption
       datasetOptions.foreach { datasetOption =>
@@ -150,8 +149,7 @@ class UI extends MainFrame {
         }
       }
     }
-    // Añadimos a cada comando un apéndice al principio con información de
-    // Spark común para todos los comandos
+    // Add Spark parameters to all the commands.
     val completeCommands = for { i <- 0 until commands.size }
       yield sparkHome + " " + sparkMaster + " " + commands(i)
 
@@ -160,9 +158,10 @@ class UI extends MainFrame {
   }
 
   /**
-   * Cambia el texto que informa de la operación que se está realizando
-   * actualmente.
-   * @param sentence Nuevo texto
+   * Changes the value of the string that indicated whether
+   * there is an execution already in progress.
+   *
+   * @param sentence New string.
    */
   def changeInformationText(sentence: String): Unit = {
     downMenuPanel.actualOperation.text = sentence

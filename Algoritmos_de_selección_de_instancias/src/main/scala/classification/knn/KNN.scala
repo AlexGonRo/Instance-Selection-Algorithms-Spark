@@ -70,41 +70,43 @@ class KNN extends TraitClassifier {
   /**
    * Number of partitions on which we will divide the test set.
    *
-   * -1 para automáticamente calcular el número de acuerdo al peso máximo que
-   * indiquemos de cada partición ("auto-setting")
-   *
-   * TODO Actualmente no existe modo "auto-setting" implementado.
+   * -1 for auto-setting of this parameter according to the maximum
+   * allowed weight of each partition.
+   * 
+   * TODO "auto-setting" mode is not implemented.
    */
   var numReducePartitions = 1
 
   /**
-   * Tamaño máximo de una partición del conjunto de datos test.
-   * Únicamente tiene utilidad en el modo "auto-setting" del cálculo del número de
-   * particiones del conjunto de test.
-   * TODO Actualmetne no tiene uso.
+   * Maximum allowed weight of each partition the test set.
+   *
+   * It is only used if ‘numReducePartitions’ is set to ‘auto-setting’.
+   *
+   * TODO Not implemented.
    */
   var maxWeight = 0.0
 
   /**
-   * Algoritmo para calcular la distancia entre dos instancias.
+   * Algorithm to compute distance between instances.
+   * 
    * MANHATTAN = 1 ; EUCLIDEAN = 2 ; HVDM = 3
-   * TODO Actualmente no tiene uso.
+   *
+   * TODO Not implemented. Distance is always euclidean.
    */
   var distType = 2
 
   /**
-   * Semilla utilizada para la distribución aleatoria de instancias en el número de
-   * particiones que se pida.
+   * Seed.
    */
   var seed:Long = 1
 
   /**
-   * Contexto Spark en el que se ejecuta el algoritmo.
+   * Spark context.
    */
   private var sc: SparkContext = null
 
   override def train(trainingSet: RDD[LabeledPoint]): Unit = {
-  // TODO Evaluar cuánto de bueno es este método de distribuir las instancias.
+  // TODO Check how good this method is when distributing the instances.
     
     if (numPartitions != trainingSet.getNumPartitions) {
 
@@ -134,19 +136,18 @@ class KNN extends TraitClassifier {
     instances.persist
     val numSamplesTest = instances.count()
 
-    // numSamplesTest por iteración
+    // numSamplesTest per iteration
     var numIterations = numReducePartitions
     // Número de instancias de test por cada iteración.
     var inc = (numSamplesTest / numIterations).toInt
-    // top delimitador y sub delitmirador¿?
+    // top and sub limits.
     var subdel = 0
     var topdel = inc - 1
     if (numIterations == 1) { // If only one partition
       topdel = numSamplesTest.toInt + 1
     }
 
-    // TODO
-    // Muchos null aquí
+    // TODO Get rid of all these null values.
     var test: Broadcast[Array[Vector]] = null
     var result: RDD[(Long, Double)] = null
     var rightPredictedClasses: Array[Array[Array[Int]]] =
@@ -159,8 +160,8 @@ class KNN extends TraitClassifier {
     for (i <- 0 to numIterations - 1) {
 
       if (i == numIterations - 1) {
-        // TODO
-        // Este *2 es un apaño para coger todo lo que sobre.
+       // This ‘*2’ multiplication allows us to select everything that is left during
+       // the final iteration.
         test = broadcastTest(instances.filterByRange(subdel, topdel * 2).map(line => line._2).collect)
 
       } else {
@@ -185,16 +186,15 @@ class KNN extends TraitClassifier {
 
       }
 
-      // TODO El count es un apaño aquí para forzar la operación cada
-      // iteración, porque de lo contrario el
-      // planificador de tareas se lia con la sentencia knnInNodes.subdel = subdel
-      // Buscar solución
+      // TODO This count here forces the execution up until this point.
+      // Otherwise, the task manager gets confuse during the ‘knnInNodes.subdel = subdel’
+      // Look for a solution.
       result.count
 
       subdel = subdel + inc
       topdel = topdel + inc
       // TODO
-      // Esto era un destroy
+      // This was a ‘destroy’
       test.unpersist
 
     }
@@ -203,7 +203,7 @@ class KNN extends TraitClassifier {
 
   override def setParameters(args: Array[String]): Unit = {
 
-    // Comprobamos si tenemos el número de atributos correcto.
+    // Check that we received the correct number of attributes.
     if (args.size % 2 != 0) {
       logger.log(Level.SEVERE, "KNNPairNumberParamError",
         this.getClass.getName)
@@ -232,7 +232,7 @@ class KNN extends TraitClassifier {
       }
     }
 
-    // Si las variables no han sido asignadas con un valor correcto.
+    // If any of the variables has an incorrect value.
     if (k <= 0 || numPartitions <= 0 || numReduces <= 0 || numReducePartitions <= -1
       || maxWeight < 0 || distType < 1 || distType > 3) {
       logger.log(Level.SEVERE, "KNNWrongArgsValuesError")
@@ -243,11 +243,11 @@ class KNN extends TraitClassifier {
   }
 
   /**
-   * Crea yna variable de broadcast para distribuir un conjunto de instancias
-   * entre los nodos del sistema.
+   * Creates a broadcast variable so it can distribute a dataset among all the
+   * working ndoes.
    *
-   * @param data    Conjunto de instancias a distribuir.
-   * @param context Contexto Spark.
+   * @param data    Dataset
+   * @param context Spark context
    *
    */
   private def broadcastTest(data: Array[Vector]) = sc.broadcast(data)

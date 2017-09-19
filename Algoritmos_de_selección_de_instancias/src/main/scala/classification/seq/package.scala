@@ -1,6 +1,6 @@
 package classification
 
 /**
- * Implementaciones secuenciales de algoritmos de clasificación.
+ * Sequential implementations of different classification algorithms.
  */
 package object seq
