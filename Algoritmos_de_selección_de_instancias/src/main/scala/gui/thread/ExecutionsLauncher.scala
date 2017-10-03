@@ -10,27 +10,27 @@ import gui.util.TextOperations
 import utils.ArgsSeparator.READER_SEPARATOR
 
 /**
- * Clase destinada a la ejecución de una batería de ejecuciones de Spark.
+ * Runs a batch of data mining jobs in a different thread.
  *
- * Los datos obtenidos para las ejecuciones serán los proporcionados por los
- * diferentes campos de la interfaz gráfica.
+ * The parameters of these data mining jobs will be taken from the different panels
+ * of our graphical interface.
  *
- * @param parent Ventana principal de la aplicación.
- * @constructor Genera una nueva clase con capacidad de realizar ejecuciones
- *   de tareas de minería en segundo plano.
+ * @param parent Main window of the interface.
+ * @constructor Creates a new object that is able to launch a data mining job in a
+ *    different thread.
  */
 class ExecutionsLauncher(parent: UI) extends Runnable {
 
   /**
-   * Representación del separador de directorios.
+   * File separator of the system.
    */
   private val fsep = System.getProperty("file.separator")
   /**
-   * Código de error si no encontramos el script de Spark.
+   * Error code if Spark is not found.
    */
   private val noSparkError = 127
   /**
-   * Código de error si no encontramos nuestra librería.
+   * Error code if we do not find our library jar.
    */
   private val noLibError = 101
   /**
@@ -38,12 +38,14 @@ class ExecutionsLauncher(parent: UI) extends Runnable {
    */
   private val executionError = 1
   /**
-   * Código del programa si ha funcionado correctamente.
+   * Code of a successful execution.
    */
   private val correctExecution = 0
 
   /**
-   * Realiza el experimento definido a lo largo de la interfaz.
+   * Run a batch of experiments.
+   *
+   * These experiments have been defined by the user using the graphical interface.
    */
   def run(): Unit = {
     parent.working = true
@@ -57,8 +59,9 @@ class ExecutionsLauncher(parent: UI) extends Runnable {
     loop.breakable {
       for { i <- 0 until commands.size } {
         val shCommand = createSHCommand(commands(i))
+        // TODO HARDCODED text bellow.
         parent.changeInformationText(
-          "Realizando operación " + (i + 1) + " de " + commands.size + "...")
+          “Running experiment " + (i + 1) + " out of " + commands.size + "...")
         lastOutput = Process("sh", TextOperations.splitTextWithSpaces(shCommand)).!
         val (goodExec, fatal) = checkOutput(lastOutput)
         if (!goodExec && !fatal) {
@@ -77,10 +80,11 @@ class ExecutionsLauncher(parent: UI) extends Runnable {
   }
 
   /**
-   * Comprueba si la ejecución ha lanzado un código de error conocido
-   * @param Código de salida de una ejecución
-   * @return Primer valor indica si la ejecución es buena o mala. Segundo,
-   *   si el error es fatal.
+   * Checks if the command we launched emitted an error code.
+   * @param Output code of our execution.
+   * @return Tuple of boolean values. The first value states whether the experiment
+   *    was correctly executed and the second one if there was a fatal error during
+   *    execution.
    */
   private def checkOutput(output: Int): (Boolean, Boolean) = {
 
@@ -95,49 +99,51 @@ class ExecutionsLauncher(parent: UI) extends Runnable {
   }
 
   /**
-   * Emite un diálogo final en función de cómo ha ido la ejecución
-   * @param numErros Número de errores contabilizados
-   * @param numExec Número total de ejecuciones
+   * Prints final message with the number of errors that were found during
+   * the execution of the batch.
+   *
+   * @param numErrors Number of errors found
+   * @param numExec Total number of data mining tasks.
    */
   private def printFinalMessage(numErrors: Int,
                                 posErrors: ArrayBuffer[Int],
                                 numExec: Int,
                                 lastOutput: Int,
                                 fatalError: Boolean): Unit = {
-
+    // TODO Strings here are hardcoded
     if (fatalError) {
       if (lastOutput == noSparkError) {
-        Dialog.showMessage(null, "No se pudo localizar Spark y " +
-          "las ejecuciones quedan canceladas.")
+        Dialog.showMessage(null, “Spark could not be found. The " +
+          “Execution has been cancelled.”)
       } else {
-        Dialog.showMessage(null, "No pudo localizarse la librería " +
-          "ISAlgorithms y las ejecuciones quedan canceladas")
+        Dialog.showMessage(null, “I could not find the " +
+          "ISAlgorithms library. The execution has been cancelled.")
       }
     } else {
       if (numErrors == 0) {
-        Dialog.showMessage(null, "Todas las operaciones han sido completadas.")
+        Dialog.showMessage(null, “All the tasks were completed successfully.“)
       } else if (numErrors < numExec) {
         var failedExecutions = ""
         for { x <- posErrors } {
           failedExecutions = failedExecutions.concat(x.toString).concat(", ")
         }
         failedExecutions = failedExecutions.dropRight(2)
-        Dialog.showMessage(null, "Algunas operaciones no pudieron " +
-          "completarse debido a un error. Identificador de las ejecución/es " +
-          "fallidas: " + failedExecutions + ".")
+        Dialog.showMessage(null, “Some of the executions could not be " +
+          “Completed due to an execution error. ID of the uncompleted executions: " +
+          + failedExecutions + ".")
       } else {
-        Dialog.showMessage(null, "Ha habido un error en todas las ejecuciones.")
+        Dialog.showMessage(null, “There has been an error in absolutely all the executions.“)
       }
     }
   }
 
   /**
-   * Genera una sentencia que corresponde a la ejecución de una configuración
-   * en una consola de comandos.
+   * Creates an SH command that is able to launch a data mining task.
    *
-   * @param command Texto con la configuración que queremos convertir.
+   * @param command Text that contains all the information we want to include in
+   * the execution command.
    *
-   * @return Comando de ejecución en consola.
+   * @return SH command.
    */
   private def createSHCommand(command: String): String = {
     var commandSplited = command.split(" ")

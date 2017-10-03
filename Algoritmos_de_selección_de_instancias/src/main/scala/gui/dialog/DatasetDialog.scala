@@ -19,14 +19,12 @@ import javax.swing.JTextField
 import javax.swing.border.EmptyBorder
 
 /**
- * Diálogo que permite la selección de un conjunto de datos y de las opciones
- * necesarias para poder leer correctamente el archivo.
+ * Allows the user to select a dataset and specify all the necessary parameters
+ * to read such dataset.
  *
- * @constructor Genera un nuevo panel con todos los componentes para poder indicar
- *   la selección de un nuevo conjunto de datos.
- * @param  myParent  Panel que ha creado este diálogo.
- * @param  modal  Si el diálogo debe bloquear o no la interacción con el resto
- *   de la interfaz mientras esté abierto.
+ * @constructor Creates and draws the panel.
+ * @param  myParent  Parent panel.
+ * @param  modal  If the dialog must block the parent window or not.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -34,69 +32,67 @@ import javax.swing.border.EmptyBorder
 class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
 
   /**
-   * Comando generado al traducir toda la información del diálogo a una cadena
-   * de texto que la clase de ejecución pueda entender.
+   * Part of the execution command that states which and how a dataset should be read.
    */
   var command = ""
 
-  // Elementos de la ventana
+  // PANEL COMPONENTS
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margins of the children panels.
    */
   private val tdb = 6
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Lateral margins of the children panels.
    */
   private val lb = 10
   /**
-   * Separación entre los elementos del panel que contiene las opciones para
-   * la lectura del conjunto de datos.
+   * Distance between labels and the text boxes that allow us to configure those
+   * panels.
    */
   private val vgap = 20
   /**
-   * Texto para el conjunto de datos.
+   * Dataset label.
    */
-  private val cdLabel = new JLabel("Conjunto de datos")
+  // TODO More hardcoded text.
+  private val cdLabel = new JLabel(“Dataset”)
   /**
-   * Campo de texto donde incluir la ruta del fichero.
+   * Text box for the path to the dataset.
    */
   private val cdTextField = new JTextField
   /**
-   * Botón para poder seleccionar un fichero que contenga el conjunto
-   * de datos.
+   * Button that allows us to choose the dataset.
    */
-  private val chooseButton = new JButton("Elegir...")
+  private val chooseButton = new JButton(“Choose…”)
   /**
-   * Texto para indicar que estamos tratando opciones referentes al
-   * atributo de clase.
+   * Label for the “Class attribute”.
    */
-  private val classAttPosLabel = new JLabel("Atributo de clase")
+  private val classAttPosLabel = new JLabel(“Class attribute“)
   /**
-   * Conjunto de opciones para seleccionar la posición del atributo de clase.
+   * Options for the class attribute position.
    */
   private val classAttGroup = new ButtonGroup()
   /**
-   * Opción para seleccionar el atributo de clase como el primero
+   * Option to highlight that the first attribute is the class attribute.
    */
-  private val firstRadioButton = new JRadioButton("Primero")
+  private val firstRadioButton = new JRadioButton(“First”)
   classAttGroup.add(firstRadioButton)
   /**
-   * Opción para seleccionar el atributo de clase como el último.
+   * Option to highlight that the last attribute is the class attribute.
    */
   private val lastRadioButton = new JRadioButton("Último", true)
   classAttGroup.add(lastRadioButton)
 
   /**
-   * Texto para indicar que estamos hablando sobre la cabecera.
+   * Header label.
    */
-  private val headCheckBox = new JCheckBox("Cabecera")
+  private val headCheckBox = new JCheckBox(“Header”)
   /**
-   * Campo para indicar el número de lineas de cabecera.
+   * Text field for the number of header lines.
    */
   private val numHeaderLinesTextField = new JTextField("0")
 
   /**
-   * Selector de ficheros para buscar un conjunto de datos.
+   * File selector for the dataset.
    */
   private var fileChooser = new JFileChooser()
   fileChooser.setCurrentDirectory(new java.io.File("."))
@@ -105,17 +101,17 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   fileChooser.setAcceptAllFileFilterUsed(true)
 
   /**
-   * Botón para aceptar.
+   * “Ok” button.
    */
   private val okButton = new JButton("Añadir")
   /**
-   * Botón para cancelar.
+   * “Cancel” button.
    */
   private val cancelButton = new JButton("Cancelar")
 
-  // Paneles del diálogo
+  // DIALOG PANELS.
   /**
-   * Panel que permite seleccionar un conjuto de datos.
+   * Panel that allows the user to select a dataset.
    */
   private val panel1 = new JPanel()
   panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
@@ -125,15 +121,14 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   panel1.add(chooseButton)
 
   /**
-   * Panel para cofigurar las diferentes opciones de lectura del
-   * conjunto de datos
+   * Panel with the different options for reading the dataset.
    */
   private val panel2 = new JPanel()
   panel2.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
   panel2.setLayout(new GridLayout(1, 2, 0, vgap))
   /**
-   * Muestra opciones para indicar donde estará el atributo de clase de las
-   * instancias.
+   * Options that allow the user to indicate where the class attribute
+   * is.
    */
   private val panel21 = new JPanel
   panel21.setLayout(new BoxLayout(panel21, BoxLayout.X_AXIS))
@@ -141,8 +136,7 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   panel21.add(firstRadioButton)
   panel21.add(lastRadioButton)
   /**
-   * Muestra opciones para configurar la lectura de la cabecera del fichero,
-   * si es que la tiene.
+   * Options to remove the header of the dataset (if any).
    */
   private val panel22 = new JPanel
   panel22.setLayout(new BoxLayout(panel22, BoxLayout.X_AXIS))
@@ -153,7 +147,7 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   panel2.add(panel22)
 
   /**
-   * Contiene los botones para aceptar/cancelar el contenido del diálogo.
+   * “Ok” and “Cancel” buttons
    */
   private val panel3 = new JPanel()
   panel3.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
@@ -161,14 +155,14 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   panel3.add(cancelButton)
   panel3.add(okButton)
 
-  // Añadimos los paneles a nuestro dialogo
+  // Add panels to our dialog.
   setTitle("Añadir nuevo conjunto de datos")
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(panel1)
   add(panel2)
   add(panel3)
 
-  // Añadimos diferentes "listener" a los componentes
+  // Add listeners.
   chooseButton.addActionListener(new ActionListener() {
     def actionPerformed(evt: ActionEvent): Unit = {
       chooseActionPerformed(evt)
@@ -193,9 +187,9 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
   setVisible(true);
 
   /**
-   * Acción realizada cuando presionamos el botón de selección.
+   * Action after pressing the “Select” button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event generated after pressing the “Select” button.
    */
   private def chooseActionPerformed(evt: ActionEvent): Unit =
     {
@@ -208,9 +202,9 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
     }
 
   /**
-   * Acción realizada cuando presionamos el botón de aceptar.
+   * Action for when the user clicks the “Ok” button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event of the “Ok” button.
    */
   private def okActionPerformed(evt: ActionEvent): Unit =
     {
@@ -225,9 +219,9 @@ class DatasetDialog(myParent: DatasetPanel, modal: Boolean) extends JDialog {
     }
 
   /**
-   * Acción realizada cuando presionamos el botón de cancelar.
+   * Action for when the user clicks the “Cancel” button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event of the “Cancel” button.
    */
   private def cancelActionPerformed(evt: ActionEvent): Unit =
     {

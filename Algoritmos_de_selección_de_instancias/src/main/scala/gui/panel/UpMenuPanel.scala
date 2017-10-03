@@ -21,53 +21,51 @@ import javax.swing.JScrollPane
 import javax.swing.WindowConstants
 
 /**
- * Panel que contiene la cabecera de la interfaz gráfica.
+ * GUI header.
  *
- * Esta cabecerá está dedicada a posibilitar el acceso a información sobre
- * la aplicación y haciendo posible el poder acceder a un área de ayuda donde
- * se explique el funcionamiento de cada uno de los componentes de la interfaz.
+ * It shows a couple of buttons that allow access to some basic information about this library and a small tutorial on how to use it.
  *
- * @constructor Genera un panel que permita acceder a las
- *   secciones de ayuda e información.
- * @param parent Ventana desde donde se han invocado este panel.
+ * @param parent Parent panel.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
 class UpMenuPanel(val parent: UI) extends BorderPanel {
 
-  // Componentes
+  // PANEL COMPONENTS
   /**
-   * Tamaño horizontal de la ventana de ayuda.
+   * Width of the help dialog.
    */
   private val helpHSize = 500
   /**
-   * Tamaño vertical de la ventana de ayuda.
+   * Height of the help dialog.
    */
   private val helpVSize = 900
   /**
-   * Botón para invocar la información sobre el proyecto.
+   * Button that shows information about this library.
    */
-  private val aboutButton = new Button("Acerca de...")
+   // TODO Hardcoded text
+  private val aboutButton = new Button(“About…”)
   /**
-   * Botón para invocar la ayuda.
+   * Help button.
    */
-  private val helpButton = new Button("Ayuda...")
+   // TODO Hardcoded text
+  private val helpButton = new Button(“Help…”)
   /**
-   * Título de la interfaz.
+   * Title of this library.
    */
   private val titleLabel = new Label("TFG - Alejandro González Rogel")
   titleLabel.font =
     new Font(titleLabel.font.toString, Font.BOLD, titleLabel.font.getSize + 5)
 
-  // Añadimos los componentes
+  // Add all the components.
   layout += titleLabel -> West
   layout += new BoxPanel(Orientation.Horizontal) {
     contents += aboutButton
     contents += helpButton
   } -> East
 
-  // Listener y eventos
+  // Listener and events.
   listenTo(aboutButton)
   listenTo(helpButton)
   reactions += {
@@ -80,7 +78,7 @@ class UpMenuPanel(val parent: UI) extends BorderPanel {
   }
 
   /**
-   * Muestra un cuadro de diálogo con la ayuda de la aplicación.
+   * Shows a dialog panel with information about the library.
    */
   private def helpButtonAction(): Unit = {
 
@@ -90,7 +88,8 @@ class UpMenuPanel(val parent: UI) extends BorderPanel {
     val in = getClass.getResource(htmlPath).toString()
     val url = new URL(in);
     val panelEditor = new JEditorPane(url);
-    val newFrame = new JFrame("Ayuda");
+    // TODO Hardcoded text
+    val newFrame = new JFrame(“Help”);
     newFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     newFrame.add(new JScrollPane(panelEditor));
     newFrame.setSize(new Dimension(helpVSize, helpHSize))

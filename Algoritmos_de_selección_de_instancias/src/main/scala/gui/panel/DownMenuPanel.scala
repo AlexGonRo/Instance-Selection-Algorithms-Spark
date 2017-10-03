@@ -15,17 +15,13 @@ import gui.thread.ExecutionsLauncher
 import gui.thread.ZipCreator
 
 /**
- * Panel que contiene las opciones de ejecución de la interfaz.
+ * Panel that allows the user to execute an action (execute task or create .zip).
  *
- * Contiene, además de un texto informativo sobre el estado de la interfaz,
- * un par de botones que permiten la inicialización de las tareas para las que
- * está pensada la interfaz: la creación de un fichero .zip con las
- * configuraciones seleccionadas previamente y la propia ejecución de los
- * experimentos.
+ * It also contains a text that informs the user if there is any other
+ * operation running.
  *
- * @constructor Genera un panel con los componentes necesarios
- *   para poder lanzar una ejecución.
- * @param parent Ventana desde donde se han invocado este panel.
+ * @constructor Create and draw this panel.
+ * @param parent Parent panel.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -33,25 +29,24 @@ import gui.thread.ZipCreator
 class DownMenuPanel(parent: UI) extends BorderPanel {
 
   /**
-   * Texto que indica si existe una operación en proceso.
+   * Text that informs the user if there is any other operation already running.
    *
-   * De ser este el caso, este texto será descriptivo de la tarea que se
-   * esté realizando.
    */
   val actualOperation = new Label()
 
   // Componentes
   /**
-   * Botón para realizar la compresión de los ficheros para realizar un
-   * experimento.
+   * Button that starts the creation of a .zip file with all the necessary
+   * information and data for the execution of a data mining task in a remote
+   * computer.
    */
   private val zipButton = new Button("ZIP")
   /**
-   * Botón para ejecutar un experimento desde la interfaz.
+   * Button that executes a data mining task directly on this computer.
    */
-  private val executeButton = new Button("Ejecutar")
+  private val executeButton = new Button(“Run”)
 
-  // Añadimos los componentes
+  // Add all the component.
 
   layout += actualOperation -> West
   layout += new BoxPanel(Orientation.Horizontal) {
@@ -59,14 +54,15 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
     contents += executeButton
   } -> East
 
-  // Listeners y eventos
+  // Listeners and events
   listenTo(zipButton)
   listenTo(executeButton)
   reactions += {
 
     case ButtonClicked(`executeButton`) => {
       if (parent.working) {
-        Dialog.showMessage(this, "Hay una operación en curso")
+        // TODO More hardcoded text.
+        Dialog.showMessage(this, “There is some other operation already running.“)
       } else {
         var execThread = new Thread(new ExecutionsLauncher(parent))
         execThread.start()
@@ -76,7 +72,8 @@ class DownMenuPanel(parent: UI) extends BorderPanel {
 
     case ButtonClicked(`zipButton`) => {
       if (parent.working) {
-        Dialog.showMessage(this, "Hay una operación en curso")
+        // TODO More hardcoded text.
+        Dialog.showMessage(this, "There is some other operation already running.")
       } else {
         var zipThread = new Thread(new ZipCreator(parent))
         zipThread.start()

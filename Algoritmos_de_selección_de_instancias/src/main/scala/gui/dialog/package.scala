@@ -1,6 +1,6 @@
 package gui
 
 /**
- * Diálogos mostrados durante la ejecución de la interfaz.
+ * Dialog windows of the GUI.
  */
 package object dialog

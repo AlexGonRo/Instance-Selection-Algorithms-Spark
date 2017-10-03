@@ -17,17 +17,15 @@ import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
 
 /**
- * Panel que contiene todo lo referente a la configuración del clasificador.
+ * Panel with information about the Spark configuration.
  *
- * Este panel contendrá dos secciones, una donde se podrán definir una serie de
- * parámetros comúnes para cualquier ejecución realizada y otra donde poder
- * indicar configuraciones específicas para cada ejecución.
+ * This panel has two main sections: one allows to select Spark parameters that
+ * will affect all the programmed executions and a second section that allows
+ * for the configuration of some parameters that will be execution specific.
  *
- * @constructor Genera un panel que permita seleccionar una o varias
- * configuraciones para Spark.
- * @param parent Ventana desde donde se han invocado este panel.
- * @param Orientación, vertical u horizontal, en la que se irán situando
- *   los diferentes componentes del panel.
+ * @constructor Create and display this panel.
+ * @param parent Parent window where this panel will be drawn.
+ * @param Position for this panel on the general layout.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -36,45 +34,44 @@ class SparkPanel(val parent: UI,
                  orientation: Orientation.Value) extends BoxPanel(orientation) {
 
   /**
-   * Configuraciones seleccionadas hasta el momento.
+   * Defined configurations so far.
    */
   var seqConfigurations = new ArrayBuffer[String]
 
-  // Componentes
+  //COMPONENTS OF THE INTERFACE
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margins for the children panels.
    */
   private val tdb = 3
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Latteral margins for the children panels.
    */
   private val lb = 10
   /**
-   * Espacio entre el texto del directorio de Spark y su campo de texto.
+   * Distance between the Spark path text and the text box.
    */
   private val sparkHGap = 14
   /**
-   * Espacio entre el texto del master y su campo de texto
+   * Distance between the “Master” text and the text box.
    */
   private val masterHGap = 51
   /**
-   * Texto descriptivo para el campo que indica el lugar de instalación
-   * de Spark.
+   * Text for the “Spark path” label
    */
   private val sparkHomeLabel = new Label("Spark_Home")
   /**
-   * Campo donde introducir el lugar de instalación de Spark.
+   * Text box for Spark’s path.
    */
   private val sparkHomeTextField = new TextField()
   sparkHomeTextField.tooltip = "Directorio de instalación de Spark."
   sparkHomeTextField.text = sys.env.get("SPARK_HOME").getOrElse("")
 
   /**
-   * Texto descriptivo para indicar el master a usar en la ejecución.
+   * Text for the Master label.
    */
   private val masterLabel = new Label("Master")
   /**
-   * Campo donde indicar el master a usar en la ejecución.
+   * Text field for writing the master node.
    */
   private val masterTextField = new TextField()
   masterTextField.tooltip = "URL del nodo master. local[n]" +
@@ -84,7 +81,7 @@ class SparkPanel(val parent: UI,
 
   border = new TitledBorder(new LineBorder(Color.BLACK, 1, true), "Spark")
 
-  // Añadimos los componentes al panel
+  // Add all the component to the panel.
 
   contents += new BoxPanel(Orientation.Horizontal) {
     border = new EmptyBorder(tdb, lb, tdb, lb)
@@ -102,17 +99,16 @@ class SparkPanel(val parent: UI,
   contents += sparkListPanel
 
   /**
-   * Selecciona las opciones de Spark comunes a todas las ejecuciones.
+   * Collect all the options that are common for all the executions.
    *
-   * Los parámetros comunes son: Spark_Home y Master.
+   * The common options are: Spark_Home y Master.
    *
-   * @return Opciones comunes a todas las ejecuciones.
+   * @return Common options.
    */
   def getCommonSparkOptions(): Array[String] = {
 
     var sparkHomeText = sparkHomeTextField.text
-    // Si la ruta al home no contiene la barra divisora de directorios
-    // al final, la añadimos.
+    // If the path does not have a file separator at the end, add it.
     if (!sparkHomeText.endsWith(System.getProperty("file.separator"))) {
       sparkHomeText = sparkHomeText.concat(System.getProperty("file.separator"))
     }
@@ -120,22 +116,18 @@ class SparkPanel(val parent: UI,
   }
 
   /**
-   * Selecciona todas las configuraciones de Spark seleccionadas hasta el
-   * momento.
+   * Select all the individual Spark configurations defined so far.
    *
-   * @return Listado con todas las configuraciones.
+   * @return Specific Spark configurations.
    */
   def getSparkConfOptions(): Array[String] = {
     sparkListPanel.seqConfigurations.toArray
   }
 
   /**
-   * Panel que contiene una lista con todas las configuraciones de Spark
-   * seleccionadas hasta la fecha.
+   * Panel that shows all the Spark configurations defined so far.
    *
-   * También presenta unos botones, necesarios para administrar los
-   * elementos de la mencionada lista,que permiten operaciones para añadir
-   * o eliminar elementos.
+   * It also contains a few buttons to add or delete elements.
    */
   private class SparkListPanel extends ListPanelAbst {
 
@@ -143,8 +135,9 @@ class SparkPanel(val parent: UI,
       val confDialog = new SparkDialog(this.peer, true)
       val conf = confDialog.command
       if (confAlreadyExists(conf)) {
-        Dialog.showMessage(this, "La configuración introducida ya existía " +
-          "con anterioridad.")
+	// TODO Hardcoded text.
+        Dialog.showMessage(this, “The chosen configuraiton " +
+          “had been already defined.”)
       } else if (conf != "") {
         seqConfigurations += conf
         confList.listData = seqConfigurations

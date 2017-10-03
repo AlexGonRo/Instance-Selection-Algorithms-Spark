@@ -12,9 +12,9 @@ import javax.swing.JDialog
 import javax.swing.JLabel
 
 /**
- * Diálogo que muestra información sobre la aplicación.
+ * Dialog box with information about this library.
  *
- * @constructor Genera una ventana con toda la información sobre el proyecto.
+ * @constructor Creates a new dialog.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -22,49 +22,50 @@ import javax.swing.JLabel
 class AboutDialog extends JDialog {
 
   /**
-   * Tamaño horizontal del diálogo.
+   * Width of the dialog box.
    */
   private val xDim = 600
   /**
-   * Tamaño vertical del diálogo.
+   * Height of the dialog box.
    */
   private val yDim = 160
 
   /**
-   * Espacio horizontal entre elementos
+   * Horizontal space between elements.
    */
   private val hspace = 10
 
-  // Elementos de la ventana
   /**
-   * Texto con el título del proyecto.
+   * Title of the project.
    */
+  // TODO HARDCODED TEXT
   private val titleLabel = new JLabel("Trabajo Final del Grado de Ingeniería " +
     "Informática de la Universidad de Burgos.")
   titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT)
   /**
-   * Texto con el autor.
+   * Author text.
    */
   private val autorLabel = new JLabel("Autor: Alejandro González Rogel")
   autorLabel.setAlignmentX(Component.CENTER_ALIGNMENT)
   /**
-   * Texto con uno de los tutores.
+   * First supervisor text.
    */
   private val tutor1Label = new JLabel("Tutor: Álvar Arnaiz González")
   tutor1Label.setAlignmentX(Component.CENTER_ALIGNMENT)
   /**
-   * Texto con otro de los tutores.
+   * Second supervisor text.
    */
   private val tutor2Label = new JLabel("Carlos López Nozal")
   tutor2Label.setAlignmentX(Component.CENTER_ALIGNMENT)
   /**
-   * Botón de aceptar.
+   * Ok button.
    */
   private val okButton = new javax.swing.JButton("Ok")
   okButton.setAlignmentX(Component.CENTER_ALIGNMENT)
 
-  // Añadimos todos los elementos al diálogo
-  setTitle("Acerca de...")
+  // Add all the elements.
+  // TODO Hardcoded text
+  setTitle(“About…”)
   setSize(new Dimension(xDim, yDim))
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(Swing.VStrut(hspace).peer)
@@ -86,9 +87,9 @@ class AboutDialog extends JDialog {
   })
 
   /**
-   * Acción realizada cuando se pulsa el botón de OK del diálogo.
+   * Action for when the user clicks the OK button.
    *
-   * @param  evt Acción producida al pinchar sobre el botón.
+   * @param  evt Event produced when the OK button is clicked.
    */
   private def okButtonAction(evt: ActionEvent): Unit =
     {

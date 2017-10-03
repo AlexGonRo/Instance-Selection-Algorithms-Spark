@@ -1,6 +1,6 @@
 package gui
 
 /**
- * Paneles de la interfaz.
+ * Main panels of our graphical interface.
  */
 package object panel

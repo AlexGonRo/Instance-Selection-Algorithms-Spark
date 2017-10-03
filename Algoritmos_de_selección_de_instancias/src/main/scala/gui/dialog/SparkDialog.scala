@@ -13,87 +13,95 @@ import javax.swing.JTextField
 import javax.swing.border.EmptyBorder
 
 /**
- * Diálogo que permite configurar algunas de las opciones de ejecución de Spark.
+ * Dialog window that allows the user to tune some Spark parameters for the execution
+ * of the data mining tasks.
  *
- * @constructor  Genera un diálogo con todos los campos posibles para seleccionar
- *   opciones de lanzamiento de Spark.
- * @param  myParent  Panel que ha creado este diálogo.
- * @param  modal  Si el diálogo debe bloquear o no la interacción con el resto
- *   de la interfaz mientras esté abierto.
- *
+ * @constructor Create and draw a new dialog.
+ * 
+ * @param  myParent  Parent panel.
+ * @param  modal  Whether this dialog should bock the rest of the interface.
+
  * @author Alejandro González Rogel
  * @version 1.0.0
  */
 class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
-
-  /**
-   * Comando generado al traducir toda la información del diálogo a una cadena
-   * de texto que la clase de ejecución pueda entender.
+  
+  /*
+   * Command that translates the selected configuration into a string for the
+   * library.
    */
   var command = ""
 
-  // Componentes del diálogo
+  // DIALOG COMPONENTS
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margin of the children panels.
    */
   private val tdb = 6
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Lateral margin of the children panels.
    */
   private val lb = 10
   /**
-   * Espacio de separación entre los diferentes componentes de un layout
-   * cuadriculado
+   * Distance between the different components of the grid layout.
    */
   private val gGap = 5
   /**
-   * Texto indicando el número de nucleos por ejecutor.
+   * Field for the number of cores per executor.
    */
-  private val coresExecutorLabel = new JLabel("Número de núcleos por ejecutor")
+  private val coresExecutorLabel = new JLabel(“Number of cores per executor“)
   /**
-   * Campo para seleccionar el número de nucleos por ejecutor.
+   * Field to add the number of cores per executor.
    */
   private val coresExecutorTextField = new JTextField(2)
   /**
-   * Texto indicando el número de nucleos totales.
+   * Label total number of cores.
    */
-  private val totalCoresLabel = new JLabel("Número de núcleos totales")
+  private val totalCoresLabel = new JLabel(“Total number of cores“)
   /**
-   * Campo para seleccionar el número de nucleos totales.
+   * Field to select the maximum number of cores.
    */
   private val totalCoresTextField = new JTextField(2)
   /**
-   * Texto indicando la memoria asignada a cada ejecutor.
+   * Label “Memory per executor.”
    */
-  private val memExecutorLabel = new JLabel("Memoria por ejecutor")
+  private val memExecutorLabel = new JLabel("Memory per executor“)
   /**
-   * Campo para seleccionar la cantidad de memoria por ejecutor.
+   * Field to specify the memory used per executor.
    */
   private val memExecutorTextField = new JTextField(2)
 
   /**
-   * Botón para aceptar una nueva configuración.
+   * Button to add a new configuration.
    */
   private val okButton = new JButton("Añadir")
   /**
-   * Botón para cancelar y cerrar el diálogo.
+   * Cancel button.
+   *
+   * It closes the dialog.
    */
   private val cancelButton = new JButton("Cancelar")
 
-  // Asignamos tooltips a los campos de texto.
-
-  coresExecutorTextField.setToolTipText("Número de núcleos usados" +
-    "por cada unidad ejecutora (executor).")
-  totalCoresTextField.setToolTipText("Número total de núcleos para " +
-    "usignar a una tarea.")
-  memExecutorTextField.setToolTipText("Cantidad de memoria usada por " +
-    "unidad ejecutora (executor). DEBE INDICARSE UNIDAD " +
+  // Add tips to the Textfilds.
+  // TODO Hardcoded text.
+  coresExecutorTextField.setToolTipText(“Number of cores used“ +
+    “per executor")
+  totalCoresTextField.setToolTipText(“Number of cores per task")
+  memExecutorTextField.setToolTipText(“Memory per executor. " +
+    “YOU MUST SPECIFY THE ORDER OF MAGNITUDE " +
     "(m=mebibytes,g=gibibytes)")
 
-  // Paneles
+  //coresExecutorTextField.setToolTipText("Número de núcleos usados" +
+  //  "por cada unidad ejecutora (executor).")
+  //totalCoresTextField.setToolTipText("Número total de núcleos para " +
+  //  "usignar a una tarea.")
+  //memExecutorTextField.setToolTipText("Cantidad de memoria usada por " +
+  //  "unidad ejecutora (executor). DEBE INDICARSE UNIDAD " +
+  //  "(m=mebibytes,g=gibibytes)")
 
+
+  // PANELS
   /**
-   * Panel con los diferentes campos a rellenar.
+   * Panel with all the options we can modify.
    */
   private val panel1 = new JPanel()
   panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
@@ -106,7 +114,7 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   panel1.add(memExecutorTextField)
 
   /**
-   * Panel con los botones para aceptar/cancelar una determinada configuración.
+   * Panel with add/cancel a new configuration.
    */
   private val panel2 = new JPanel()
   panel2.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
@@ -114,14 +122,13 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   panel2.add(cancelButton)
   panel2.add(okButton)
 
-  // Añadimos todos los elementos a la ventana
+  // Add all the components to the panel.
   setTitle("Añadir nueva configuración de Spark")
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(panel1)
   add(panel2)
 
-  // Añadimos a los botones la capacidad de escuchar eventos lanzados
-  // al seleccionarlos.
+  // Add listeners
   okButton.addActionListener(new ActionListener() {
     def actionPerformed(evt: ActionEvent): Unit = {
       okActionPerformed(evt);
@@ -140,9 +147,9 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   setVisible(true);
 
   /**
-   * Acción realizada cuando presionamos el botón de aceptar.
+   * Action for when the user presses the Ok button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event generated after clicking the Ok button.
    */
   private def okActionPerformed(evt: ActionEvent): Unit =
     {
@@ -153,9 +160,9 @@ class SparkDialog(myParent: JPanel, modal: Boolean) extends JDialog {
     }
 
   /**
-   * Acción realizada cuando presionamos el botón de cancelar.
+   * Action for when the user presses the Cancel button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event generated after clicking the Cancel button.
    */
   private def cancelActionPerformed(evt: ActionEvent): Unit =
     {

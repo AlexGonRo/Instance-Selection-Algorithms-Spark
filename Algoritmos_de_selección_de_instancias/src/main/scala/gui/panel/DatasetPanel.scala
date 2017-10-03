@@ -5,15 +5,12 @@ import scala.swing.Dialog
 import gui.dialog.DatasetDialog
 
 /**
- * Panel que contiene todo lo referente a la configuración del conjunto de
- * datos.
+ * Panel with information about the datasets.
  *
- * @constructor Genera un panel que permita seleccionar una o varias
- * configuraciones para conjuntos de datos.
- * @param printBorder Indica si se desea generar un borde alrededor del panel
- *  que defina sus límites.
- * @param Genera un panel compuesto por una lista y dos botones que
- *   permiten gestionarla.
+ * @constructor Creates and draws a panel that allows the user to select the
+ * datasets.
+ * @param printBorder Whether we want to draw a line around this panel components.
+ * @param Title Title of this panel.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -26,8 +23,8 @@ class DatasetPanel(printBorder: Boolean,
     val confDialog = new DatasetDialog(this, true)
     val conf = confDialog.command
     if (confAlreadyExists(conf)) {
-      Dialog.showMessage(this, "La configuración introducida ya existía " +
-        "con anterioridad.")
+      // TODO HARDCODED TEXT
+      Dialog.showMessage(this, “This configuration had been already defined.”)
     } else if (conf != "") {
       seqConfigurations += conf
       confList.listData = seqConfigurations

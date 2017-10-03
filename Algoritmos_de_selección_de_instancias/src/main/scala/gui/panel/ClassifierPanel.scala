@@ -20,17 +20,15 @@ import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
 
 /**
- * Panel que contiene todo lo referente a la configuración del clasificador y de
- * la validación cruzada.
+ * Panel for the classifier information and cross-validation options.
  *
- * En un primer momento, ningún clasificador aparece seleccionado, pero es
- * posible que la elección de uno afecte al contenido del panel, que incluirá
- * nuevos componentes para permitir configurar el clasificar indicado.
- *
- * @constructor  Genera un nuevo espacio donde poder seleccionar un nuevo
- * clasificador.
- * @param parent  Ventana desde donde se ha invocado este panel
- * @param orientation  Orientación del contenido mostrado en el panel.
+ * About the classifiers, it shows which configuration have been defined so far
+ * and it allows to create a new one. Information about cross-validation is
+ * always present.
+
+ * @constructor  Create and draw a new panel.
+ * @param parent  Parent panel. 
+ * @param orientation  Orientation of the panel elements.
  *
  *
  * @author Alejandro González Rogel
@@ -41,73 +39,69 @@ class ClassifierPanel(parent: UI,
     extends BoxPanel(orientation) {
 
   /**
-   * Ruta donde encontrar un archivo .xml que permita indicar que
-   * classificadores son seleccionables.
+   * Path to the .xml file that contains all the existing classifiers and their
+   * properties.
    */
   val listOfClassifiersPath = "/resources/availableClassifiers.xml"
 
   /**
-   * Opciones de configuración del algoritmo seleccionado.
+   * Parameters for the selected algorithm.
    */
   var options = Iterable.empty[utils.Option]
 
-  // Elementos del panel
+  // PANEL COMPONENTS
   /**
-   * Texto para indicar que estamos refiriendonos a la selección del
-   * classifiador.
+   * Label with the text “Classifier”.
    *
    */
-  private val classifierLabel = new Label("Clasificador")
+  private val classifierLabel = new Label(“Classifier”)
   /**
-   * Campo de texto donde se incluirá la ruta al clasificador.
+   * Text box that includes the path to the classifier.
    */
   private val classifierTextField = new TextField("None")
   /**
-   * Botón para permitir la selección de un clasificador.
+   * Button that allows the user to select a new classifier.
    */
-  private val chooseButton = new Button("Elegir...")
+  private val chooseButton = new Button(“Choose…”)
 
   /**
-   * Texto para indicar que estamos refiriendonos a las opciones de la
-   * validación cruzada.
+   * Label with the “Cross-validation” text.
    */
   private val crossValidationLabel = new Label("Cross-validation")
   /**
-   * Campo para habilitar la validación cruzada.
+   * Checkbox that activates the cross-validation.
    */
   private val crossValidationCheckBox = new CheckBox
   /**
-   * Campo para indicar el número de folds que crearemos durante la validación
-   * cruzada
+   * Text box for the number of folds we want to use.
    */
   private val crossValidationTextField = new TextField()
-  crossValidationTextField.tooltip = "Número de iteraciones en la validación cruzada"
+  crossValidationTextField.tooltip = “Cross-validation folds.”
   /**
-   * Texto para indicar que estamos hablando de la semilla.
+   * Label for the seed of the cross-validation.
    */
-  private val cvSeedLabel = new Label("Semilla")
+  private val cvSeedLabel = new Label(“Seed”)
   /**
-   * Campo para indicar la semilla con la que queremos que se generen los
-   * k-folds.
+   * Text box for the seed of the cross-validation.
    */
   private val cvSeedTextField = new TextField()
   cvSeedTextField.tooltip = "Semilla para la validación cruzada"
 
   /**
-   * Separación entre elementos de un panel
+   * Spacing between the panel elements.
    */
   private val hstrctSize = 6
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margin for the children panels.
    */
   private val tdb = 3
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Lateral margin for the children panels.
    */
   private val lb = 10
-  // Subpaneles dentro del panel
+  // Children panels.
   /**
-   * Panel que contiene los elementos para la selección de un classificador.
+   * Panel with components about the classifier.
    */
   private val panel1 = new BoxPanel(Orientation.Horizontal) {
     contents += classifierLabel
@@ -118,8 +112,7 @@ class ClassifierPanel(parent: UI,
   }
 
   /**
-   * Panel que contiene los componentes que permitan configurar la validación
-   * cruzada.
+   * Panel with components about the cross-validation.
    */
   private val panel3 = new BoxPanel(Orientation.Horizontal) {
     contents += crossValidationLabel
@@ -133,17 +126,15 @@ class ClassifierPanel(parent: UI,
   }
 
   /**
-   * Panel que contendrá las opciones de configuración del del classificador
-   * elegido.
+   * Panel that displays the options of the selected classifier.
    */
   private var panel2 = new GridPanel(1, 1)
 
   /**
-   * Panel que incluye tanto las opciones de selección de classificador como
-   * las de validación cruzada.
+   * Panel that wraps the classifier panel and the cross-validation panel.
    *
-   * No incluye los componentes que permiten la configuración de las opciones
-   * del clasificador.
+   * It does not include the buttons that allow us to configure the classifier
+   * options.
    */
   private val biggestPanel = new BoxPanel(orientation) {
     border = new EmptyBorder(tdb, lb, tdb, lb)
@@ -153,12 +144,12 @@ class ClassifierPanel(parent: UI,
     contents += Swing.VStrut(hstrctSize)
   }
 
-  // Añadimos los contenidos.
+  // Add all the components.
   border = new TitledBorder(new LineBorder(Color.BLACK, 1, true),
-    "Clasificador")
+    “Classifier”)
   contents += biggestPanel
 
-  // Añadimos listeners y eventos a los botones.
+  // Add listeners and events.
 
   listenTo(classifierTextField)
   listenTo(chooseButton)
@@ -169,9 +160,9 @@ class ClassifierPanel(parent: UI,
   }
 
   /**
-   * Permite la selección de un clasificador y adaptar el contenido del panel
-   * de acuerdo a las opciones de configuración que contiene dicho classificador.
-   *
+   * Allows the user to select a new classifier and adapts the panel content to\
+   * display all the configurable options.
+   * 
    */
   private def chooseClassifier(): Unit = {
 
@@ -182,7 +173,7 @@ class ClassifierPanel(parent: UI,
       val algorithmName = chooseElementDialog.chosenAlgorithm
       classifierTextField.text = algorithmName
 
-      // Cargar el número de atributos con tips y demás
+      // Load all the attributes and their descriptive texts.
 
       options = chooseElementDialog.algorithmOptions
       panel2 = new GridPanel(options.size, 2) {
@@ -204,7 +195,7 @@ class ClassifierPanel(parent: UI,
         }
 
       }
-      // Dibujar
+      // Draw everything.
       biggestPanel.contents += panel2
       biggestPanel.revalidate()
       biggestPanel.repaint()
@@ -213,10 +204,9 @@ class ClassifierPanel(parent: UI,
   }
 
   /**
-   * Selecciona toda la información de los componentes relacionados con el
-   * classificador.
+   * Selects all the information about the new classifier configuration.
    *
-   * @return Cadena de texto con los elementos relacionados con el clasificador.
+   * @return String with all the classifier options.
    */
   def getClassifierOptions(): String = {
 
@@ -244,10 +234,10 @@ class ClassifierPanel(parent: UI,
   }
 
   /**
-   * Selecciona toda la información de los componentes del panel referida a la
-   * validación cruzada.
+   * Collects all the information that refers to the cross-validation process.
    *
-   * @return Cadena de texto con los elementos de la validación cruzada
+   * @return String with the cross-validation options. Empty string if there
+   * is no cross-validation.
    */
   def getCrossValidationOptions(): String = {
     if (crossValidationCheckBox.selected) {

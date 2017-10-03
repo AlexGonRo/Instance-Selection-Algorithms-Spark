@@ -5,19 +5,15 @@ import scala.swing.Dialog
 import gui.dialog.FilterDialog
 
 /**
- * Panel que contiene todo lo referente a la selección y configuración del
- * filtro.
+ * Panel that allows the user to select which filter to apply to the dataset before
+ * it is classifier.
  *
- * Estará compuesto por una lista donde se muestren las diferentes
- * configuraciones ya seleccionadas y un par de botones que permitan añadir
- * o eliminar nuevas entradas de la lista.
+ * It displays a list with all the filters that have already been selected
+ * and a couple of buttons that allow the user to modify that list.
  *
- * @constructor Genera un panel que permita seleccionar una o varias
- * configuraciones para filtros.
- * @param printBorder Indica si se desea generar un borde alrededor del panel
- *  que defina sus límites.
- * @param Genera un panel compuesto por una lista y dos botones que
- *   permiten gestionarla.
+ * @constructor Creates and draws the panel.
+ * @param printBorder Whether we want to draw a line around the panel.
+ * @param title Title of the panel.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -31,8 +27,8 @@ class FilterPanel(printBorder: Boolean,
     val confDialog = new FilterDialog(this.peer, true)
     val conf = confDialog.command
     if (confAlreadyExists(conf)) {
-      Dialog.showMessage(this, "La configuración introducida ya existía " +
-        "con anterioridad.")
+      // TODO HARDCODED TEXT
+      Dialog.showMessage(this, “The chosen configuration had been already defined.”)
     } else if (conf != "") {
       seqConfigurations += conf
       confList.listData = seqConfigurations

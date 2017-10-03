@@ -19,19 +19,16 @@ import javax.swing.border.EmptyBorder
 import utils.Option
 
 /**
- * Diálogo que permite la selección de un un filtro para el conjunto de datos
- * así como ajustar los parámetros del mismo.
+ * Dialog for selecting a filter and tune all its parameters.
  *
- * En el momento de la invocación, este diálogo únicamente contará con una
- * serie de componentes para seleccionar un filtro. Una vez seleccionado el
- * filtro, este diálogo se actualizará permitiendo configurar todas las
- * opciones que posibilite el algoritmo seleccionado.
+ * When it is first drawn, the dialog will only show a list of all the available
+ * filters. Once an option has been chosen, the dialog will update and will allow
+ * the user to change the by-default values of its parameters.
  *
- * @constructor Genera un nuevo panel con componentes que permiten elegir un
- * filtro.
- * @param  myParent  Panel que ha creado este diálogo.
- * @param  modal  Si el diálogo debe bloquear o no la interacción con el resto
- *   de la interfaz mientras esté abierto.
+ * @constructor Create and draw a new dialog.
+ * 
+ * @param  myParent  Parent panel.
+ * @param  modal  Whether this dialog should bock the rest of the interface.
  *
  *
  * @author Alejandro González Rogel
@@ -40,62 +37,61 @@ import utils.Option
 class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
 
   /**
-   * Comando generado al traducir toda la información del diálogo a una cadena
-   * de texto que la clase de ejecución pueda entender.
+   * Command that translates the selected configuration to a string for the
+   * library.
    */
   var command = ""
 
   /**
-   * Opciones configurables del algoritmo seleccionado.
+   * Parametrised values of the selected algorithm.
    */
   var algorithmOptions: Iterable[Option] = Iterable.empty[utils.Option]
 
   /**
-   * Listado con todos los componentes que permiten la selección y
-   * configuración de las opciones del filtro.
+   * List with all the available filters.
    */
   var dinamicOptions: ArrayBuffer[JComponent] = ArrayBuffer.empty[JComponent]
   /**
-   * Ruta donde se encuentra el fichero .xml con todas los posibles
-   * filtros seleccionables.
+   * Path to the .xml that contains all the information about the filters that can
+   * be selected.
    */
   val listOfFiltersPath = "/resources/availableFilters.xml"
 
-  // Componentes de la ventana
+  // PANEL COMPONENTS
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margin of the children panels.
    */
   private val tdb = 6
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Lateral margin of the children panels.
    */
   private val lb = 10
   /**
-   * Texto indicativo para indicar que estamos hablando sobre la selección
-   * de un filtro.
+   * Label with the name “Filter”
    */
-  private val filterLabel = new JLabel("Filtro")
+  private val filterLabel = new JLabel("Filter”)
   /**
-   * Campo con la ruta del filtro seleccionado.
+   * Path to the selected filter.
    */
   private val filterTextField = new JTextField("None")
   /**
-   * Botón para permitir la selección de un filtro.
+   * Button for adding a new filter.
    */
-  private val chooseButton = new JButton("Elegir...")
+  private val chooseButton = new JButton(“Choose…”)
 
   /**
-   * Botón de aceptar.
+   * Ok button.
    */
   private val okButton = new JButton("Añadir")
   /**
-   * Botón de cancelar.
+   * Cancel button.
    */
   private val cancelButton = new JButton("Cancelar")
 
-  // Paneles del diálogo
+  // PANELS OF THE DIALOG
   /**
-   * Panel con todos los componentes para seleccionar un filtro
+   * Panel with all the components that allow us to select a new
+   * filter.
    */
   private val panel1 = new JPanel()
   panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
@@ -105,16 +101,15 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   panel1.add(chooseButton)
 
   /**
-   * Panel para configurar todas las opciones del filtro seleccionado.
+   * Panel with all the configurable options of a chosen algorithm.
    *
-   * Sus componentes pueden variar dependiendo del filtro seleccionado.
+   * The number of components can vary depending on the algorithm.
    */
   private var panel2 = new JPanel()
   panel2.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
 
   /**
-   * Panel con los botones para aceptar/cancelar una determinada selección del
-   * fitro.
+   * Ok and Cancel buttons to add a new filter configuration.
    */
   private val panel3 = new JPanel()
   panel3.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
@@ -122,15 +117,14 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   panel3.add(cancelButton)
   panel3.add(okButton)
 
-  // Añadimos los elementos a la ventana
+  // Add all the elements to the dialog.
   setTitle("Añadir nuevo filtro")
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(panel1)
   add(panel2)
   add(panel3)
 
-  // Damos la capacidad a los botones de escuchar eventos cuando se hace
-  // click sobre ellos.
+  // Listeners
 
   chooseButton.addActionListener(new ActionListener() {
     def actionPerformed(evt: ActionEvent): Unit = {
@@ -156,9 +150,9 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
   setVisible(true);
 
   /**
-   * Acción realizada cuando presionamos el botón de selección.
+   * Action for when the user presses the Select button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event generated after clicking the Select button.
    */
   private def chooseActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
@@ -172,7 +166,7 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
         val algorithmName = chooseElementDialog.chosenAlgorithm
         filterTextField.setText(algorithmName)
 
-        // Cargar el número de atributos con toda su información
+        // Load all the attributes of the chosen algorithm.
         dinamicOptions = ArrayBuffer.empty[JComponent]
         algorithmOptions = chooseElementDialog.algorithmOptions
 
@@ -194,8 +188,8 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
               dinamicOptions += tmp
             }
           }
-          // Dibujar
-          // pack() no funciona correctamente
+          // Draw
+          // pack()
           // scalastyle:off
           setSize(new Dimension(400, 250))
           // scalastyle:on
@@ -208,16 +202,15 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
     }
 
   /**
-   * Acción realizada cuando presionamos el botón de aceptar.
+   * Action for when the user presses the Ok button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event generated after clicking the Ok button.
    */
   private def okActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
 
       if (!algorithmOptions.isEmpty) {
         var iter = algorithmOptions.iterator
-        // Seleccionamos el dataset
         command += filterTextField.getText + " "
 
         for { i <- 0 until algorithmOptions.size } {
@@ -237,9 +230,9 @@ class FilterDialog(myParent: JPanel, modal: Boolean) extends JDialog {
     }
 
   /**
-   * Acción realizada cuando presionamos el botón de cancelar.
+   * Action for when the user presses the Cancel button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event generated after clicking the Cancel button.
    */
   private def cancelActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {

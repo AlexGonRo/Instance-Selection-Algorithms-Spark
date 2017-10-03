@@ -1,10 +1,8 @@
 package gui
 
 /**
- * Aquellas clases y funciones que puedan ser de utilidad para
- * más de un componente de la interfaz.
+ * Those classes and methods that might be of use for several components of
+ * our interface.
  *
- * A diferencia del paquete [[utils]], este paquete solo contiene clases que
- * afectarán únicamente a la interfaz.
  */
 package object util

@@ -18,37 +18,37 @@ import utils.ArgsSeparator.READER_SEPARATOR
 import gui.util.TextOperations
 
 /**
- * Clase destinada a la creación de un archivo .zip.
  *
- * El archivo zip ha de contener todos aquellos conjuntos de datos que hayan
- * sido seleccionados con posterioridad. Igualmente, ha de contener un fichero
- * .sh generado dinámicamente que permita la ejecución futura de todos los
- * posibles experimentos definidos a lo largo de la aplicación.
+ * Class that is able to create a .zip file with an execution script for running our
+ * data mining jobs. It also contains all the required datasets. 
  *
- * @param parent Ventana principal de la aplicación.
- * @constructor Genera una nueva clase con capacidad de realizar la creación
- *   de un fichero .zip en segundo plano
+ * The .zip creation is executed in the background.
+ *
+ * @param parent Main window of our GUI.
+ * @constructor Creates a new object.
+ *
  */
 class ZipCreator(parent: UI) extends Runnable {
 
   /**
-   * Nombre del fichero .sh generado al realizar un archivo zip.
+   * Name of the .sh file.
    */
+  // TODO This name is in Spanish
   private val nameSHFile = "Bateria_de_Ejecucion.sh"
   /**
-   * Representación del separador de directorios.
+   * File separator of the operative system.
    */
   private val fsep = System.getProperty("file.separator")
 
   /**
-   * Realiza la compresión de todos los archivos necesarios para llevar a cabo
-   * un experimento.
+   * Compresses all the required files into a .zip file.
    */
   def run(): Unit = {
     parent.working = true
-    parent.changeInformationText("Creando archivo ZIP")
+    // TODO Hardcoded text
+    parent.changeInformationText("Create a ZIP file.”)
 
-    // Creamos el script de ejecución con todas las ejecuciones
+    // Create an .sh file with the command for all the defined executions.
     val commands = parent.getAllExecutionCommands
     val shCommands: Array[String] = Array.ofDim(commands.size)
     for { i <- 0 until commands.size } {
@@ -57,22 +57,23 @@ class ZipCreator(parent: UI) extends Runnable {
 
     val commandsFilePath = createSHFile(shCommands)
 
-    // Seleccionamos la ruta a todos los datasets diferentes
+    // Collect the path to all the required datasets.
     val datasetOptions = parent.datasetPanel.seqConfigurations
     val elementsPath = getAllDatasetsPath(datasetOptions)
-    // Añadimos al conjunto de rutas aquella del fichero .sh
+    // Add the path to the .sh file too.
     elementsPath += commandsFilePath
 
     try {
       createZIP(elementsPath)
-      // Eliminamos el fichero .sh después de haberlo comprimido
+      // Once we have the .sh file inside the .zip, delete the old version.
       new File(commandsFilePath).delete()
 
-      parent.changeInformationText("Creando archivo ZIP")
-      Dialog.showMessage(null, "El archivo ZIP ha sido creado")
+      // TODO Hardcoded text.
+      parent.changeInformationText(“Creating ZIP file.”)
+      Dialog.showMessage(null, “The ZIP file has been created“)
     } catch {
-      case ex: Exception => Dialog.showMessage(null, "Ha ocurrido un " +
-        "error durante la creación del fichero")
+      case ex: Exception => Dialog.showMessage(null, “There has been an " +
+        "error during the creation of the ZIP file.")
     } finally {
       parent.changeInformationText("")
       parent.working = false
@@ -80,16 +81,14 @@ class ZipCreator(parent: UI) extends Runnable {
   }
 
   /**
-   * Genera una sentencia que corresponde a la ejecución de una configuración
-   * en una consola de comandos.
+   * Creates an command that is able to launch one data mining task.
    *
-   * La ruta donde podemos encontrar los conjuntos de datos es el propio
-   * directorio, pues se supone que estos comandos serán incluidos más adelante
-   * en un archivo .zip que contendrá todos los conjuntos de datos necesarios.
+   * We asume the path to the datasets to be the directory that
+   * contains the command.
+   * 
+   * @param command String with all the information about the execution.
    *
-   * @param command Texto con la configuración que queremos convertir.
-   *
-   * @return Comando de ejecución en consola.
+   * @return String with the command line.
    */
   private def createSHZipCommand(command: String): String = {
     var commandSplited = TextOperations.splitTextWithSpaces(command)
@@ -100,8 +99,7 @@ class ZipCreator(parent: UI) extends Runnable {
       commandSplited(0) + "bin" + fsep + "spark-submit --master " +
         commandSplited(1) + " "
 
-    // Buscamos el identificador del lector para almacenar su posición
-    // para el futuro
+    // Look for the ID of the reader so we can use it in the future.
     var foundr = false
     var count = 2
     while (!foundr) {
@@ -113,15 +111,14 @@ class ZipCreator(parent: UI) extends Runnable {
       }
     }
 
-    // Continuamos añadiendo atributos de código hasta llegar a la
-    // ruta del conjunto de datos, que tiene una secuencia de invocación
-    // especial
+    // Keep adding parameters to the command until we reach the dataset.
+    // The dataset requires a different treatment.
     commandSH += "--class " + parent.execClass + " " + thisJarPath + " "
     commandSH += parent.execType + " "
     commandSH += READER_SEPARATOR.toString() + " "
     commandSH += commandSplited(count + 1).split(fsep).last + " "
     count += 2
-    // Continuamos añadiendo el resto de atributos
+    // Add the rest of the parameters to the command string.
     for { i <- count until commandSplited.size } {
       commandSH += commandSplited(i) + " "
     }
@@ -131,12 +128,11 @@ class ZipCreator(parent: UI) extends Runnable {
   }
 
   /**
-   * Dada una secuencia de comandos, genera un archivo .sh con el listado de
-   * dichos comandos.
+   * Given a sequence with different commands, create an .sh file with all of them.
    *
-   * @param  shCommands  Listado con todos los comandos sh a añadir al fichero.
+   * @param  shCommands  List with all the commands we need to include in the .sh file.
    *
-   * @return Ruta del fichero generado
+   * @return Path to the .sh file we just created.
    */
   private def createSHFile(shCommands: Array[String]): String = {
     val resultPath = "zip"
@@ -168,10 +164,11 @@ class ZipCreator(parent: UI) extends Runnable {
   }
 
   /**
-   * Genera un archivo .zip con un archivo de ejecución .sh dentro y todos
-   * los conjuntos de datos requeridos para la ejecución de dicho achivo.
+   * Creates a .zip file.
    *
-   * @param elementsPath  Ruta de todos los archivos a añadir al zip
+   * It contains an .sh file and all the datasets required by the .sh file.
+   *
+   * @param elementsPath  Path to all the elements we want to include in the .zip.
    *
    */
   private def createZIP(elementsPath: ArrayBuffer[String]): Unit = {
@@ -205,12 +202,12 @@ class ZipCreator(parent: UI) extends Runnable {
   }
 
   /**
-   * Devuelve un listado de todos los conjuntos de datos que necesitan las
-   * configuraciones propuestas.
+   * Finds the path to all the required datasets.
    *
-   * @param dConfs Conjunto de configuraciones de conjuntos de datos.
+   * @param dConfs Part of the execution commands that contain information
+   * about the datasets.
    *
-   * @return Rutas de los diferentes conjuntos de datos necesarios.
+   * @return Path to all the datasets.
    *
    */
   private def getAllDatasetsPath(dConfs: ArrayBuffer[String]):

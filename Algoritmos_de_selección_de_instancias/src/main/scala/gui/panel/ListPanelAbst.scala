@@ -18,18 +18,16 @@ import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
 
 /**
- * Panel que define una estructura con una lista y un par
- * de botones que permiten añadir o eliminar elementos de dicha lista.
+ * Abstract panel that defines the basic structure of a list on the interface.
+ * 
+ * It also incorporates the two buttons that allow us to modify elements of the list.
  *
- * Los elementos de la lista serán eliminados cuando, al estar seleccionados, se
- * presione sobre el botón destinado a tal fin. En cambio, la opción para
- * añadir nuevos elementos queda por definir en las clases hijas.
+ * It defines the way we can eliminate elements of the list, but it does not define
+ * they way we can add them.
  *
- * @param title Título del panel.
- * @param printBorder Indica si se desea generar un borde alrededor del panel
- *  que defina sus límites.
- * @constructor Genera un panel compuesto por una lista y dos botones que
- *   permiten gestionarla.
+ * @param title Panel title
+ * @param printBorder Whether we want to print a border around this panel.
+ * @constructor Creates a panel with one list item and two buttons.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -37,47 +35,47 @@ import javax.swing.border.TitledBorder
 abstract class ListPanelAbst(printBorder: Boolean = false,
                              title: String = "") extends BorderPanel {
 
-  // Elementos del panel
+  // ELEMENTS OF THIS PANEL
   /**
-   * Configuraciones seleccionadas hasta el momento.
+   * Configurations selected so far.
    */
   var seqConfigurations = new ArrayBuffer[String]
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margin of the children panels.
    */
   private val tdb = 3
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Lateral margin of the children panels.
    */
   private val lb = 10
   /**
-   * Separación entre los componentes de un layout cuadriculado.
+   * Spacing between elements in a grid layout.
    */
   private val vgap = 6
   /**
-   * Separación lateral entre los botones y la lista.
+   * Distance between the list and the buttons.
    */
   private val hgapButList = 7
   /**
-   * Botón para añadir una nueva configuración
+   * Button to add a new element.
    */
-  private val addButton = new Button("Añadir...")
+  private val addButton = new Button(“Add…”)
   /**
-   * Botón para eliminar la configuración seleccioanda.
+   * Botón to eliminate an element.
    */
-  private val rmButton = new Button("Eliminar")
+  private val rmButton = new Button(“Delete”)
   /**
-   * Lista que muestra las configuraciones elegidas hasta el momento.
+   * List with all the configurations selected so far.
    */
   protected val confList = new ListView(seqConfigurations)
   /**
-   * Barra de movimiento.
+   * Lateral bar for the list.
    */
   private val listWithScroll = new ScrollPane(confList)
 
   confList.selection.intervalMode = IntervalMode.Single
 
-  // Añadimos todos los elementos al panel
+  // Add elements to the panel.
   if (printBorder) {
     border = new TitledBorder(new LineBorder(Color.BLACK, 1, true),
       title)
@@ -93,7 +91,7 @@ abstract class ListPanelAbst(printBorder: Boolean = false,
     layout += listWithScroll -> Center
   } -> Center
 
-  // Añadimos eventos y la capacidad de detectarlos.
+  // Add events and listeners.
   listenTo(addButton)
   listenTo(rmButton)
   reactions += {
@@ -106,12 +104,13 @@ abstract class ListPanelAbst(printBorder: Boolean = false,
   }
 
   /**
-   * Abre un nuevo diálogo para permitir crear una nueva configuración.
+   * Opens a new dialog to add an element to the list.
    */
   protected def addButtonAction(): Unit
 
   /**
-   * Elimina la configuración actualmente seleccionada en la lista.
+   * If we want to delete an element of the list, it must be highlighted by the time
+   * we click the button.
    */
   protected def rmButtonAction(): Unit = {
     if (confList.selection.items.iterator.hasNext) {
@@ -122,10 +121,10 @@ abstract class ListPanelAbst(printBorder: Boolean = false,
   }
 
   /**
-   * Comprueba si una configuración ya ha sido definida anteriormente
+   * Check whether the defined configuration is correct.
    *
-   * @param conf Configuración que deseamos comprobar
-   * @return Verdadero si existe, falso si no
+   * @param conf Configuration
+   * @return True if the configuration is correct.
    */
   protected def confAlreadyExists(conf: String): Boolean = {
     if (seqConfigurations.contains(conf)) {

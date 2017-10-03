@@ -22,13 +22,13 @@ import javax.swing.border.LineBorder
 import utils.Option
 
 /**
- * Diálogo que permite la selección de diferentes opciones mostradas en una
- * lista.
+ * Dialog that presents the user a list of options from which the user can choose
+ * one.
  *
- * @constructor Genera una lista con diferentes opciones leidas de un archivo
- *   .xml y permite la selección de una de ellas.
- * @param  myParent Panel desde donde se ha invocado este diálogo.
- * @param  xmlPath  Ruta al fichero .xml de donde leeremos los datos para la lista.
+ * @constructor Generates a list from an .xml document and allows the user to select
+ *    one of them.
+ * @param  myParent Parent panel
+ * @param  xmlPath  Path to the .xml that contain the options.
  *
  * @author Alejandro González Rogel
  * @version 1.0.0
@@ -36,47 +36,47 @@ import utils.Option
 class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog {
 
   /**
-   * Texto que contiene la ruta al algoritmo seleccionado.
+   * Path to the selected option.
    */
   var chosenAlgorithm = ""
 
   /**
-   * Listado de opciones del algoritmo seleccionado.
+   * Options for the selected algorithm.
    */
   var algorithmOptions: MutableList[Option] = MutableList.empty[Option]
-  // Elementos de la ventana
+  // PANEL ELEMENTS
   /**
-   * Botón de aceptar.
+   * Ok button.
    */
   private val okButton = new JButton("Elegir")
   /**
-   * Botón de cancelar.
+   * Cancel button.
    */
   private val cancelButton = new JButton("Cancelar")
 
   /**
-   * Componente lista
+   * Element of the list.
    */
   private val elementsList = new JList[String]
   /**
-   * Array con todos los elementos a aparecer en el listado.
+   * Array with all the elements of a list.
    */
   private var elements: ArrayBuffer[String] = findAvailableElements()
   /**
-   * Modelo del componente lista.
+   * List component model.
    */
   private val listModel = new DefaultListModel[String]
   /**
-   * Tamaño del magen superior e inferior de los subpaneles.
+   * Up and down margin of the children panels.
    */
   private val tdb = 6
   /**
-   * Tamaño de los márgenes laterales de los subpaneles.
+   * Lateral margin of the children panels.
    */
   private val lb = 10
-  // Paneles de la ventana
+  // Dialog panels
   /**
-   * Panel con una lista que muestra las diferentes opciones.
+   * Panel that shows all the options
    */
   private val panel1 = new JPanel()
   panel1.setBorder(new EmptyBorder(tdb, lb, tdb / 2, lb))
@@ -84,7 +84,7 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
   panel1.add(elementsList)
 
   /**
-   * Panel con los botones para aceptar o cancelar.
+   * Panel with “Ok” and “Cancel” buttons.
    */
   private val panel2 = new JPanel()
   panel2.setBorder(new EmptyBorder(tdb / 2, lb, tdb, lb))
@@ -92,18 +92,19 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
   panel2.add(cancelButton)
   panel2.add(okButton)
 
-  // Añadimos alguna configuración a la lista
+  // Add configurations to the list.
   elementsList.setBorder(new LineBorder(Color.GRAY, 1, true))
   elementsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION)
 
-  // Añadimos componentes a la lista
+  // Add elements to the list.
   for { i <- 0 until elements.size } {
     listModel.addElement(elements(i))
   }
   elementsList.setModel(listModel)
 
-  // Añadimos los paneles a nuestro dialogo
-  setTitle("Elegir...")
+  // Add the panel to our dialog box.
+  // HARDCODED TEXT
+  setTitle(“Choose…”)
   setLayout(new BoxLayout(this.getContentPane, BoxLayout.Y_AXIS))
   add(panel1)
   add(panel2)
@@ -132,9 +133,8 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
   setVisible(true);
 
   /**
-   * Acción realizada cuando presionamos el botón de aceptar.
-   *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * Action for when the “OK” button is pressed.
+   * @param  evt  Event that fires when we press the “Ok” button.
    */
   private def okActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
@@ -147,9 +147,9 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
     }
 
   /**
-   * Acción realizada cuando presionamos el botón de cancelar.
+   * Action that takes place when the user clicks the “Cancel” button.
    *
-   * @param  evt  Evento lanzado al presionar sobre el botón.
+   * @param  evt  Event that fires when we press the “Ok” button.
    */
   private def cancelActionPerformed(evt: java.awt.event.ActionEvent): Unit =
     {
@@ -157,8 +157,7 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
     }
 
   /**
-   * Busca en un fichero .xml aquellos elementos contenidos dentro de la etiqueta
-   * "name".
+   * Looks in the .xml file all those elements that are inside the “name” tag.
    *
    * @return Todos los elementos contenidos dentro de la etiqueta "name".
    */
@@ -178,10 +177,9 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
   }
 
   /**
-   * Selecciona una opción de la lista si se ha hecho clic sobre ella dos
-   * veces seguidas.
+   * Selects one option if the uses has double clicked on it.
    *
-   * @param evt Evento de clic
+   * @param evt Click event.
    */
   private def clickPerformed(evt: MouseEvent): Unit = {
     if (evt.getClickCount() == 2) {
@@ -193,9 +191,9 @@ class ChooseElementDialog(myParent: Container, xmlPath: String) extends JDialog 
   }
 
   /**
-   * Busca todas sus opciones del algoritmo seleccionado.
+   * Looks for all the parametrised parameters of an algorithm.
    *
-   * @return Opciones del algoritmo.
+   * @return Parametrised parameters of the algorithm.
    */
   private def getSelectedAlgorithmOptions: MutableList[Option] = {
     val optionsList: MutableList[Option] = MutableList.empty[Option]
